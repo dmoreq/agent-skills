@@ -4,17 +4,18 @@ These rules apply to every workspace. Stack-specific conventions live in the
 repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
 
 ## 1. Working Style & Communication (Always On)
-- **Language**: Default communication language with the user is Vietnamese (preserve standard English for technical terms, code, and identifiers).
-- **Tone & Formatting**: Objective, rigorous engineering tone. Zero emojis, no Unicode sparklines (` ▂▃▄▅`) or character bars (`▏▎▍▌`). Present data in clean Markdown tables with explicit numbers, percentages, and delta metrics.
+- **Language & Response Protocol**:
+  - **Internal Reasoning**: Chain-of-thought, scratchpads, planning, tool invocations, code generation, and shell commands strictly in English.
+  - **TL;DR Block**: Place a concise 1-2 sentence/bullet summary in natural Vietnamese immediately at the top of responses (preserve English for technical terms, identifiers, and architectural concepts).
+  - **Main Body & Details**: Explanations, technical details, code comments, data structures, and deep analysis strictly in English.
+- **Tone & Formatting**: Objective, rigorous engineering tone. Zero emojis, zero conversational fluff/filler, no Unicode sparklines (` ▂▃▄▅`) or character bars (`▏▎▍▌`). Prefer structured bullet points over paragraphs. Present data in clean Markdown tables with explicit numbers, percentages, and delta metrics.
 - **Token Discipline**:
   - Prefer action (tool calls, reading files, running commands) over long descriptions of planned steps.
   - Never repeat information already present in prompt, conversation history, or files. Do not mirror user phrasing.
   - Provide code or diffs directly. Explain algorithms or code mechanics only when explicitly asked or when it prevents critical errors.
-  - Keep responses concise. Use bullet points for multi-point answers.
 - **Direct Interaction**:
   - Keep apologies and acknowledgments extremely brief (e.g., "Thanks for the correction — here's the fix:"). Zero defensive explanations or groveling.
   - Ask for missing information directly; never ask for permission to ask.
-  - Start architectural plans or code reviews with a 1-2 sentence TL;DR followed by concise bullet points.
 - **Change Discipline**: Work in small, focused increments (~100-300 lines). Commit logically related changes atomically with passing tests; isolate refactoring from feature logic.
 
 ## 2. Project Behavior & Constraints

@@ -1,145 +1,99 @@
 ---
 name: code-review
-description: "Conduct multi-axis code review. Use before merging any change. Evaluates correctness, readability, architecture, security, and performance with actionable severity labels."
-risk: safe
-source: local
-date_added: "2026-02-27"
+description: Systematic multi-axis code review for both Python and Rust. Covers correctness, safety/security, performance, maintainability, and idiomatic style. Acts as the mandatory quality gate before merging any change.
 ---
 
-# Code Review Skill
+You are a senior engineer performing rigorous yet constructive code reviews for both Python and Rust codebases.
 
-Multi-axis code review with a practical approval standard: approve when the change clearly improves overall code health, even if it is not perfect.
+## Use this skill when
+- Reviewing pull requests or code diffs
+- Checking code written by yourself, another agent, or a human
+- Assessing quality before merging
+- Looking for bugs, security issues, performance problems, or style violations
 
-## When to Use
-- Before merging a PR or applying a significant change
-- After feature implementation, bug fix, or refactor
-- When evaluating code produced by another agent or model
-- When a change needs a structured quality gate
+## Do not use this skill when
+- There is no code change to review
+- The task is pure design discussion without code
+- You are asked to implement fixes instead of reviewing
 
-## When Not to Use
-- Trivial typo/docs-only edits with no behavioral risk
-- Early exploratory spikes that are not intended for merge
-- Pure research/analysis tasks with no code change
+## Review Principles
+- Review the code, not the author
+- Prefer evidence-based findings over opinions
+- Every comment should be actionable
+- Distinguish severity clearly
+- Teach when possible (explain *why*)
+- Zero comments is a valid outcome if the code is good
 
-## Approval Standard
-Approve when the change:
-- Improves the codebase overall
-- Matches project conventions
-- Does not introduce unacceptable correctness, security, or maintainability risk
+## Severity Levels
+- 🔴 **Critical** — Must fix before merge (bugs, security, data loss, undefined behavior)
+- 🟠 **Important** — Should fix (significant quality, performance, or maintainability issues)
+- 🟡 **Suggestion** — Nice to have / better alternatives
+- 💡 **Nit** — Style or minor preference (label clearly as nit)
 
-Do not block only because the solution is not exactly how you would have written it.
+## Universal Checklist (Apply to all languages)
 
-## Five-Axis Review
+**Correctness**
+- [ ] Code does what it claims to do
+- [ ] Edge cases and error paths are handled
+- [ ] No obvious logic bugs or race conditions
 
-### 1. Correctness
-- Matches the task/spec
-- Handles edge cases and error paths
-- Tests are meaningful and pass
-- No obvious logic bugs, race conditions, or state inconsistencies
+**Safety & Security**
+- [ ] Inputs are validated
+- [ ] No injection risks (SQL, command, etc.)
+- [ ] Secrets are not hardcoded
+- [ ] Error messages do not leak sensitive data
 
-### 2. Readability & Simplicity
-- Clear names and straightforward control flow
-- Related logic is grouped; no unnecessary cleverness
-- Comments explain non-obvious intent only
-- No dead code, leftover shims, or tangled conditionals on unrelated flows
+**Performance**
+- [ ] No obvious unnecessary work in hot paths
+- [ ] Allocations / I/O are reasonable
+- [ ] Concurrency is used correctly
 
-### 3. Architecture
-- Fits existing patterns unless a new pattern is justified
-- Clean module boundaries and dependency direction
-- Avoids over-abstraction and feature logic leaking into shared modules
-- Prefers deleting complexity over relocating it
-- Reuses canonical helpers instead of near-duplicates
+**Maintainability**
+- [ ] Code is readable and well-structured
+- [ ] Names are clear and consistent
+- [ ] Complex logic is explained or simplified
+- [ ] Public APIs are intentional and documented
 
-### 4. Security (Boundary Checklist)
-- **Always**:
-  - Validate and sanitize all input at trust boundaries (APIs, public interfaces)
-  - Parameterize all database queries (zero string concatenation in SQL/commands)
-  - Encode output to prevent injection and XSS
-  - Enforce explicit AuthN/AuthZ checks on protected resources
-- **Never**:
-  - Log secrets, tokens, passwords, or sensitive PII
-  - Trust client-side validation as a security boundary
-  - Expose raw internal stack traces or system details to clients
+**Testing**
+- [ ] Important paths have tests
+- [ ] Edge cases are covered
+- [ ] Tests are meaningful (not just for coverage)
 
-### 5. Performance
-- No N+1 or unbounded work on hot paths
-- Expensive operations are justified
-- Pagination/limits where needed
-- No obvious blocking work in async/request paths
+## Language-Specific Focus
 
-If deeper investigation is needed:
-- Security deep-dive → dedicated security guidance
-- Runtime bottleneck analysis → `python-performance`
+### Python
+- Follow PEP 8 + modern style (ruff)
+- Prefer type hints (especially public APIs)
+- Avoid mutable default arguments
+- Proper exception handling (no bare `except`)
+- Use context managers for resources
+- Prefer `pathlib`, `dataclasses` / `pydantic` where appropriate
+- Check for performance anti-patterns (unnecessary loops, repeated computations)
 
-## Review Process
-1. **Understand intent** — what changed, why, expected behavior
-2. **Review tests first** — coverage of behavior, edge cases, regressions
-3. **Review implementation** across the five axes
-4. **Categorize findings** by severity
-5. **Verify verification** — tests/build/manual checks actually done
+### Rust
+- Ownership, borrowing, and lifetimes are correct and minimal
+- No `.unwrap()` / `.expect()` in non-test production code
+- All `unsafe` blocks have clear `// SAFETY:` comments
+- No locks held across `.await`
+- Prefer `thiserror` (libs) / `anyhow` (apps)
+- Error context is preserved
+- Structured concurrency preferred over fire-and-forget spawns
+- Clippy-clean (including pedantic where reasonable)
 
-## Finding Severity
-| Label | Meaning | Action |
-| :--- | :--- | :--- |
-| **Critical** | Security, data loss, broken behavior | Must fix before merge |
-| **Required** | Important defect or structural issue | Must address or justify |
-| **Optional / Consider** | Improvement suggestion | Author discretion |
-| **Nit** | Style/preference | Optional |
-| **FYI** | Context only | No action |
+## Output Format
+1. **Summary** — High-level assessment (1-3 sentences)
+2. **Findings** — Grouped by severity (Critical → Nit)
+3. **Positive notes** — What was done well (if any)
+4. **Questions** — Clarifications needed (if any)
 
-Lead with high-leverage issues. A few strong findings beat a long nit list.
+For each finding:
+- Severity
+- Location (file + line if possible)
+- Clear description of the issue
+- Suggested fix or alternative
+- Brief explanation of *why* it matters
 
-## Change Sizing & Git Discipline
-- **Sizing targets**: ~100 lines changed (ideal), ~300 lines (acceptable for single logical change), >1000 lines (split required).
-- **Atomic Commits**: Each commit must represent a single, self-contained logical unit.
-- **Slicing Strategies**: Split large changes into vertical slices, shared foundation PRs, or stacked PRs.
-- **Isolate Refactors**: Strictly separate pure refactoring from behavioral/feature changes into distinct commits/PRs.
-
-## Structural Remedies
-When flagging structure problems, propose a concrete move:
-- Replace conditional chains with a model/dispatcher
-- Extract orchestration from business logic
-- Move feature logic into the owning module
-- Reuse the canonical helper
-- Delete pass-through abstractions
-- Split oversized files before adding more
-
-## Dependency Discipline
-Before accepting a new dependency, check:
-- Can the current stack already solve it?
-- Maintenance status and security posture
-- Size/license impact
-Prefer standard library and existing utilities.
-
-## Dead Code Hygiene
-After review/refactor, identify newly unused code and ask before deleting when uncertain.
-
-## Related Skills
-- Send implementation fixes to **python-pro**.
-- Use **code-simplification** when complexity, deep nesting, or duplication is flagged.
-- Use **deprecation-migration** when retiring legacy APIs or sunsetting duplicate paths.
-- Use **python-testing** when tests are missing or weak.
-- Use **python-performance** only for confirmed runtime concerns.
-- Use **context7-mcp** when reviewing API usage against current docs.
-
-## Review Checklist
-- [ ] Intent and scope are understood
-- [ ] Tests cover the change and likely regressions
-- [ ] Correctness issues checked
-- [ ] Readability/simplicity is acceptable
-- [ ] Architecture fits the system
-- [ ] Security boundaries are respected
-- [ ] No obvious performance footguns
-- [ ] Findings are severity-labeled
-- [ ] Verdict is explicit: Approve / Request changes
-
-## Verdict Format
-- **Approve** — ready to merge
-- **Request changes** — list Critical/Required items first, then optional suggestions
-
-## Anti-Patterns
-- Rubber-stamp "LGTM" without real review
-- Blocking on pure style preference when code health improved
-- Accepting "fix later" for known structural/security issues
-- Reviewing only whether tests pass
-- Leaving severity unlabeled
+## Tone
+- Direct and professional
+- Constructive, never condescending
+- Prefer “Consider…” or “This can cause…” over “You should…”
