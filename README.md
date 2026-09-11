@@ -234,46 +234,87 @@ deprecation-migration
 
 ## Installation & Setup
 
-### Option 1: Automatic Setup Script (Recommended)
+Skills are installed **once** into the portable Agent Skills root (`~/.agents/skills`). Cursor, Pi, Grok Build, and Antigravity 2.0 all scan that path. Antigravity IDE/CLI also get native copies because their discovery is split across two Gemini trees.
 
-Run `setup.sh` to install or sync across **Antigravity**, **Cursor**, **Pi**, and **Grok**:
+### Option 1: Automatic Setup Script (Recommended)
 
 ```bash
 chmod +x setup.sh
 ./setup.sh
 ```
 
-### Option 2: Manual Installation
-
-Same destinations as `setup.sh`:
-
-| Host | Rules | Skills |
-| :--- | :--- | :--- |
-| Google Antigravity | `~/.gemini/GEMINI.md` | `~/.gemini/config/skills/` |
-| Cursor | `~/.cursor/rules/GEMINI.md` | `~/.cursor/skills/` |
-| Pi Agent | `~/.pi/agent/APPEND_SYSTEM.md` | `~/.pi/agent/skills/` |
-| Grok CLI | `~/.grok/AGENTS.md` | `~/.grok/skills/` |
+Useful flags:
 
 ```bash
-# Antigravity
+./setup.sh --dry-run                 # print destinations only
+./setup.sh --host grok,cursor        # subset
+./setup.sh --project                 # current repo: .agents/skills + AGENTS.md
+./setup.sh --link                    # symlink skills from this clone (dev)
+./setup.sh --mirror-native           # also copy into ~/.cursor|~/.grok|~/.pi skills dirs
+./setup.sh --force                   # create host dirs even if the app is not detected
+```
+
+Restart each agent session after install. Verify:
+
+| Host | Check |
+| :--- | :--- |
+| Antigravity | Ask which skills are available, or `/skills` |
+| Grok Build | `grok inspect` |
+| Cursor | Settings → Skills |
+| Pi | `/skill:python-pro` |
+
+### What the installer writes (user scope)
+
+| Host | Rules (always-on) | Skills |
+| :--- | :--- | :--- |
+| **Portable** (all) | — | `~/.agents/skills/<name>/` |
+| **Antigravity IDE** | `~/.gemini/GEMINI.md` | `~/.gemini/config/skills/` |
+| **Antigravity CLI** | same GEMINI.md | `~/.gemini/antigravity-cli/skills/` |
+| **Cursor** | `~/.cursor/rules/antigravity-customizations.mdc` (`alwaysApply: true`) | via `~/.agents/skills` |
+| **Pi** | `~/.pi/agent/AGENTS.md` | via `~/.agents/skills` |
+| **Grok Build** | `~/.grok/AGENTS.md` | via `~/.agents/skills` |
+
+Do **not** put a plain `GEMINI.md` in `~/.cursor/rules/` — Cursor only loads `.mdc` with frontmatter. Do **not** use Pi `APPEND_SYSTEM.md` as the primary rules file (it is unlabeled extra prompt text); `AGENTS.md` is the documented global instruction file.
+
+`--mirror-native` is only for older Cursor/Grok/Pi builds that do not scan `~/.agents/skills`. Using it **and** the portable root duplicates catalog entries.
+
+### Option 2: Manual Installation
+
+```bash
+# 1. Portable skills (Cursor, Pi, Grok, Antigravity 2.0)
+mkdir -p ~/.agents/skills
+cp -R skills/* ~/.agents/skills/
+
+# 2. Antigravity IDE + CLI
 cp rules/GEMINI.md ~/.gemini/GEMINI.md
-mkdir -p ~/.gemini/config/skills
+mkdir -p ~/.gemini/config/skills ~/.gemini/antigravity-cli/skills
 cp -R skills/* ~/.gemini/config/skills/
+cp -R skills/* ~/.gemini/antigravity-cli/skills/
 
-# Cursor
-mkdir -p ~/.cursor/rules ~/.cursor/skills
-cp rules/GEMINI.md ~/.cursor/rules/GEMINI.md
-cp -R skills/* ~/.cursor/skills/
+# 3. Cursor global rule (not a plain .md)
+mkdir -p ~/.cursor/rules
+# Write ~/.cursor/rules/antigravity-customizations.mdc with:
+#   ---
+#   description: Global agent working style, safety, and verification rules.
+#   alwaysApply: true
+#   ---
+#   <contents of rules/GEMINI.md>
 
-# Pi
-mkdir -p ~/.pi/agent/skills
-cp rules/GEMINI.md ~/.pi/agent/APPEND_SYSTEM.md
-cp -R skills/* ~/.pi/agent/skills/
+# 4. Pi global instructions
+mkdir -p ~/.pi/agent
+cp rules/GEMINI.md ~/.pi/agent/AGENTS.md
 
-# Grok
-mkdir -p ~/.grok/skills
+# 5. Grok Build global instructions
+mkdir -p ~/.grok
 cp rules/GEMINI.md ~/.grok/AGENTS.md
-cp -R skills/* ~/.grok/skills/
+```
+
+Project-only (shared with the team, no home-dir writes):
+
+```bash
+mkdir -p .agents/skills
+cp -R skills/* .agents/skills/
+cp rules/GEMINI.md AGENTS.md
 ```
 
 ---
