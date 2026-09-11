@@ -1,109 +1,94 @@
 ---
 name: rust-pro
-description: Production-grade Rust (Edition 2024+). Master ownership, type system, performance, and modern idioms. Use for services, crates, systems code, and performance-critical components. Hands off to rust-async-patterns when async is needed, and to code-review before merge.
+description: >-
+  Implement production Rust (Edition 2024, rustc 1.85+): ownership, types, errors, unsafe, clippy.
+  Not for Tokio task/channel design (use rust-async-patterns).
+risk: safe
+source: local
+date_added: "2026-09-11"
 ---
 
-You are a senior Rust engineer specializing in modern, production-ready Rust (Edition 2024 / Rust 1.75+).
+# Production Rust Skill
 
-## Use this skill when
+Senior Rust for services, crates, CLIs, and systems code. Edition 2024 requires **rustc 1.85+**. If MSRV is below 1.85, stay on Edition 2021 and do not claim 2024 features.
+
+## When to Use
 - Building Rust services, libraries, CLI tools, or systems components
-- Solving ownership, lifetime, borrowing, or async design problems
-- Optimizing performance while preserving memory safety
-- Reviewing or refactoring existing Rust code
+- Ownership, lifetime, borrowing, or API design
+- Performance while preserving memory safety
+- Reviewing or refactoring **synchronous** Rust
 
-## Do not use this skill when
-- Writing simple scripts where Python/Go is more appropriate
-- Only needing basic syntax explanations
-- The project cannot use Rust
+## When Not to Use
+- Tokio tasks, channels, `select!`, shutdown, backpressure → **rust-async-patterns**
+- Python-only work
+- Basic syntax-only questions
+- Scripts where Python/Go is the right tool
 
-## Core Principles (Community Best Practices)
-- Prefer compile-time guarantees over runtime checks
+## Related Skills
+- Use **rust-async-patterns** when the work is Tokio/tasks/channels/streams.
+- Use **pyo3-maturin** only when exposing Rust as a Python extension.
+- Before merge: **code-review**.
+
+## Core Principles
+- Compile-time guarantees over runtime checks
 - Explicit error handling — never ignore errors
 - Zero-cost abstractions first, then measure
 - Message passing over shared mutable state
 - Document every `unsafe` block with safety invariants
-- Keep the public API small and intentional
-- Prefer static dispatch; use dynamic only when necessary
+- Small intentional public API
+- Prefer static dispatch; dynamic only when necessary
 - Instrument with `tracing` instead of `println!`
 
 ## Recommended Stack
-- Runtime: Tokio
 - Error: `thiserror` (libraries) + `anyhow` (applications)
 - Serialization: serde
 - Logging: tracing + tracing-subscriber
 - Testing: built-in + proptest + criterion
-- Linting: clippy (pedantic + nursery) + rustfmt
-- HTTP: axum (preferred) / tonic (gRPC)
+- Linting: clippy + rustfmt. Pedantic/nursery only if the repo already enables them
+- HTTP: axum / tonic (gRPC)
+- Async runtime: Tokio — **patterns live in rust-async-patterns**
 
-## Capabilities
+## Language & Type System
+- Ownership, borrowing, lifetimes, NLL
+- GATs, const generics, associated types when they simplify the API
+- Newtype, PhantomData, ZSTs
+- Trait design, object safety, coherence
+- Native async trait methods; `async-trait` only when `dyn` is required
 
-### Language & Type System
-- Advanced ownership, borrowing, lifetimes, and NLL
-- GATs, const generics, associated types
-- Newtype pattern, PhantomData, zero-sized types
-- Trait design, object safety, and coherence
-- Procedural and declarative macros
-
-### Async & Concurrency
-- Tokio runtime patterns (spawn, JoinSet, select!)
-- Channels: mpsc, oneshot, broadcast, watch
-- Structured concurrency and graceful shutdown
-- Backpressure and cancellation safety
-- Avoid blocking the runtime (`spawn_blocking`)
-
-### Error Handling
+## Error Handling
 - `Result` + `?` as default
-- Custom error types with `thiserror`
-- Context with `anyhow`
-- Never use `.unwrap()` / `.expect()` in production paths
+- Custom errors with `thiserror`; context with `anyhow` in apps
+- No `.unwrap()` / `.expect()` in non-test production paths
 
-### Performance
-- Profile before optimizing (cargo flamegraph, criterion)
-- Minimize allocations, prefer references and Cow
-- Cache-friendly data layout
-- SIMD and lock-free when justified
+## Performance
+- Profile before optimizing (`cargo flamegraph`, criterion)
+- Minimize allocations; prefer references and `Cow`
+- SIMD and lock-free only when justified by a profile
 
-### Safety & Unsafe
-- Minimize `unsafe`
-- Always write `// SAFETY:` comments explaining invariants
+## Safety
+- Minimize `unsafe`; every block has `// SAFETY:`
 - Prefer safe abstractions over raw pointers
-- Use Miri for validation when needed
+- Miri when validating unsafe
 
-### Testing & Quality
+## Testing & Quality
 - Unit + integration + doc tests
-- Property-based testing (proptest)
-- Benchmarks (criterion)
-- Clippy + cargo deny + cargo audit
+- proptest on invariants; criterion on hot paths
+- clippy + `cargo deny` / `cargo audit` as the repo already uses them
 
 ## Response Approach
-1. Clarify safety, performance, and runtime constraints
-2. Prefer simple, idiomatic solutions first
-3. Design type-safe APIs with clear error surfaces
-4. Include tests and edge-case handling
-5. Document any trade-offs (especially around unsafe or performance)
-6. Suggest Clippy-compliant and idiomatic alternatives
+1. Clarify safety, performance, MSRV, and runtime constraints
+2. Simple idiomatic solution first
+3. Type-safe APIs with clear error surfaces
+4. Tests and edge cases
+5. Document unsafe or performance trade-offs
 
-## Checklist (Apply on every task)
-
-**Design**
-- [ ] Requirements for safety / performance / latency clearly understood
+## Checklist
+- [ ] MSRV / edition confirmed (2024 ⇒ 1.85+)
 - [ ] Error strategy chosen (`thiserror` vs `anyhow`)
-- [ ] Concurrency model decided (channels vs shared state)
-
-**Implementation**
 - [ ] No `.unwrap()` / `.expect()` in non-test code
-- [ ] Lifetimes and ownership are minimal and correct
-- [ ] No locks held across `.await`
-- [ ] All `unsafe` blocks have `// SAFETY:` comments
+- [ ] Lifetimes/ownership are minimal and correct
+- [ ] All `unsafe` blocks have `// SAFETY:`
 - [ ] Public API is minimal and documented
-
-**Quality**
-- [ ] Clippy (pedantic) clean
-- [ ] Unit + integration tests written
-- [ ] Critical paths have benchmarks if performance matters
-- [ ] Tracing instrumentation added for key flows
-
-**Review**
-- [ ] Cancellation and error paths handled
-- [ ] Resource cleanup is RAII-based
-- [ ] Dependencies and feature flags are justified
+- [ ] Clippy-clean at the repo's clippy level
+- [ ] Tests for the behavior change
+- [ ] Async work handed to `rust-async-patterns`

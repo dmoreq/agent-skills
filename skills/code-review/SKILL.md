@@ -1,99 +1,70 @@
 ---
 name: code-review
-description: Systematic multi-axis code review for both Python and Rust. Covers correctness, safety/security, performance, maintainability, and idiomatic style. Acts as the mandatory quality gate before merging any change.
+description: >-
+  Review a code diff before merge: correctness, safety, performance, tests, public API.
+  Not the first skill for implementing features. After findings, hand off fixes to the language skill.
+risk: safe
+source: local
+date_added: "2026-09-11"
 ---
 
-You are a senior engineer performing rigorous yet constructive code reviews for both Python and Rust codebases.
+# Code Review Skill
 
-## Use this skill when
-- Reviewing pull requests or code diffs
-- Checking code written by yourself, another agent, or a human
-- Assessing quality before merging
-- Looking for bugs, security issues, performance problems, or style violations
+Rigorous, constructive review of a concrete diff. Review the code, not the author. Zero comments is valid when the diff is good.
 
-## Do not use this skill when
-- There is no code change to review
-- The task is pure design discussion without code
-- You are asked to implement fixes instead of reviewing
+## When to Use
+- Pull requests or local diffs
+- Quality gate before merging behavior or public-API changes
+- Looking for bugs, security issues, or missing tests
+
+## When Not to Use
+- No code change to review
+- Pure design discussion without a diff (`doubt-driven-development` / `python-patterns`)
+- Starting a feature from scratch (implement first via `python-pro` / `rust-pro`, then review)
+
+After findings: implement fixes via the language skill. Do not refuse the repair loop.
+
+## Related Skills
+- Use **code-simplification** when the main issue is structural complexity, not a bug.
+- Use **deprecation-migration** when the diff (or review) surfaces a zombie API that should be sunset.
+- Use **python-testing** or crate tests when behavior changed without tests.
+
+Language style encyclopedias live in `python-pro`, `rust-pro`, and `rust-async-patterns`. This skill checks that they were applied.
 
 ## Review Principles
-- Review the code, not the author
-- Prefer evidence-based findings over opinions
-- Every comment should be actionable
-- Distinguish severity clearly
-- Teach when possible (explain *why*)
-- Zero comments is a valid outcome if the code is good
+- Evidence-based, actionable comments
+- Distinguish severity
+- Explain *why*
+- Teach when it is cheap
 
-## Severity Levels
-- 🔴 **Critical** — Must fix before merge (bugs, security, data loss, undefined behavior)
-- 🟠 **Important** — Should fix (significant quality, performance, or maintainability issues)
-- 🟡 **Suggestion** — Nice to have / better alternatives
-- 💡 **Nit** — Style or minor preference (label clearly as nit)
+## Severity (text only — no emoji)
+- **Critical** — must fix before merge (bugs, security, data loss, undefined behavior)
+- **Important** — should fix (quality, performance, maintainability)
+- **Suggestion** — nicer alternative
+- **Nit** — style; label as nit
 
-## Universal Checklist (Apply to all languages)
+## Universal Checklist
+**Correctness:** does what it claims; edge and error paths; no obvious races.
 
-**Correctness**
-- [ ] Code does what it claims to do
-- [ ] Edge cases and error paths are handled
-- [ ] No obvious logic bugs or race conditions
+**Safety & Security:** inputs validated; no injection; no hardcoded secrets; errors do not leak secrets.
 
-**Safety & Security**
-- [ ] Inputs are validated
-- [ ] No injection risks (SQL, command, etc.)
-- [ ] Secrets are not hardcoded
-- [ ] Error messages do not leak sensitive data
+**Performance:** no obvious extra work on hot paths; I/O/allocs reasonable; concurrency used correctly.
 
-**Performance**
-- [ ] No obvious unnecessary work in hot paths
-- [ ] Allocations / I/O are reasonable
-- [ ] Concurrency is used correctly
+**Maintainability:** readable names; complex logic explained or simplified; public APIs intentional.
 
-**Maintainability**
-- [ ] Code is readable and well-structured
-- [ ] Names are clear and consistent
-- [ ] Complex logic is explained or simplified
-- [ ] Public APIs are intentional and documented
+**Testing:** important paths and edges covered; tests assert behavior, not coverage theater.
 
-**Testing**
-- [ ] Important paths have tests
-- [ ] Edge cases are covered
-- [ ] Tests are meaningful (not just for coverage)
-
-## Language-Specific Focus
-
-### Python
-- Follow PEP 8 + modern style (ruff)
-- Prefer type hints (especially public APIs)
-- Avoid mutable default arguments
-- Proper exception handling (no bare `except`)
-- Use context managers for resources
-- Prefer `pathlib`, `dataclasses` / `pydantic` where appropriate
-- Check for performance anti-patterns (unnecessary loops, repeated computations)
-
-### Rust
-- Ownership, borrowing, and lifetimes are correct and minimal
-- No `.unwrap()` / `.expect()` in non-test production code
-- All `unsafe` blocks have clear `// SAFETY:` comments
-- No locks held across `.await`
-- Prefer `thiserror` (libs) / `anyhow` (apps)
-- Error context is preserved
-- Structured concurrency preferred over fire-and-forget spawns
-- Clippy-clean (including pedantic where reasonable)
+## Language Pointers
+- **Python:** `python-pro` + ruff; no mutable defaults; no bare `except:`; context managers; `pathlib`.
+- **Rust:** `rust-pro`; no `.unwrap()` in non-test prod; `// SAFETY:` on unsafe; no locks across `.await` (`rust-async-patterns`).
 
 ## Output Format
-1. **Summary** — High-level assessment (1-3 sentences)
-2. **Findings** — Grouped by severity (Critical → Nit)
-3. **Positive notes** — What was done well (if any)
-4. **Questions** — Clarifications needed (if any)
+1. **Summary** — 1–3 sentences
+2. **Findings** — Critical → Nit
+3. **Positive notes** — if any
+4. **Questions** — if any
 
-For each finding:
-- Severity
-- Location (file + line if possible)
-- Clear description of the issue
-- Suggested fix or alternative
-- Brief explanation of *why* it matters
+Each finding: severity, file:line, description, suggested fix, why it matters.
 
 ## Tone
-- Direct and professional
-- Constructive, never condescending
-- Prefer “Consider…” or “This can cause…” over “You should…”
+Direct, professional, constructive. Prefer “This can cause…” over “You should…”.

@@ -1,6 +1,8 @@
 ---
 name: data-science
-description: "Expert data science guidance for advanced analytics, machine learning, and statistical modeling. Handles complex data analysis, predictive modeling, and business intelligence."
+description: >-
+  Run EDA, inference, A/B tests, forecasting, or model evaluation on a dataset.
+  Not for Plotly layout, Dash apps, stakeholder narrative, or SOTA library surveys.
 risk: safe
 source: local
 date_added: "2026-02-27"
@@ -8,56 +10,46 @@ date_added: "2026-02-27"
 
 # Data Science Skill
 
-Use this skill for data science tasks: exploratory analysis, statistical modeling, machine learning, experimentation, forecasting, and turning data into business insights.
+Analyze a dataset to answer a defined question with appropriate methods and uncertainty.
 
 ## When to Use
-- EDA, statistical analysis, hypothesis testing, A/B testing
-- Building or evaluating predictive / ML models
+- EDA, hypothesis testing, A/B testing
+- Predictive / ML model build or evaluation
 - Time series forecasting, causal inference, segmentation
-- Designing experiments or measuring impact
-- Turning analysis into clear recommendations
+- Experiment design or impact measurement
 
 ## When Not to Use
-- Pure software engineering or backend development
-- Simple data cleaning without analytical intent
-- Tasks outside data science / analytics scope
+- Plotly chart polish (`data-visualization`)
+- Dash UI (`plotly-dash`)
+- Stakeholder QBR copy (`data-storytelling`)
+- External SOTA survey (`tech-research`)
+- Quality KPI loop on labeled cases (`algorithm-optimization`)
+- Pure backend feature work
 
 ## Related Skills
-- Use **algorithm-optimization** when findings should drive iterative KPI improvement on real cases.
-- Use **data-visualization** when analysis results need charts; keep in-chart text short and inspect for overlap before delivery.
-- Use **data-storytelling** when results must be communicated to non-technical stakeholders.
-- Use **context7-mcp** for library/API documentation when needed.
-- Follow **antigravity-reporting** when producing a formal analytical report.
+- Use **data-visualization** when results need charts.
+- Use **data-storytelling** when a non-technical decision narrative is required (after validation).
+- Use **algorithm-optimization** when findings should drive a KPI loop on real cases.
 
-## Core Approach
-1. **Clarify Objectives**: Clarify the business goal, success metrics, constraints, and available data.
-2. **Explore Data**: Explore the data thoroughly (distributions, missingness, outliers, relationships).
-3. **Select Methodology**: Choose methods appropriate to the data and question (statistical vs ML, causal vs predictive).
-4. **Rigorous Validation**: Validate rigorously (cross-validation, statistical tests, residual checks, robustness).
-5. **Communicate Insights**: Communicate findings with clear metrics, visualizations, and actionable recommendations.
-6. **Document**: Document assumptions, limitations, and next steps.
+## Method Card
+1. **Objective**: business question, success metric, constraints, available data.
+2. **Data checks**: missingness, outliers, leakage, unit of analysis, train/serve skew.
+3. **Method class**: inference/experiment vs predictive vs causal vs forecast — pick one primary.
+4. **Validation**: holdout / CV / residual checks / robustness; match the method class.
+5. **Uncertainty**: inference → effect size + interval (not p-values alone). Predictive → holdout metric + error bars or calibration. Do not force CIs onto every ML score.
+6. **Recommendations**: feasible next actions; assumptions and limitations explicit.
 
-## Key Principles
-- Prefer simpler, interpretable methods when they perform adequately.
-- Always report effect sizes, confidence intervals, and practical significance — not just p-values.
-- Check assumptions and test model robustness.
-- Separate exploratory findings from confirmatory results.
-- Keep plots clean and focused: short labels, no overlapping text, 1 primary insight per visual.
-- Focus on actionable insights over technical complexity.
-- Flag data quality issues and potential biases early.
+Prefer simpler interpretable methods when they perform adequately. Separate exploratory findings from confirmatory results. Flag data quality issues before modeling.
 
 ## Output Expectations
-- Start with a short summary of the key finding or recommendation.
-- Show relevant metrics, tables, or plots.
-- State assumptions and limitations clearly.
-- Provide concrete next steps or verification methods when useful.
+- Short summary of the key finding or recommendation
+- Relevant metrics/tables (charts via `data-visualization`)
+- Assumptions, limitations, next verification step
 
 ## Final Checklist
-- [ ] Business objective and success metrics are clearly defined
-- [ ] Data explored thoroughly (missing values, outliers, distributions, correlations)
-- [ ] Methodology is well-suited to the research question and data characteristics
-- [ ] Results rigorously validated (cross-validation, residual checks, robustness tests)
-- [ ] Effect sizes and confidence intervals reported, not just p-values
-- [ ] Assumptions and limitations explicitly stated
-- [ ] Recommendations are feasible and actionable
-- [ ] Concrete next steps and verification methods provided
+- [ ] Objective and success metric defined
+- [ ] Data checks done before modeling
+- [ ] Method class matches the question
+- [ ] Validation matches the method class
+- [ ] Uncertainty reported appropriately
+- [ ] Recommendations are actionable

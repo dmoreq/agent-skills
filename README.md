@@ -12,7 +12,7 @@ antigravity-customizations/
 │   └── GEMINI.md                    # Global agent behavioral directives & standards
 ├── skills/
 │   ├── algorithm-optimization/      # Systematic KPI & algorithm improvement loop
-│   ├── antigravity-reporting/       # Technical reporting, benchmarks & 2-tier visualization
+│   ├── antigravity-reporting/       # Saved technical reports, benchmarks, Mermaid, asset paths
 │   ├── code-review/                 # Multi-axis code review checklist before merging
 │   ├── code-simplification/         # Safe refactoring, reducing nesting & accidental complexity
 │   ├── context7-mcp/                # Live documentation lookup for libraries/frameworks
@@ -24,14 +24,14 @@ antigravity-customizations/
 │   ├── plotly-dash/                 # Interactive Python data apps with Plotly Dash & clean callbacks
 │   ├── pyo3-maturin/                # Rust native extensions with PyO3 & Maturin for CPU hotspots
 │   ├── python-concurrency/          # Concurrency models: asyncio, thread pool, process pool
-│   ├── python-patterns/             # Pragmatic architecture, framework choice & typing principles
+│   ├── python-patterns/             # Architecture-time: framework, layout, ADR
 │   ├── python-performance/          # Profile-driven performance optimization
-│   ├── python-pro/                  # Modern Python 3.12+ engineering & legacy version handling
+│   ├── python-pro/                  # Modern Python 3.12+ implementation (uv, ruff, pyright)
 │   ├── python-testing/              # Testing strategies with pytest, fixtures & TDD
 │   ├── rust-async-patterns/         # Production async Rust patterns with Tokio, channels & cancellation
 │   ├── rust-pro/                    # Modern Rust 2024+ engineering, memory safety & performance
 │   └── tech-research/               # SOTA survey, benchmark comparison & technical trade-offs
-├── setup.sh                         # Unified multi-agent setup script (Antigravity, Cursor, Pi)
+├── setup.sh                         # Unified setup (Antigravity, Cursor, Pi, Grok)
 └── README.md
 ```
 
@@ -42,21 +42,21 @@ antigravity-customizations/
 | Skill Name | Purpose |
 | :--- | :--- |
 | **`algorithm-optimization`** | Systematic workflow to optimize algorithms/processes against target metrics while guarding healthy cases. |
-| **`antigravity-reporting`** | Clean technical reports, benchmarks, and Tier 1 (Mermaid) / Tier 2 (Vector SVG) visualizations. |
+| **`antigravity-reporting`** | Saved formal markdown: benchmarks, ADRs, Mermaid, asset paths. Not Plotly charts or QBR narrative. |
 | **`tech-research`** | SOTA methods, benchmark evaluation, and conditional recommendations before implementation. |
 | **`data-science`** | Statistical modeling, machine learning, A/B testing, exploratory analysis, and causal inference. |
-| **`data-storytelling`** | Turning quantitative analytics into decision-focused stories for stakeholders. |
+| **`data-storytelling`** | Decision narrative from **already-validated** metrics. Does not analyze or invent numbers. |
 | **`data-visualization`** | Plotly-first clean visual creation, SVG export, text density hygiene, and anti-overlap QA. |
 | **`plotly-dash`** | Production-grade Plotly Dash apps with modular layouts, disciplined callbacks, state hygiene & performance. |
 | **`deprecation-migration`** | Safely sunset, replace, and migrate legacy APIs/systems using Strangler, Adapter, and Feature Flags. |
 | **`doubt-driven-development`** | Adversarial review to stress-test high-risk decisions and uncover unstated assumptions. |
-| **`python-pro`** | Idiomatic Python 3.12+ development, strong typing, `uv`, `ruff`, and backward compatibility. |
-| **`python-patterns`** | Architectural decision-making: async vs sync, framework choice, and project structure. |
+| **`python-pro`** | Implement/modernize Python modules: typing, `uv`, `ruff`, pyright. Not architecture, concurrency model, or profiling. |
+| **`python-patterns`** | Architecture-time: framework, project layout, ADR. Executor choice lives in `python-concurrency`. |
 | **`python-concurrency`** | Concurrency models: `asyncio` for I/O, `ThreadPool` for blocking I/O, `ProcessPool` for CPU. |
 | **`python-performance`** | Measure-first, profile-driven optimization with `cProfile`, `py-spy`, and memory profilers. |
 | **`python-testing`** | Pytest strategies, focused fixtures, mocking, and robust test suites. |
 | **`pyo3-maturin`** | High-performance Rust native extensions with PyO3 and Maturin for CPU-bound hotspots. |
-| **`rust-pro`** | Production-grade Rust (Edition 2024+): ownership, type system, performance, systems code, and idioms. |
+| **`rust-pro`** | Production-grade Rust (Edition 2024 / rustc 1.85+): ownership, types, errors, unsafe. Tokio lives in `rust-async-patterns`. |
 | **`rust-async-patterns`** | Production async Rust patterns with Tokio: structured concurrency, channels, cancellation, and backpressure. |
 | **`code-review`** | Systematic multi-axis review for Python & Rust (correctness, safety, performance, style). Mandatory quality gate. |
 | **`code-simplification`** | Safe refactoring to improve readability and reduce nesting without changing behavior. |
@@ -70,6 +70,35 @@ antigravity-customizations/
 - Hầu hết quan hệ là **optional handoff** (chỉ kích hoạt khi thật sự có điều kiện).
 - Chỉ duy trì **3 quan hệ cứng (Hard Invariants)** cốt lõi.
 - **Không bao giờ chain dài theo mặc định** để tối ưu hóa context và token.
+- **One home per fact**: mỗi quy tắc/list chỉ sống trong một skill hoặc `GEMINI.md`; skill khác chỉ pointer.
+- **Không nhét merge-gate vào YAML `description`**. Invariant merge nằm ở README + `code-review`. Related Skills dùng `Use X when <condition>`.
+
+### 0. Ownership (single source of truth)
+
+| Fact | Home | Not here |
+| :--- | :--- | :--- |
+| Tone, no emoji, scope, git/secrets, temp files | `rules/GEMINI.md` | Skills |
+| Skip formal reports; tables first; date-prefixed files | `GEMINI.md` §5 stub | Full viz encyclopedias |
+| Saved markdown, Mermaid allowlist, asset paths | `antigravity-reporting` | Plotly, QBR narrative |
+| Plotly chart type, anti-overlap, SVG/Kaleido | `data-visualization` | Reporting, Dash figure restatement |
+| Stakeholder Hook → Ask | `data-storytelling` | Analysis |
+| EDA / inference / A/B / forecasting | `data-science` | Charts, Dash, SOTA survey |
+| External SOTA / papers / benchmarks | `tech-research` | Implementation |
+| Quality KPIs on real cases | `algorithm-optimization` | Runtime profiling |
+| Framework, layout, ADR | `python-patterns` | Executor choice |
+| Implement Python (typing, uv, ruff) | `python-pro` | Review, profiling, architecture |
+| asyncio vs threads vs processes | `python-concurrency` | Framework choice |
+| Runtime / memory / I/O profiling | `python-performance` | Accuracy/F1 loops |
+| pytest, mocks, regression tests | `python-testing` | Feature implementation |
+| PyO3 / Maturin / GIL | `pyo3-maturin` | Unprofiled rewrites |
+| Dash callbacks, Store, pages | `plotly-dash` | Static Plotly charts |
+| Rust types, errors, unsafe | `rust-pro` | Tokio task design |
+| Tokio structured concurrency | `rust-async-patterns` | Sync Rust |
+| Merge quality gate | `code-review` | Other skill YAML |
+| Behavior-preserving cleanup | `code-simplification` | Redesign |
+| Sunset / strangler | `deprecation-migration` | Local dead-code only |
+| Adversarial lock-in of a decision | `doubt-driven-development` | Every research note |
+| Live library docs | `context7-mcp` | SOTA comparison |
 
 ### 1. Bảng quan hệ chuẩn
 
@@ -84,7 +113,7 @@ antigravity-customizations/
 | **Dashboard** | **`plotly-dash`** | Plotly figures từ `data-visualization`; pipeline/metrics từ `data-science`; docs từ `context7-mcp` | `python-testing` (test callback/integration); `code-review` (merge gate); `python-performance` (nếu bottleneck) | Optional |
 | **Narrative** | **`data-storytelling`** | Insight đã validate từ `data-science` | Dùng chart từ `data-visualization`; nhúng vào `antigravity-reporting` | **Required input from `data-science`** |
 | **Reporting** | **`antigravity-reporting`** | Kết quả formal từ `tech-research`, `data-science`, `algorithm-optimization` | Báo cáo kỹ thuật hoàn chỉnh kèm visual Tier-1/Tier-2 | Optional presentation layer |
-| **Architecture** | **`python-patterns`** | Nhu cầu chọn framework, structure, async vs sync | `python-pro` (để implement); `python-concurrency` (chọn concurrency model); ADR ngắn (khi chốt kiến trúc) | Optional |
+| **Architecture** | **`python-patterns`** | Nhu cầu chọn framework, layout, ADR | `python-pro` (implement); `python-concurrency` (khi cần chọn asyncio/threads/processes) | Optional |
 | **Implementation** | **`python-pro`** | Design từ `python-patterns` hoặc requirement tính năng | `python-testing` (bảo vệ behavior); `context7-mcp` (tra cứu docs); `code-review` (trước khi merge) | **Required on merge path** |
 | **Concurrency** | **`python-concurrency`** | Lựa chọn concurrency từ `python-patterns` hoặc bottleneck I/O vs CPU | `python-performance` (đo lường thực tế); `python-testing` (async/parallel safety) | Optional |
 | **Performance** | **`python-performance`** | Bottleneck runtime/memory/I/O từ implementation hoặc concurrency | `pyo3-maturin` (nếu là CPU-bound hotspot cần native Rust); `python-concurrency` (nếu đúng loại bottleneck); `tech-research` (cần approach mới); `algorithm-optimization` (nếu là quality/process KPI) | Optional |
@@ -92,7 +121,7 @@ antigravity-customizations/
 | **Rust Dev** | **`rust-pro`** | Nhu cầu phát triển Rust service/crate hoặc tối ưu hóa hiệu năng | `rust-async-patterns` (khi cần async); `pyo3-maturin` (nếu làm Python extension); `code-review` (trước khi merge) | Optional |
 | **Rust Concurrency** | **`rust-async-patterns`** | Tokio, channels, streams, task coordination trong Rust | `rust-pro` (để implement); `code-review` (trước khi merge) | Optional |
 | **Optimization** | **`algorithm-optimization`** | KPI/process kém trên data thật; candidate từ `tech-research`; chẩn đoán từ `data-science` | `data-visualization` (before/after chart); `antigravity-reporting` (báo cáo); `python-performance` (nếu lộ runtime bottleneck) | Optional |
-| **Testing** | **`python-testing`** | Behavior change từ `python-pro`; parity từ `pyo3-maturin`; risk từ `doubt-driven`; migration từ `deprecation-migration`; cleanup từ `code-simplification` | Safety net bắt buộc trước `code-review` | **Required for behavior changes** |
+| **Testing** | **`python-testing`** | Python behavior change từ `python-pro`; parity từ `pyo3-maturin`; risk từ `doubt-driven`; migration / cleanup | Safety net trước `code-review` cho Python | **Required for Python behavior changes** |
 | **Cleanup** | **`code-simplification`** | Complexity, deep nesting, duplication từ `code-review` hoặc sau feature complete | Dựa trên `python-testing` giữ nguyên behavior; đưa lại `code-review` | Optional |
 | **QA Gate** | **`code-review`** | PR/diff từ `python-pro`, `pyo3-maturin`, `code-simplification`, `deprecation-migration`, hoặc agent khác | `python-pro` (sửa code); `code-simplification` (giảm complexity); `deprecation-migration` (sunset legacy); merge khi đạt chuẩn | **Required on merge path** |
 
@@ -101,8 +130,8 @@ antigravity-customizations/
 ### 2. Ba quan hệ cứng duy nhất (Hard Invariants)
 
 1. **`data-storytelling`** bắt buộc phải dựa trên insight đã được validate từ **`data-science`** (không tự bịa số liệu).
-2. **Mọi merge path vào main** bắt buộc phải qua cổng kiểm duyệt **`code-review`**.
-3. **Mọi thay đổi hành vi logic (Behavior change)** bắt buộc phải có kiểm thử từ **`python-testing`**.
+2. **Merge behavior hoặc public-API diffs vào main** bắt buộc qua **`code-review`**.
+3. **Mọi thay đổi hành vi** bắt buộc có test: Python → **`python-testing`**; Rust → crate tests; Dash → unit + `dash_duo` khi đụng UI.
 
 *Tất cả các quan hệ còn lại đều mang tính chất có điều kiện (conditional/optional).*
 
@@ -138,7 +167,7 @@ algorithm-optimization
 
 python-patterns
     ├─ implement ─► python-pro
-    └─ concurrency choice ─► python-concurrency
+    └─ executor choice ─► python-concurrency
 
 python-pro
     ├─ docs ─► context7-mcp
@@ -147,6 +176,10 @@ python-pro
 
 python-concurrency ◄──► python-performance
                             └─ CPU hotspot ─► pyo3-maturin ─► python-testing ─► code-review
+
+rust-pro
+    ├─ Tokio / tasks ─► rust-async-patterns
+    └─ Python extension ─► pyo3-maturin
 
 code-review
     ├─ fix code ─► python-pro
@@ -171,9 +204,9 @@ deprecation-migration
 | Xây dựng interactive dashboard / data app với Plotly Dash | **`plotly-dash`** |
 | Kể chuyện dữ liệu / trình bày insight cho stakeholder | **`data-storytelling`** |
 | Soạn thảo báo cáo kỹ thuật formal (Mermaid / SVG) | **`antigravity-reporting`** |
-| Chọn framework, cấu trúc module, thiết kế async/sync | **`python-patterns`** |
+| Chọn framework, cấu trúc module, ADR | **`python-patterns`** |
 | Lập trình tính năng bằng Python 3.12+ | **`python-pro`** |
-| Thiết kế mô hình Async / Multi-thread / Multi-process | **`python-concurrency`** |
+| Chọn asyncio / threads / processes | **`python-concurrency`** |
 | Điểm nghẽn độ trễ, ngốn CPU hoặc RAM | **`python-performance`** |
 | Làm Rust service / crate / performance-critical code | **`rust-pro`** (+ `rust-async-patterns` nếu cần async) |
 | Viết Rust native extension cho Python (CPU hotspot) | **`pyo3-maturin`** $\rightarrow$ **`python-testing`** $\rightarrow$ **`code-review`** |
@@ -195,6 +228,7 @@ deprecation-migration
 - ❌ **`data-storytelling` tự tạo số liệu/insight**: Luôn phải nhận insight đã được chứng thực từ `data-science`.
 - ❌ **Merge PR khi chưa qua `code-review`**: Bỏ qua cổng kiểm soát an toàn 5 trục.
 - ❌ **Chain bắt buộc Research $\rightarrow$ Optimize $\rightarrow$ Report cho mọi request**: Chỉ kích hoạt skill phù hợp trực tiếp với intent của người dùng.
+- ❌ **Nhét “always code-review” vào YAML `description` của skill khác**: Merge-gate chỉ thuộc README + `code-review`.
 
 ---
 
@@ -211,13 +245,77 @@ chmod +x setup.sh
 
 ### Option 2: Manual Installation
 
-1. **Global Rules**:
-   ```bash
-   cp rules/GEMINI.md ~/.gemini/GEMINI.md
-   ```
+Same destinations as `setup.sh`:
 
-2. **Global Skills**:
-   ```bash
-   mkdir -p ~/.gemini/config/skills
-   cp -R skills/* ~/.gemini/config/skills/
-   ```
+| Host | Rules | Skills |
+| :--- | :--- | :--- |
+| Google Antigravity | `~/.gemini/GEMINI.md` | `~/.gemini/config/skills/` |
+| Cursor | `~/.cursor/rules/GEMINI.md` | `~/.cursor/skills/` |
+| Pi Agent | `~/.pi/agent/APPEND_SYSTEM.md` | `~/.pi/agent/skills/` |
+| Grok CLI | `~/.grok/AGENTS.md` | `~/.grok/skills/` |
+
+```bash
+# Antigravity
+cp rules/GEMINI.md ~/.gemini/GEMINI.md
+mkdir -p ~/.gemini/config/skills
+cp -R skills/* ~/.gemini/config/skills/
+
+# Cursor
+mkdir -p ~/.cursor/rules ~/.cursor/skills
+cp rules/GEMINI.md ~/.cursor/rules/GEMINI.md
+cp -R skills/* ~/.cursor/skills/
+
+# Pi
+mkdir -p ~/.pi/agent/skills
+cp rules/GEMINI.md ~/.pi/agent/APPEND_SYSTEM.md
+cp -R skills/* ~/.pi/agent/skills/
+
+# Grok
+mkdir -p ~/.grok/skills
+cp rules/GEMINI.md ~/.grok/AGENTS.md
+cp -R skills/* ~/.grok/skills/
+```
+
+---
+
+## Offline Packaging (No GitHub / Air-gapped)
+
+To package skills and customizations for transfer to another computer without GitHub access:
+
+### 1. Build Archives
+
+Run the packaging script on your source machine:
+
+```bash
+chmod +x package.sh
+./package.sh
+```
+
+This creates two tarballs in `dist/`:
+- **`dist/skills.tar.gz`**: Standalone skills package (only skill folders).
+- **`dist/antigravity-customizations.tar.gz`**: Full offline suite including `skills/`, `rules/`, and `setup.sh`.
+
+### 2. Deploy on Target Computer
+
+#### Option A: Full Suite Setup (Recommended)
+Transfer `antigravity-customizations.tar.gz` (via USB, SCP, AirDrop, etc.) to the target machine:
+```bash
+tar -xzf antigravity-customizations.tar.gz
+cd antigravity-customizations
+./setup.sh
+```
+
+#### Option B: Skills Only (Google Antigravity Global)
+Transfer `skills.tar.gz` to the target machine:
+```bash
+mkdir -p ~/.gemini/config/skills
+tar -xzf skills.tar.gz -C ~/.gemini/config/skills
+```
+
+#### Option C: Skills Only (Per-Project / Workspace)
+Extract directly into a repository root:
+```bash
+mkdir -p .agents/skills
+tar -xzf skills.tar.gz -C .agents/skills
+```
+

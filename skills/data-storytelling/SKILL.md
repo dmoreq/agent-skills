@@ -1,6 +1,8 @@
 ---
 name: data-storytelling
-description: "Transform raw data into compelling, decision-ready narratives that drive action and business impact."
+description: >-
+  Turn already-validated metrics into a stakeholder decision narrative (Hook → Ask).
+  Not for analysis, Plotly construction, or saved engineering markdown.
 risk: safe
 source: local
 date_added: "2026-02-27"
@@ -8,61 +10,48 @@ date_added: "2026-02-27"
 
 # Data Storytelling Skill
 
-Transform analysis into clear, decision-ready narratives for stakeholders.
+Transform validated analysis into a decision-ready narrative for stakeholders.
 
 ## When to Use
 - Presenting insights to executives or non-technical audiences
-- Writing data-driven reports, QBRs, or business recommendations
-- Turning statistical / ML findings into actionable stories
-- Communicating the "so what" of an analysis
+- QBRs or business recommendations that need a "so what"
+- Turning statistical / ML findings into an actionable ask
 
 ## When Not to Use
+- Numbers are not yet validated (`data-science` first)
 - Pure exploratory analysis still in progress
-- Technical deep-dives for other data scientists
-- Simple metric reporting without narrative need
+- Technical deep-dives for other data scientists (`antigravity-reporting` if a file is requested)
+- Simple metric dump with no decision
 
 ## Related Skills
-- Base narratives on validated findings from **data-science**.
-- Use **data-visualization** for supporting charts; keep visuals lean and put long explanation in the narrative, not inside the figure.
-- Follow **antigravity-reporting** only when the story is part of a formal technical report.
+- **Required:** base the story on validated findings from **data-science**. Do not invent numbers.
+- Use **data-visualization** for supporting charts (layout/overlap live there).
+- Use **antigravity-reporting** only when the user asked to save a formal technical file.
 
 ## Core Structure
-Use this flow for most stories:
-
 1. **Hook** — Surprising or high-impact finding (with specific numbers).
 2. **Context** — Baseline and why it matters.
-3. **Insight** — What the data reveals (supported by quantitative evidence).
+3. **Insight** — What the data reveals (quantitative evidence).
 4. **Implication** — Business meaning and stakes.
-5. **Recommendation** — Clear next actions + expected impact / ROI.
-6. **Ask / Next Step** — Specific decision or action needed from stakeholders.
+5. **Recommendation** — Next actions + expected impact / ROI.
+6. **Ask / Next Step** — Specific decision needed from stakeholders.
 
 ## Key Principles
 - Lead with the insight, not the methodology.
-- Every number must serve the narrative (avoid data dumps).
-- Prefer simple comparisons and clear deltas over complex charts.
+- Every number must serve the narrative (no data dumps).
+- Prefer simple comparisons and deltas over complex charts.
 - State confidence and limitations briefly when relevant.
-- Match language to the audience (eliminate unnecessary jargon).
-- End with a concrete recommendation or decision request.
-
-## Visualization Guidance
-- Default to clean Markdown tables with absolute numbers + deltas.
-- Use charts only when they reveal patterns not obvious in a compact table.
-- **One visual = one idea**: Keep charts simple, focused, and progressive.
-- **Low text density in visuals**: Short labels, $\le 1$ line titles; keep lengthy narrative and context in the surrounding markdown prose.
-- Annotate only 1–3 critical inflection points (events, thresholds, milestones).
+- Match language to the audience; end with a concrete ask.
 
 ## Output Expectations
-- Start with a strong headline or TL;DR containing the key insight.
-- Support all claims with specific metrics.
-- Keep the narrative tight — cut anything that does not advance the decision.
-- Clearly separate findings from recommendations.
+- Start with a headline or TL;DR containing the key insight and proof.
+- Charts: one pointer to `data-visualization`; tables by default.
+- Separate findings from recommendations.
 
 ## Final Checklist
-- [ ] Includes a Hook / TL;DR featuring the core insight and quantitative proof
-- [ ] Narrative flows logically: Context → Insight → Implication → Recommendation
-- [ ] Every metric serves the narrative (no raw data dumps)
-- [ ] Recommendation is actionable and includes expected impact/ROI
-- [ ] Specific Call to Action (CTA) or concrete next step defined
-- [ ] Language tailored to audience (zero unnecessary jargon)
-- [ ] Visuals directly support insights without redundancy
-- [ ] Limitations, caveats, or confidence levels stated where appropriate
+- [ ] Insights come from validated `data-science` output
+- [ ] Hook / TL;DR has the core number
+- [ ] Flow: Context → Insight → Implication → Recommendation → Ask
+- [ ] Every metric serves the narrative
+- [ ] Recommendation includes expected impact
+- [ ] Limitations stated where they change the decision

@@ -1,6 +1,8 @@
 ---
 name: doubt-driven-development
-description: "Subject non-trivial decisions to adversarial review before they harden. Stress-tests assumptions, edge cases, and high blast-radius changes."
+description: >-
+  Adversarial review of a non-trivial decision before it hardens (assumptions, edges, blast radius).
+  Not for mechanical edits, exploratory research notes, or merge review.
 risk: safe
 source: local
 date_added: "2026-08-23"
@@ -54,15 +56,6 @@ Challenge:
 
 Do not use this skill to adversarially review every research report by default.
 
-## Process Checklist
-Copy and track this during the doubt cycle:
-
-- [ ] Step 1: CLAIM — decision and why-it-matters written
-- [ ] Step 2: EXTRACT — artifact + contract isolated, reasoning stripped
-- [ ] Step 3: DOUBT — adversarial review completed
-- [ ] Step 4: RECONCILE — findings classified
-- [ ] Step 5: STOP — stop condition reached
-
 ## Process
 
 ### 1. CLAIM
@@ -111,12 +104,9 @@ Stop when:
 - For research, challenge the decision — not every intermediate survey.
 
 ## Related Skills
-- Use **tech-research** when producing options and evidence; hand off here only when a decision is being locked.
-- Use **code-review** as the final merge gate after implementation.
-- Use **python-testing** to convert important doubts into permanent regression tests.
-- Use **code-simplification** only after the decision is sound.
-- Use **deprecation-migration** when the decision concerns sunset/cutover risk.
-- Use **antigravity-reporting** for presentation layer only; not a substitute for adversarial review.
+- Use **tech-research** when alternatives/evidence are missing; hand off here only when a decision is being locked.
+- Use **python-testing** (or crate tests) to turn important doubts into regression tests.
+- Use **deprecation-migration** when the decision is a sunset/cutover.
 
 ## Final Checklist
 - [ ] Decision is actually non-trivial

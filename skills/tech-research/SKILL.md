@@ -1,6 +1,8 @@
 ---
 name: tech-research
-description: "Research current best practices, SOTA methods, algorithms, and engineering approaches to support informed implementation decisions."
+description: >-
+  Survey and compare external approaches (papers, benchmarks, production write-ups) when the repo does not already decide.
+  Not for implementing, plotting, or EDA.
 risk: safe
 source: local
 date_added: "2026-08-23"
@@ -21,6 +23,7 @@ Research current best practices, SOTA methods, algorithms, and engineering appro
 - The answer is already clear from the existing codebase or internal docs
 - Only a basic concept explanation is needed
 - Pure coding or debugging with no need for external research
+- EDA / modeling (`data-science`); Plotly (`data-visualization`)
 
 ## Research Process
 
@@ -59,8 +62,9 @@ Keep only the 3–5 most relevant options.
 
 ## Output Guidance & ADR Format
 - For short answers, respond directly and concisely.
-- When producing a structured comparison or formal write-up, follow **Antigravity Reporting** standards.
-- **Architecture Decision Record (ADR) (Optional)**: When research concludes with a significant architectural decision, structure the outcome as:
+- Answer in-chat with the output structure below unless the user asked to save a file.
+- Load **antigravity-reporting** only for a saved markdown/ADR.
+- **ADR** only when a durable architecture choice is locked:
   - **Context**: Problem background, requirements, and key constraints.
   - **Decision**: Chosen solution, framework, or algorithm.
   - **Alternatives Considered**: Evaluated candidates and why they were rejected.
@@ -81,11 +85,9 @@ Keep only the 3–5 most relevant options.
 - Keep the output concise and decision-focused
 
 ## Related Skills
-- Use **algorithm-optimization** when candidate approaches need validation on real data and KPIs.
-- Use **doubt-driven-development** when research output is about to harden into a concrete implementation decision.
-- Use **deprecation-migration** when research leads to replacing legacy systems or APIs.
-- Use **context7-mcp** when accurate, up-to-date library/API docs are required.
-- Follow **antigravity-reporting** when producing a structured comparison or formal research write-up.
+- Use **doubt-driven-development** when a recommendation is about to lock in.
+- Use **algorithm-optimization** when candidates need validation on real KPIs.
+- Use **context7-mcp** for version-sensitive library docs.
 
 ## Final Checklist
 - [ ] Scope and constraints are clearly understood

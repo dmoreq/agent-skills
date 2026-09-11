@@ -1,6 +1,8 @@
 ---
 name: algorithm-optimization
-description: "Systematic workflow to improve algorithms or process flows using real input data and target metrics, without harming already-good performance."
+description: >-
+  Improve quality KPIs (accuracy, F1, error rate) on real cases while protecting healthy ones.
+  Not for Python runtime/memory profiling.
 risk: safe
 source: local
 date_added: "2026-08-23"
@@ -12,14 +14,15 @@ Systematic workflow to improve algorithms or process flows using real input data
 
 ## When to Use
 - Optimizing an algorithm or multi-step process against clear metrics
-- Improving confidence, accuracy, precision, recall, latency, or similar KPIs
+- Improving confidence, accuracy, precision, recall, or similar **quality** KPIs on labeled/real cases
 - Diagnosing why some cases perform poorly
 - Iteratively fixing weak cases while protecting strong ones
 
 ## When Not to Use
 - No input dataset or no measurable metric
 - Pure conceptual discussion without evaluation data
-- One-off code cleanup unrelated to performance/quality metrics
+- Runtime latency/CPU/memory tuning (`python-performance`)
+- One-off code cleanup unrelated to quality metrics
 
 ## Required Inputs
 - Input dataset (or representative samples)
@@ -71,12 +74,8 @@ For each low-performance group, classify:
   - Regression on good cases → revise or roll back the change
 
 ### Step 8: Report
-Produce a structured report covering:
-- Baseline setup and metrics
-- Low-performance analysis and cause classification
-- Improvements attempted and rationale
-- Before/after results
-- Residual risks and next steps
+Default: in-chat baseline vs after table (weak cases + healthy-case regression).
+Load **antigravity-reporting** only if the user asked for a saved markdown file. Cover: baseline, cause classification, changes, before/after, residual risk.
 
 ## Guardrails
 - **Isolate Root-Cause First**: Always complete diagnostic root-cause isolation before coding fixes.
@@ -86,11 +85,9 @@ Produce a structured report covering:
 - **Stopping Rule**: Stop when metric targets are met or gains are no longer worth the added complexity.
 
 ## Related Skills
-- Use **tech-research** when better algorithms, methods, or SOTA options are needed.
-- Use **data-science** for deeper statistical analysis, segmentation, or metric diagnosis.
-- Use **data-visualization** to plot before/after metric comparisons and KPI distributions.
-- Use **python-performance** when the bottleneck is runtime, memory, or I/O efficiency.
-- Follow **antigravity-reporting** for the final before/after optimization report.
+- Use **data-science** for statistical diagnosis of failure groups.
+- Use **python-performance** when the bottleneck is runtime/memory/I/O, not quality KPIs.
+- Use **data-visualization** for before/after KPI charts. Saved markdown only if requested (`antigravity-reporting`).
 
 ## Final Checklist
 - [ ] Baseline run completed and metrics collected

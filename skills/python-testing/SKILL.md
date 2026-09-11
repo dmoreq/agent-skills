@@ -1,6 +1,8 @@
 ---
 name: python-testing
-description: "Implement comprehensive testing strategies with pytest, fixtures, mocking, and test-driven development. Use when writing Python tests, setting up test suites, or implementing testing best practices."
+description: >-
+  Write or fix pytest suites: fixtures, boundary mocks, async tests, flaky tests, regression guards.
+  Not for implementing features or load/performance benchmarks.
 risk: safe
 source: local
 date_added: "2026-02-27"
@@ -8,97 +10,73 @@ date_added: "2026-02-27"
 
 # Python Testing Skill
 
-Practical guidance for designing and writing effective Python tests with pytest.
+Design and write effective Python tests with pytest.
+
+Load `resources/implementation-playbook.md` **only** for a concrete pytest recipe (fixtures, parametrize, mock, async). Do not load it for process or policy. Do not invent coverage percentage gates.
 
 ## When to Use
-- Writing unit, integration, or API tests in Python
-- Setting up pytest suites, fixtures, and test layout
-- Applying TDD in a pragmatic way
-- Mocking external dependencies
-- Testing async code
-- Improving flaky, slow, or hard-to-maintain tests
+- Unit, integration, or API tests in Python
+- pytest layout, fixtures, TDD
+- Mocking external boundaries
+- Async tests, flaky/slow tests
 
 ## When Not to Use
-- Non-Python testing
-- Pure production-feature implementation with no test intent
-- Load/performance benchmarking as the primary goal
+- Non-Python testing (use crate tests / `dash_duo` as appropriate)
+- Feature implementation with no test intent (`python-pro`)
+- Load/performance benches (`python-performance`)
+
+## Related Skills
+- Required for **Python** behavior changes before **code-review**.
+- Do not co-load other skills unless those tasks are also in scope.
 
 ## Core Principles
 1. Test behavior and contracts, not implementation details.
-2. Prefer fast, deterministic unit tests for core logic.
-3. Use integration tests for boundaries (DB, API, filesystem).
-4. Mock only what you do not own or cannot control reliably.
-5. Keep tests readable: arrange → act → assert.
-6. Optimize for maintainability over maximum coverage theater.
+2. Fast deterministic unit tests for core logic.
+3. Integration tests for boundaries (DB, API, filesystem).
+4. Mock only what you do not own or cannot control.
+5. Arrange → act → assert. One main behavior per test (not a hard one-assert rule).
+6. Maintainability over coverage theater.
 
 ## Test Strategy
-| Layer | Purpose | Typical Tools |
+| Layer | Purpose | Typical tools |
 | :--- | :--- | :--- |
-| **Unit** | Business logic, pure functions, services | pytest, parametrize |
-| **Integration** | API routes, DB, queue, external boundaries | pytest + TestClient/httpx |
-| **End-to-end** | Critical user/system flows | fewer, high-value tests |
+| **Unit** | Business logic, pure functions | pytest, parametrize |
+| **Integration** | API, DB, queue, filesystem | pytest + TestClient/httpx |
+| **End-to-end** | Critical flows | few, high-value |
 
-Prioritize:
-1. Critical paths
-2. Edge cases and failure modes
-3. Regression coverage for previously fixed bugs
+Prioritize: critical paths → edge/failure modes → regressions for fixed bugs.
 
 ## Pytest Patterns
-- Use **fixtures** for reusable setup, not hidden magic.
-- Use **parametrize** for input matrix testing.
-- Prefer factory helpers over giant fixture graphs.
-- Keep one main behavior per test.
-- Name tests by behavior: `test_rejects_invalid_token`, not `test_1`.
+- Fixtures for reusable setup, not hidden magic.
+- Parametrize input matrices.
+- Factory helpers over giant fixture graphs.
+- Name by behavior: `test_rejects_invalid_token`.
 
-## Mocking Guidelines
-Mock when:
-- External HTTP APIs
-- Third-party services
-- Time, randomness, or unstable boundaries
-
-Do not mock when:
-- The logic under test itself
-- In-process pure functions
-- Local code you can exercise directly
-
-Prefer explicit mocks and fakes over over-spy heavy tests.
+## Mocking
+Mock: external HTTP, third-party services, time/randomness.
+Do not mock: the logic under test, in-process pure functions, local code you can run.
+Prefer explicit fakes over spy-heavy tests.
 
 ## Async Testing
-- Use `pytest-asyncio` for async def tests.
-- Test success, timeout, cancellation, and exception paths.
-- Avoid `sleep`-based assertions when deterministic waits are possible.
+- `pytest-asyncio` for `async def` tests.
+- Cover success, timeout, cancellation, exceptions.
+- No `sleep`-based assertions when an `asyncio.Event` (or equivalent) works.
 
-## TDD Guidance
-Use TDD when it improves design clarity:
-1. Write a failing test for the intended behavior
-2. Implement the minimal code to pass
-3. Refactor with tests green
+## TDD
+Use when it clarifies design: failing test → minimal pass → refactor.
+Skip ritual TDD on spikes; add tests before the code hardens.
 
-Skip rigid TDD ritual for pure exploration spikes; add tests before stabilizing the code.
-
-## Systematic Debugging (Bug Fixing Loop)
-When diagnosing and fixing bugs, follow this 4-step loop:
-1. **Reproduce**: Write a minimal, deterministic failing test reproducing the exact issue.
-2. **Isolate**: Locate the exact line/boundary where actual state diverges from expected state.
-3. **Fix**: Implement the minimal, clean fix for the root cause.
-4. **Guard**: Keep the failing test as a permanent **regression test** to prevent future recurrence.
+## Bug-fixing Loop
+1. **Reproduce** with a minimal failing test.
+2. **Isolate** the divergence.
+3. **Fix** the root cause.
+4. **Guard** keep the test as a regression.
 
 ## Test Design Checklist
 - [ ] Behavior under test is clear
-- [ ] Test is deterministic and isolated
-- [ ] Assertions are specific and meaningful
-- [ ] External dependencies are handled appropriately
-- [ ] Failure messages are diagnosable
-- [ ] Edge cases and error paths are considered
-- [ ] Test runtime stays reasonable
-
-## Related Skills
-- Use with **python-pro**, **python-concurrency**, **doubt-driven-development**, and **deprecation-migration** to protect behavior and prevent regressions.
-- Serves as the required safety net before **code-review**.
-
-## Output Expectations
-- Clear recommendation of test layers needed
-- Concrete pytest structure and naming
-- Focused examples when useful
-- Notes on trade-offs (what to mock, what not to mock)
-- Guidance that keeps tests maintainable
+- [ ] Deterministic and isolated
+- [ ] Assertions specific
+- [ ] External deps handled appropriately
+- [ ] Failure messages diagnosable
+- [ ] Edge/error paths considered
+- [ ] Runtime reasonable

@@ -1,6 +1,8 @@
 ---
 name: code-simplification
-description: "Simplify code for clarity and maintainability without changing behavior. Focuses on reducing nesting, improving naming, and eliminating accidental complexity."
+description: >-
+  Simplify working code without changing behavior (nesting, names, accidental complexity).
+  Not for redesign, performance rewrites, or untested risky edits.
 risk: safe
 source: local
 date_added: "2026-08-23"
@@ -52,10 +54,8 @@ Simplify code for clarity and maintainability without changing behavior.
 
 ## Related Skills
 - Triggered from **code-review** when structural complexity is flagged.
-- Use **python-testing** to protect existing behavior with tests while simplifying.
-- Use **python-pro** for idiomatic implementation style and tooling conventions.
-- Use **tech-research** when contemplating non-trivial architectural redesign.
-- Use **doubt-driven-development** for high-risk redesign choices rather than routine cleanup.
+- Use **python-testing** (or crate tests) to lock behavior before simplifying.
+- Before merge: **code-review**.
 
 ## Final Checklist
 - [ ] Behavior preserved exactly (inputs, outputs, exceptions, side-effects)

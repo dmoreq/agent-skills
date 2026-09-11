@@ -1,6 +1,8 @@
 ---
 name: python-performance
-description: "Profile and optimize Python code using cProfile, memory profilers, and performance best practices. Use when debugging slow Python code, optimizing bottlenecks, or improving application performance."
+description: >-
+  Profile and fix Python runtime, memory, or I/O bottlenecks with evidence (cProfile, py-spy, scalene).
+  Not for accuracy/F1/quality KPI loops or unmeasured micro-optimizations.
 risk: safe
 source: local
 date_added: "2026-02-27"
@@ -8,98 +10,76 @@ date_added: "2026-02-27"
 
 # Python Performance Optimization Skill
 
-Practical guidance for finding and fixing real performance problems in Python code.
+Find and fix real performance problems. Measure first.
+
+Load `resources/implementation-playbook.md` **only** for a named profiler recipe (cProfile, py-spy, tracemalloc, scalene). Do not load it for process or policy.
 
 ## When to Use
-- Investigating slow Python code or high latency
-- Reducing CPU usage or memory consumption
-- Optimizing data processing, I/O, or database access
-- Improving throughput of services or pipelines
-- Profiling before and after changes
+- Slow Python, high latency, CPU, or memory
+- Data-processing, I/O, or DB access that is measurably expensive
+- Before/after profiling of a change
 
 ## When Not to Use
 - No evidence of a performance problem
-- Premature optimization of code that is not on the critical path
-- Non-Python performance issues
+- Quality KPIs (accuracy, F1, confidence) → **algorithm-optimization**
+- Premature optimization off the critical path
+- Non-Python performance
 
 ## Related Skills
-- Use **tech-research** when a better algorithm/library may be required.
-- Use **pyo3-maturin** when a confirmed CPU hotspot cannot be accelerated further in Python and justifies Rust native extensions.
-- Use **data-science** when the issue involves analytical metrics or model behavior.
-- Use **python-concurrency** when the bottleneck is I/O-bound or CPU-parallel.
-- Use **algorithm-optimization** when optimizing quality KPIs on real cases rather than pure runtime.
+- Use **python-concurrency** when the bottleneck is I/O-bound or needs CPU parallelism.
+- Use **pyo3-maturin** when a confirmed CPU hotspot cannot be accelerated further in Python.
+- Use **algorithm-optimization** for quality KPIs on real cases, not runtime.
 
 ## Core Principles
-1. **Measure first** — never optimize based on guesses.
-2. Optimize the actual bottleneck, not the whole codebase.
-3. Prefer simple, readable improvements before complex rewrites.
-4. Re-measure after every meaningful change.
-5. Stop when the performance target is met.
+1. Measure first — never optimize from guesses.
+2. Fix the actual hotspot, not the whole codebase.
+3. Simple readable fixes before rewrites.
+4. Re-measure after each meaningful change.
+5. Stop when the target is met.
 
 ## Optimization Process
 
 ### 1. Clarify Goals
-- What is slow or expensive? (latency, CPU, memory, throughput)
-- What is the target? (p95 latency, memory limit, requests/sec…)
-- What are the constraints? (Python version, dependencies, cannot change architecture…)
+Latency, CPU, memory, or throughput? Numeric target? Constraints (Python version, deps, architecture freeze)?
 
 ### 2. Profile
-Choose the right level:
-
 - **CPU / runtime**: `cProfile`, `py-spy`, `scalene`
-- **Memory**: `tracemalloc`, `memory_profiler`, `scalene`
-- **Line-level hotspots**: `line_profiler` or sampling profilers
-- **I/O & external calls**: logging + timing, or async-aware profilers
+- **Memory**: `tracemalloc`, `scalene` (`memory_profiler` if already in the repo)
+- **Line-level**: `line_profiler` or sampling profilers
+- **I/O**: timing/logs or async-aware profilers
 
-Focus on the top hotspots. Ignore micro-gains outside the critical path.
+Use `time.perf_counter` / `timeit`, not `time.time()`. Ignore micro-gains off the critical path.
 
-### 3. Analyze the Bottleneck
-Classify the problem:
+### 3. Classify
 
-| Type | Typical Signs | Common Directions |
+| Type | Signs | Direction |
 | :--- | :--- | :--- |
-| **CPU-bound** | High CPU, pure computation | Algorithm, vectorization, concurrency |
-| **I/O-bound** | Waiting on network/disk/DB | Async, batching, caching, pooling |
-| **Memory-bound** | High RSS, swapping, GC pressure | Generators, in-place ops, smaller structures |
-| **Database** | Slow queries, N+1, locks | Indexes, query shape, batching |
-| **Algorithmic** | Scales poorly with input size | Better complexity, early exit |
+| **CPU-bound** | High CPU, pure compute | Algorithm, vectorization (NumPy/Polars if dataframes), concurrency |
+| **I/O-bound** | Waiting on net/disk/DB | Async, batching, caching, pooling |
+| **Memory-bound** | High RSS, GC pressure | Generators, in-place ops, smaller structures |
+| **Database** | Slow queries, N+1 | Indexes, query shape, batching |
+| **Algorithmic** | Scales poorly with n | Better complexity, early exit |
 
-### 4. Apply Targeted Improvements
-Prefer in this order:
-
+### 4. Apply (in order)
 1. Better algorithm or data structure
-2. Reduce work (caching, batching, avoiding repeated computation)
-3. More efficient libraries (NumPy, Polars, appropriate async drivers…)
-4. Concurrency / parallelism only when appropriate
-5. Low-level tricks last (and only if justified)
-
-Examples of high-leverage moves:
-- Replace slow Python loops with vectorized or bulk operations
-- Fix N+1 queries and missing indexes
-- Use generators / streaming for large data
-- Cache pure, expensive results
-- Move blocking I/O out of async event loops
-- Avoid unnecessary object creation in hot paths
+2. Less work (cache, batch, skip repeats)
+3. Better libraries (Polars/NumPy where the repo already processes tables/arrays)
+4. Concurrency only when appropriate
+5. Low-level tricks last
 
 ### 5. Validate
-- Re-run the same benchmark or profile
-- Compare against the original baseline
-- Check correctness is preserved
-- Confirm the gain is worth the complexity
+Same benchmark as baseline. Correctness preserved. Gain worth the complexity.
 
 ## Output Expectations
-- Clear statement of the bottleneck found
-- Evidence from profiling (not guesses)
-- Specific, prioritized changes
-- Before/after impact when possible
-- Notes on trade-offs and risks
+- Bottleneck statement with profiler evidence
+- Prioritized changes
+- Before/after when possible
+- Trade-offs
 
 ## Final Checklist
-- [ ] Performance goal and constraints are clear
-- [ ] Profiling was done before optimizing
-- [ ] Bottleneck type is identified
-- [ ] Changes target the actual hotspot
-- [ ] Simpler fixes were considered first
-- [ ] Results were re-measured
-- [ ] Correctness is preserved
-- [ ] Complexity added is justified by the gain
+- [ ] Goal and constraints clear
+- [ ] Profiled before changing
+- [ ] Bottleneck type named
+- [ ] Changes target the hotspot
+- [ ] Re-measured
+- [ ] Correctness preserved

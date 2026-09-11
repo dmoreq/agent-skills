@@ -1,6 +1,8 @@
 ---
 name: deprecation-migration
-description: "Plan and execute safe removal or replacement of legacy systems, APIs, and features without breaking consumers."
+description: >-
+  Safely sunset or replace legacy APIs/systems (strangler, adapter, feature flags) without breaking consumers.
+  Not for local dead-code cleanup or readability-only refactors. Language-agnostic.
 risk: safe
 source: local
 date_added: "2026-08-23"
@@ -48,11 +50,9 @@ Plan and execute safe removal or replacement of systems, APIs, and legacy featur
 5. **Final Cleanup**: Safely delete legacy code, tests, docs, and stale shims.
 
 ## Related Skills
-- Triggered by **code-review** when identifying legacy, unused, or duplicate surfaces.
-- Use **tech-research** when evaluating and selecting replacement technologies or libraries.
-- Use **doubt-driven-development** for high-risk cutover and sunsetting decisions.
-- Use **python-testing** for migration verification, compatibility testing, and regression safety.
-- Use **code-simplification** for clean shim removal and adapter refactoring.
+- Use **tech-research** when choosing a replacement.
+- Use **doubt-driven-development** for high-risk cutover.
+- Verify with **python-testing** or crate tests (language-agnostic).
 
 ## Final Checklist
 - [ ] Replacement covers critical use cases and has passing tests

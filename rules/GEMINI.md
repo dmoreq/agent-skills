@@ -43,30 +43,12 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
   - Clean up temporary files after execution/verification when they are no longer needed.
   - Never delete user-owned files, project source code, or final deliverables without explicit confirmation.
 
-## 5. Reporting & Visual Assets
+## 5. Reporting & Visual Assets (stub)
 
-### General Guidelines
-- **Date-Prefixed Naming**: Prefix persistent report/artifact files with current ISO date (`YYYY-MM-DD_<topic>.md`).
-- **Executive Summary (TL;DR)**: Start longer reports with a short TL;DR highlighting key metrics and takeaways.
-- **Data over Visuals**: Default to clean Markdown tables. Only include visuals when they deliver genuine analytical insight not obvious from raw numbers.
-- **Efficiency Override**: Skip formal reports and visual assets for simple one-off answers; prefer text + table over charts whenever possible.
+Details live in skills. Do not restate Mermaid allowlists, Plotly layout, or chart-tool encyclopedias here.
 
-### Tiered Visualization System
-- **Tier 1 – Native Mermaid** (Draft, logic flow, simple structure):
-  - Written directly in Markdown.
-  - Only use supported headers: `xychart-beta`, `flowchart TD` / `flowchart LR` / `graph`, `sequenceDiagram`, `stateDiagram-v2`, `erDiagram`, `classDiagram`.
-  - Keep diagrams compact (3-5 nodes for quick sketches).
-- **Tier 2 – Complex & Standardized Visuals** (Vector SVG Required):
-  - Must export as static vector assets (`.svg`, fallback to PNG only if strictly necessary) and embed via Markdown image syntax (`![Chart](path/to/chart.svg)`).
-  - Storage: Project asset folder (`docs/reports/assets/YYYY-MM-DD_<topic>/`) or conversation artifacts directory.
-  - **Tool Mapping**:
-    - **Plotly / Seaborn / Matplotlib**: EDA, benchmarks, distributions, confusion matrices, heatmaps.
-    - **`diagrams` (Mingrammer)**: Cloud infrastructure, data pipelines, system architecture.
-    - **`graphviz`**: Decision trees, state machines, algorithmic decision flows.
-
-### Text Density & Visual Hygiene
-- **One visual = one main idea**: Never overload a single chart with competing concepts.
-- **Concise labels**: Use short words or abbreviations; rename verbose raw fields before rendering.
-- **Short titles & no embedded paragraphs**: Keep titles $\le 1$ line; put explanations in markdown text, not inside the visual.
-- **Focused annotations**: Max 1–3 key data callouts. If text collides, shorten labels before expanding canvas.
-- **Zero duplication**: Do not repeat identical text across title, legend, and annotations.
+- Prefix persistent files with ISO date (`YYYY-MM-DD_<topic>.md`).
+- Skip formal reports for one-off answers; prefer text + tables.
+- Charts only when they beat a compact table. One idea per visual; no overlapping labels.
+- Saved technical markdown, Mermaid, asset paths → **`antigravity-reporting`**.
+- Plotly figures / SVG export QA → **`data-visualization`**. Seaborn/Matplotlib only if the repo already uses them.

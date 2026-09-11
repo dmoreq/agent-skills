@@ -1,6 +1,8 @@
 ---
 name: plotly-dash
-description: "Build interactive Python data apps with Plotly Dash using modular architecture, disciplined callbacks, robust state management, and optimized performance."
+description: >-
+  Build interactive Plotly Dash apps: pages, callbacks, dcc.Store, background jobs.
+  Not for static Plotly charts, EDA, or REST APIs without a Dash UI.
 risk: safe
 source: local
 date_added: "2026-08-23"
@@ -37,7 +39,7 @@ Build production-grade, interactive Python data applications with Plotly Dash us
 
 ## Recommended Project Layout
 
-### Standard Multi-Page App (Dash 2.x `pages` plugin)
+### Standard Multi-Page App (`pages` plugin, Dash 2.14+ / 3.x)
 ```text
 my_dash_app/
 ├── app.py                      # App initialization and root layout shell
@@ -117,8 +119,8 @@ def sync_dynamic_item(value):
 
 ### 4. Long-Running Jobs & Background Callbacks
 Never block the WSGI request thread with long computations (> 2-3s).
-- Use Dash `@callback(..., background=True, manager=background_callback_manager)`.
-- Or dispatch async tasks to an external worker queue (Celery, ARQ, Redis Queue) and poll status via `dcc.Interval`.
+- Use `@callback(..., background=True, manager=background_callback_manager)`. Construct the manager explicitly: DiskCache is for local/dev; Celery/Redis for production. Do not use removed `long_callback`.
+- Or dispatch to Celery/ARQ/RQ and poll via `dcc.Interval`.
 
 ---
 
@@ -131,7 +133,7 @@ Never block the WSGI request thread with long computations (> 2-3s).
 | `session` | Survives refresh, dies on tab close | User session preferences, authentication token |
 | `local` | Persists across browser restarts | Theme preferences, saved filters |
 
-- **Payload Limit**: Keep `dcc.Store` payload under 2 MB. Do not serialize huge raw DataFrames to client JSON.
+- Keep Store JSON small (budget ~2 MB). Do not serialize huge DataFrames to the client.
 - **Server-Side Data Caching**: Store large datasets in Redis / disk cache keyed by user/session ID; store only the cache key in `dcc.Store`.
 
 ---
@@ -151,13 +153,9 @@ Never block the WSGI request thread with long computations (> 2-3s).
 ---
 
 ## Figure Construction & Quality
-- Build figures via dedicated builder functions returning `go.Figure`.
-- Embed figures in layout using `dcc.Graph(figure=..., config={"displayModeBar": False, "responsive": True})`.
-- Apply uniform design theme across all charts (consistent fonts, margins, color palettes).
-- Comply with `data-visualization` rules:
-  - Axis automargin enabled (`xaxis_automargin=True`, `yaxis_automargin=True`).
-  - Legends placed cleanly outside plotted data area.
-  - Zero overlapping labels or unformatted numerical metrics.
+- Build figures in `figures/` as functions returning `go.Figure`. Layout, overlap, and SVG rules: **`data-visualization`**.
+- Embed with `dcc.Graph(figure=..., config={"displayModeBar": False, "responsive": True})`.
+- Apply a uniform theme (fonts, margins, palette) across charts.
 
 ---
 
@@ -181,13 +179,9 @@ def test_dashboard_flow(dash_duo, app):
 ---
 
 ## Related Skills
-- **data-visualization**: Core rules for Plotly figure aesthetics, layout sizing, and anti-overlap.
-- **data-science**: Analytical computation, feature engineering, and statistical pipelines feeding Dash.
-- **python-pro**: Modern Python typing, package architecture, and production standards.
-- **python-performance**: Bottleneck profiling, memory management, and caching strategies.
-- **python-testing**: Comprehensive `pytest` test suites and mocking patterns.
-- **context7-mcp**: Querying latest Dash, Dash AG Grid, and component library documentation.
-- **code-review**: Multi-axis code review before merging Dash applications.
+- Use **data-visualization** for all Plotly figure layout and overlap QA.
+- Use **context7-mcp** when Dash / Dash AG Grid APIs are version-sensitive.
+- Use **python-testing** (unit) and `dash_duo` (UI) when behavior changes.
 
 ---
 
@@ -198,5 +192,5 @@ def test_dashboard_flow(dash_duo, app):
 - [ ] Unnecessary re-renders prevented via `dash.no_update` and `PreventUpdate`.
 - [ ] Heavy computations cached or executed asynchronously via background callbacks.
 - [ ] Figures follow `data-visualization` standards with clean margins and readable annotations.
-- [ ] Up-to-date Dash 2.x APIs (`dash.register_page`, `dash.ctx`, `dash.callback`) used throughout.
+- [ ] Dash 2.14+ / 3.x APIs (`dash.register_page`, `dash.ctx`, `dash.callback`) used; no `long_callback`.
 - [ ] Unit tests in place for business logic and core figure generation.

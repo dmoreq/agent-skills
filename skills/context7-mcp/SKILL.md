@@ -1,6 +1,8 @@
 ---
 name: context7-mcp
-description: "Use Context7 MCP to fetch up-to-date library and framework documentation, API references, configuration guides, and code examples instead of relying on training data."
+description: >-
+  Fetch version-sensitive library/API docs via Context7 MCP (setup, examples, method usage).
+  Not for general CS concepts or SOTA surveys.
 risk: safe
 source: local
 date_added: "2026-02-27"
@@ -25,9 +27,11 @@ Do **not** activate for:
 ## How to Use
 
 ### Step 1: Resolve Library ID
-Call `resolve-library-id` with:
+Skip resolve when the user already passed a Context7 ID (`/org/project` or `/org/project/version`). Otherwise call `resolve-library-id` with:
 - `libraryName`: name of the library (e.g., "fastapi", "pandas", "next.js")
 - `query`: short description of what the user needs (helps ranking)
+
+Cap resolve retries at 3 (try alternate names, then stop).
 
 ### Step 2: Select Best Match
 Prefer:
@@ -59,8 +63,8 @@ If the question covers multiple distinct topics, make separate `query-docs` call
 - Prefer the official/primary package when multiple matches appear.
 
 ## Related Skills
-- Support **python-pro**, **python-concurrency**, **tech-research**, and **data-science** with up-to-date library/API documentation.
-- Do not replace **tech-research** when the task needs approach comparison or SOTA survey.
+- Use from any implementation skill when library/API docs are version-sensitive.
+- Do not replace **tech-research** for approach comparison or SOTA survey.
 
 ## Final Checklist
 - [ ] User query actually requires up-to-date documentation (not just general knowledge)
