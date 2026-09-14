@@ -1,5 +1,5 @@
 ---
-name: antigravity-reporting
+name: technical-reporting
 description: >-
   Write saved formal markdown: benchmarks, ADRs, architecture notes, asset paths, Mermaid diagrams.
   Not for Plotly chart construction, Dash apps, or stakeholder QBR narrative.
@@ -8,7 +8,7 @@ source: local
 date_added: "2026-08-22"
 ---
 
-# Antigravity Reporting Skill
+# Technical Reporting Skill
 
 Create a saved technical markdown document when the user asked for a durable report, benchmark write-up, or ADR file. Skip this skill for in-chat answers.
 

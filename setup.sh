@@ -4,7 +4,7 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RULES_FILE="$REPO_DIR/rules/GEMINI.md"
+RULES_FILE="$REPO_DIR/rules/AGENTS.md"
 SKILLS_DIR="$REPO_DIR/skills"
 
 SCOPE="user"          # user | project
@@ -18,7 +18,7 @@ usage() {
     cat <<'EOF'
 Usage: ./setup.sh [options]
 
-Install this repo's rules (GEMINI.md) and skills to coding agents.
+Install this repo's rules (AGENTS.md) and skills to coding agents.
 
 Options:
   --project          Install into the current directory (.agents/skills, AGENTS.md)
@@ -250,7 +250,7 @@ else
     if host_wanted cursor; then
         log "==> [cursor] alwaysApply .mdc rule (skills via ~/.agents/skills)"
         # Cursor ignores plain .md in ~/.cursor/rules (needs .mdc + frontmatter).
-        write_cursor_mdc "$HOME/.cursor/rules/antigravity-customizations.mdc"
+        write_cursor_mdc "$HOME/.cursor/rules/agent-rules.mdc"
         # Previous installer wrote a plain .md here; Cursor ignores it, Grok
         # compat may still load ~/.cursor/rules/*.md and duplicate global rules.
         if $DRY_RUN; then
@@ -260,10 +260,10 @@ else
         fi
         if $MIRROR_NATIVE; then
             sync_skills "$HOME/.cursor/skills"
-            INSTALLED+=("cursor|$HOME/.cursor/rules/antigravity-customizations.mdc|$HOME/.cursor/skills + ~/.agents/skills")
+            INSTALLED+=("cursor|$HOME/.cursor/rules/agent-rules.mdc|$HOME/.cursor/skills + ~/.agents/skills")
         else
             prune_our_skills "$HOME/.cursor/skills"
-            INSTALLED+=("cursor|$HOME/.cursor/rules/antigravity-customizations.mdc|~/.agents/skills")
+            INSTALLED+=("cursor|$HOME/.cursor/rules/agent-rules.mdc|~/.agents/skills")
         fi
     elif [[ -z "$HOSTS_FILTER" ]]; then
         log "==> [cursor] skipped (Cursor not detected)"

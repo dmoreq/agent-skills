@@ -1,4 +1,4 @@
-# Antigravity Customizations
+# Agent Skills
 
 A curated, token-efficient collection of **Global Agent Rules** and **Custom Skills** designed for the **Google Antigravity**, **Cursor**, **Pi**, and **Grok** coding assistant environments.
 
@@ -7,12 +7,12 @@ A curated, token-efficient collection of **Global Agent Rules** and **Custom Ski
 ## Repository Structure
 
 ```
-antigravity-customizations/
+agent-skills/
 ├── rules/
-│   └── GEMINI.md                    # Global agent behavioral directives & standards
+│   └── AGENTS.md                    # Global agent behavioral directives & standards
 ├── skills/
 │   ├── algorithm-optimization/      # Systematic KPI & algorithm improvement loop
-│   ├── antigravity-reporting/       # Saved technical reports, benchmarks, Mermaid, asset paths
+│   ├── technical-reporting/         # Saved technical reports, benchmarks, Mermaid, asset paths
 │   ├── code-review/                 # Multi-axis code review checklist before merging
 │   ├── code-simplification/         # Safe refactoring, reducing nesting & accidental complexity
 │   ├── context7-mcp/                # Live documentation lookup for libraries/frameworks
@@ -42,7 +42,7 @@ antigravity-customizations/
 | Skill Name | Purpose |
 | :--- | :--- |
 | **`algorithm-optimization`** | Systematic workflow to optimize algorithms/processes against target metrics while guarding healthy cases. |
-| **`antigravity-reporting`** | Saved formal markdown: benchmarks, ADRs, Mermaid, asset paths. Not Plotly charts or QBR narrative. |
+| **`technical-reporting`** | Saved formal markdown: benchmarks, ADRs, Mermaid, asset paths. Not Plotly charts or QBR narrative. |
 | **`tech-research`** | SOTA methods, benchmark evaluation, and conditional recommendations before implementation. |
 | **`data-science`** | Statistical modeling, machine learning, A/B testing, exploratory analysis, and causal inference. |
 | **`data-storytelling`** | Decision narrative from **already-validated** metrics. Does not analyze or invent numbers. |
@@ -70,16 +70,16 @@ antigravity-customizations/
 - Hầu hết quan hệ là **optional handoff** (chỉ kích hoạt khi thật sự có điều kiện).
 - Chỉ duy trì **3 quan hệ cứng (Hard Invariants)** cốt lõi.
 - **Không bao giờ chain dài theo mặc định** để tối ưu hóa context và token.
-- **One home per fact**: mỗi quy tắc/list chỉ sống trong một skill hoặc `GEMINI.md`; skill khác chỉ pointer.
+- **One home per fact**: mỗi quy tắc/list chỉ sống trong một skill hoặc `AGENTS.md`; skill khác chỉ pointer.
 - **Không nhét merge-gate vào YAML `description`**. Invariant merge nằm ở README + `code-review`. Related Skills dùng `Use X when <condition>`.
 
 ### 0. Ownership (single source of truth)
 
 | Fact | Home | Not here |
 | :--- | :--- | :--- |
-| Tone, no emoji, scope, git/secrets, temp files | `rules/GEMINI.md` | Skills |
-| Skip formal reports; tables first; date-prefixed files | `GEMINI.md` §5 stub | Full viz encyclopedias |
-| Saved markdown, Mermaid allowlist, asset paths | `antigravity-reporting` | Plotly, QBR narrative |
+| Tone, no emoji, scope, git/secrets, temp files | `rules/AGENTS.md` | Skills |
+| Skip formal reports; tables first; date-prefixed files | `AGENTS.md` §5 stub | Full viz encyclopedias |
+| Saved markdown, Mermaid allowlist, asset paths | `technical-reporting` | Plotly, QBR narrative |
 | Plotly chart type, anti-overlap, SVG/Kaleido | `data-visualization` | Reporting, Dash figure restatement |
 | Stakeholder Hook → Ask | `data-storytelling` | Analysis |
 | EDA / inference / A/B / forecasting | `data-science` | Charts, Dash, SOTA survey |
@@ -105,14 +105,14 @@ antigravity-customizations/
 | Nhóm | Skill | Nhận từ (Input) | Chuyển đến (Output) | Mức độ |
 | :--- | :--- | :--- | :--- | :--- |
 | **Discovery** | **`context7-mcp`** | Nhu cầu docs/API cụ thể, version-sensitive | `python-pro`, `python-concurrency`, `tech-research`, `data-science` | Optional |
-| **Discovery** | **`tech-research`** | Nhu cầu SOTA, alternatives, trade-offs kỹ thuật | `doubt-driven-development` (khi chốt quyết định); `deprecation-migration` (thay hệ thống cũ); `antigravity-reporting` (formal report); `algorithm-optimization` (validate trên data thật) | Optional |
+| **Discovery** | **`tech-research`** | Nhu cầu SOTA, alternatives, trade-offs kỹ thuật | `doubt-driven-development` (khi chốt quyết định); `deprecation-migration` (thay hệ thống cũ); `technical-reporting` (formal report); `algorithm-optimization` (validate trên data thật) | Optional |
 | **Decision** | **`doubt-driven-development`** | Quyết định non-trivial từ `tech-research`, `python-patterns`, architecture / cutover decisions | `python-testing` (chốt risk thành regression test); `tech-research` (nếu thiếu alternatives); implementation path rồi qua `code-review` | Optional, có điều kiện |
 | **Migration** | **`deprecation-migration`** | Legacy/zombie code từ `code-review`; replacement options từ `tech-research` | `python-testing` (verify tương thích); `code-simplification` (dọn shim/adapter thừa sau cùng) | Optional |
-| **Analysis** | **`data-science`** | Dữ liệu thô, EDA, modeling, thống kê, A/B | `data-visualization` (vẽ chart); `data-storytelling` (narrative); `algorithm-optimization` (tối ưu KPI); `antigravity-reporting` (formal report) | Optional / Required* |
-| **Visualization** | **`data-visualization`** | Metric/insight từ `data-science`; before/after từ `algorithm-optimization`; benchmark từ `python-performance` | `plotly-dash`, `antigravity-reporting`, `data-storytelling` | Optional |
+| **Analysis** | **`data-science`** | Dữ liệu thô, EDA, modeling, thống kê, A/B | `data-visualization` (vẽ chart); `data-storytelling` (narrative); `algorithm-optimization` (tối ưu KPI); `technical-reporting` (formal report) | Optional / Required* |
+| **Visualization** | **`data-visualization`** | Metric/insight từ `data-science`; before/after từ `algorithm-optimization`; benchmark từ `python-performance` | `plotly-dash`, `technical-reporting`, `data-storytelling` | Optional |
 | **Dashboard** | **`plotly-dash`** | Plotly figures từ `data-visualization`; pipeline/metrics từ `data-science`; docs từ `context7-mcp` | `python-testing` (test callback/integration); `code-review` (merge gate); `python-performance` (nếu bottleneck) | Optional |
-| **Narrative** | **`data-storytelling`** | Insight đã validate từ `data-science` | Dùng chart từ `data-visualization`; nhúng vào `antigravity-reporting` | **Required input from `data-science`** |
-| **Reporting** | **`antigravity-reporting`** | Kết quả formal từ `tech-research`, `data-science`, `algorithm-optimization` | Báo cáo kỹ thuật hoàn chỉnh kèm visual Tier-1/Tier-2 | Optional presentation layer |
+| **Narrative** | **`data-storytelling`** | Insight đã validate từ `data-science` | Dùng chart từ `data-visualization`; nhúng vào `technical-reporting` | **Required input from `data-science`** |
+| **Reporting** | **`technical-reporting`** | Kết quả formal từ `tech-research`, `data-science`, `algorithm-optimization` | Báo cáo kỹ thuật hoàn chỉnh kèm visual Tier-1/Tier-2 | Optional presentation layer |
 | **Architecture** | **`python-patterns`** | Nhu cầu chọn framework, layout, ADR | `python-pro` (implement); `python-concurrency` (khi cần chọn asyncio/threads/processes) | Optional |
 | **Implementation** | **`python-pro`** | Design từ `python-patterns` hoặc requirement tính năng | `python-testing` (bảo vệ behavior); `context7-mcp` (tra cứu docs); `code-review` (trước khi merge) | **Required on merge path** |
 | **Concurrency** | **`python-concurrency`** | Lựa chọn concurrency từ `python-patterns` hoặc bottleneck I/O vs CPU | `python-performance` (đo lường thực tế); `python-testing` (async/parallel safety) | Optional |
@@ -120,7 +120,7 @@ antigravity-customizations/
 | **Native Extension** | **`pyo3-maturin`** | CPU-bound bottleneck đã profile từ `python-performance` | `python-testing` (parity và regression test); `code-review` (trước khi merge) | Optional |
 | **Rust Dev** | **`rust-pro`** | Nhu cầu phát triển Rust service/crate hoặc tối ưu hóa hiệu năng | `rust-async-patterns` (khi cần async); `pyo3-maturin` (nếu làm Python extension); `code-review` (trước khi merge) | Optional |
 | **Rust Concurrency** | **`rust-async-patterns`** | Tokio, channels, streams, task coordination trong Rust | `rust-pro` (để implement); `code-review` (trước khi merge) | Optional |
-| **Optimization** | **`algorithm-optimization`** | KPI/process kém trên data thật; candidate từ `tech-research`; chẩn đoán từ `data-science` | `data-visualization` (before/after chart); `antigravity-reporting` (báo cáo); `python-performance` (nếu lộ runtime bottleneck) | Optional |
+| **Optimization** | **`algorithm-optimization`** | KPI/process kém trên data thật; candidate từ `tech-research`; chẩn đoán từ `data-science` | `data-visualization` (before/after chart); `technical-reporting` (báo cáo); `python-performance` (nếu lộ runtime bottleneck) | Optional |
 | **Testing** | **`python-testing`** | Python behavior change từ `python-pro`; parity từ `pyo3-maturin`; risk từ `doubt-driven`; migration / cleanup | Safety net trước `code-review` cho Python | **Required for Python behavior changes** |
 | **Cleanup** | **`code-simplification`** | Complexity, deep nesting, duplication từ `code-review` hoặc sau feature complete | Dựa trên `python-testing` giữ nguyên behavior; đưa lại `code-review` | Optional |
 | **QA Gate** | **`code-review`** | PR/diff từ `python-pro`, `pyo3-maturin`, `code-simplification`, `deprecation-migration`, hoặc agent khác | `python-pro` (sửa code); `code-simplification` (giảm complexity); `deprecation-migration` (sunset legacy); merge khi đạt chuẩn | **Required on merge path** |
@@ -147,7 +147,7 @@ tech-research
     ├─ options/evidence ─► algorithm-optimization
     ├─ decision to lock ─► doubt-driven-development
     ├─ replace legacy ─► deprecation-migration
-    └─ formal write-up ─► antigravity-reporting
+    └─ formal write-up ─► technical-reporting
 
 doubt-driven-development
     ├─ missing alternatives ─► tech-research
@@ -158,11 +158,11 @@ data-science
     ├─ charts ─► data-visualization
     ├─ narrative ─► data-storytelling
     ├─ KPI loop ─► algorithm-optimization
-    └─ formal report ─► antigravity-reporting
+    └─ formal report ─► technical-reporting
 
 algorithm-optimization
     ├─ visuals ─► data-visualization
-    ├─ report ─► antigravity-reporting
+    ├─ report ─► technical-reporting
     └─ runtime issue found ─► python-performance
 
 python-patterns
@@ -203,7 +203,7 @@ deprecation-migration
 | Vẽ biểu đồ chuẩn chỉnh, không đè chữ (Text Density Hygiene) | **`data-visualization`** |
 | Xây dựng interactive dashboard / data app với Plotly Dash | **`plotly-dash`** |
 | Kể chuyện dữ liệu / trình bày insight cho stakeholder | **`data-storytelling`** |
-| Soạn thảo báo cáo kỹ thuật formal (Mermaid / SVG) | **`antigravity-reporting`** |
+| Soạn thảo báo cáo kỹ thuật formal (Mermaid / SVG) | **`technical-reporting`** |
 | Chọn framework, cấu trúc module, ADR | **`python-patterns`** |
 | Lập trình tính năng bằng Python 3.12+ | **`python-pro`** |
 | Chọn asyncio / threads / processes | **`python-concurrency`** |
@@ -221,7 +221,7 @@ deprecation-migration
 
 ### 5. Anti-Patterns trong điều phối quan hệ
 
-- ❌ **Bật `antigravity-reporting` cho câu trả lời ngắn trung gian**: Gây lãng phí token không cần thiết.
+- ❌ **Bật `technical-reporting` cho câu trả lời ngắn trung gian**: Gây lãng phí token không cần thiết.
 - ❌ **Bật `doubt-driven-development` cho mọi khảo sát research thông thường**: Chỉ bật khi kết quả chuẩn bị khóa thành quyết định triển khai.
 - ❌ **Dùng `python-performance` cho accuracy / confidence KPI**: Runtime bottleneck và algorithmic quality KPI là 2 bài toán khác nhau.
 - ❌ **Dùng `algorithm-optimization` cho pure runtime tuning**: Cần dùng `python-performance` có profiling thực tế.
@@ -269,8 +269,8 @@ Restart each agent session after install. Verify:
 | :--- | :--- | :--- |
 | **Portable** (all) | — | `~/.agents/skills/<name>/` |
 | **Antigravity IDE** | `~/.gemini/GEMINI.md` | `~/.gemini/config/skills/` |
-| **Antigravity CLI** | same GEMINI.md | `~/.gemini/antigravity-cli/skills/` |
-| **Cursor** | `~/.cursor/rules/antigravity-customizations.mdc` (`alwaysApply: true`) | via `~/.agents/skills` |
+| **Antigravity CLI** | same AGENTS.md (installed as GEMINI.md) | `~/.gemini/antigravity-cli/skills/` |
+| **Cursor** | `~/.cursor/rules/agent-rules.mdc` (`alwaysApply: true`) | via `~/.agents/skills` |
 | **Pi** | `~/.pi/agent/AGENTS.md` | via `~/.agents/skills` |
 | **Grok Build** | `~/.grok/AGENTS.md` | via `~/.agents/skills` |
 
@@ -286,27 +286,27 @@ mkdir -p ~/.agents/skills
 cp -R skills/* ~/.agents/skills/
 
 # 2. Antigravity IDE + CLI
-cp rules/GEMINI.md ~/.gemini/GEMINI.md
+cp rules/AGENTS.md ~/.gemini/GEMINI.md
 mkdir -p ~/.gemini/config/skills ~/.gemini/antigravity-cli/skills
 cp -R skills/* ~/.gemini/config/skills/
 cp -R skills/* ~/.gemini/antigravity-cli/skills/
 
 # 3. Cursor global rule (not a plain .md)
 mkdir -p ~/.cursor/rules
-# Write ~/.cursor/rules/antigravity-customizations.mdc with:
+# Write ~/.cursor/rules/agent-rules.mdc with:
 #   ---
 #   description: Global agent working style, safety, and verification rules.
 #   alwaysApply: true
 #   ---
-#   <contents of rules/GEMINI.md>
+#   <contents of rules/AGENTS.md>
 
 # 4. Pi global instructions
 mkdir -p ~/.pi/agent
-cp rules/GEMINI.md ~/.pi/agent/AGENTS.md
+cp rules/AGENTS.md ~/.pi/agent/AGENTS.md
 
 # 5. Grok Build global instructions
 mkdir -p ~/.grok
-cp rules/GEMINI.md ~/.grok/AGENTS.md
+cp rules/AGENTS.md ~/.grok/AGENTS.md
 ```
 
 Project-only (shared with the team, no home-dir writes):
@@ -314,7 +314,7 @@ Project-only (shared with the team, no home-dir writes):
 ```bash
 mkdir -p .agents/skills
 cp -R skills/* .agents/skills/
-cp rules/GEMINI.md AGENTS.md
+cp rules/AGENTS.md AGENTS.md
 ```
 
 ---
@@ -334,15 +334,15 @@ chmod +x package.sh
 
 This creates two tarballs in `dist/`:
 - **`dist/skills.tar.gz`**: Standalone skills package (only skill folders).
-- **`dist/antigravity-customizations.tar.gz`**: Full offline suite including `skills/`, `rules/`, and `setup.sh`.
+- **`dist/agent-skills.tar.gz`**: Full offline suite including `skills/`, `rules/`, and `setup.sh`.
 
 ### 2. Deploy on Target Computer
 
 #### Option A: Full Suite Setup (Recommended)
-Transfer `antigravity-customizations.tar.gz` (via USB, SCP, AirDrop, etc.) to the target machine:
+Transfer `agent-skills.tar.gz` (via USB, SCP, AirDrop, etc.) to the target machine:
 ```bash
-tar -xzf antigravity-customizations.tar.gz
-cd antigravity-customizations
+tar -xzf agent-skills.tar.gz
+cd agent-skills
 ./setup.sh
 ```
 

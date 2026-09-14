@@ -63,7 +63,7 @@ Keep only the 3–5 most relevant options.
 ## Output Guidance & ADR Format
 - For short answers, respond directly and concisely.
 - Answer in-chat with the output structure below unless the user asked to save a file.
-- Load **antigravity-reporting** only for a saved markdown/ADR.
+- Load **technical-reporting** only for a saved markdown/ADR.
 - **ADR** only when a durable architecture choice is locked:
   - **Context**: Problem background, requirements, and key constraints.
   - **Decision**: Chosen solution, framework, or algorithm.

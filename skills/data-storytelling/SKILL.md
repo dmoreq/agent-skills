@@ -20,13 +20,13 @@ Transform validated analysis into a decision-ready narrative for stakeholders.
 ## When Not to Use
 - Numbers are not yet validated (`data-science` first)
 - Pure exploratory analysis still in progress
-- Technical deep-dives for other data scientists (`antigravity-reporting` if a file is requested)
+- Technical deep-dives for other data scientists (`technical-reporting` if a file is requested)
 - Simple metric dump with no decision
 
 ## Related Skills
 - **Required:** base the story on validated findings from **data-science**. Do not invent numbers.
 - Use **data-visualization** for supporting charts (layout/overlap live there).
-- Use **antigravity-reporting** only when the user asked to save a formal technical file.
+- Use **technical-reporting** only when the user asked to save a formal technical file.
 
 ## Core Structure
 1. **Hook** — Surprising or high-impact finding (with specific numbers).

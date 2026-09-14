@@ -20,13 +20,13 @@ Create clear, accurate, readable charts with Plotly. Prefer lean visuals, correc
 
 ## When Not to Use
 - Comparisons already clear in a small table
-- Mermaid / architecture diagrams (`antigravity-reporting`)
+- Mermaid / architecture diagrams (`technical-reporting`)
 - Interactive Dash apps (`plotly-dash`)
 - Pure statistical computation (`data-science`)
 
 ## Related Skills
 - Use **data-science** when metrics still need to be computed.
-- Use **antigravity-reporting** when embedding figures into a saved markdown file.
+- Use **technical-reporting** when embedding figures into a saved markdown file.
 - Use **data-storytelling** when the chart supports a stakeholder decision (numbers must already be validated).
 
 ## Core Principles

@@ -75,7 +75,7 @@ For each low-performance group, classify:
 
 ### Step 8: Report
 Default: in-chat baseline vs after table (weak cases + healthy-case regression).
-Load **antigravity-reporting** only if the user asked for a saved markdown file. Cover: baseline, cause classification, changes, before/after, residual risk.
+Load **technical-reporting** only if the user asked for a saved markdown file. Cover: baseline, cause classification, changes, before/after, residual risk.
 
 ## Guardrails
 - **Isolate Root-Cause First**: Always complete diagnostic root-cause isolation before coding fixes.
@@ -87,7 +87,7 @@ Load **antigravity-reporting** only if the user asked for a saved markdown file.
 ## Related Skills
 - Use **data-science** for statistical diagnosis of failure groups.
 - Use **python-performance** when the bottleneck is runtime/memory/I/O, not quality KPIs.
-- Use **data-visualization** for before/after KPI charts. Saved markdown only if requested (`antigravity-reporting`).
+- Use **data-visualization** for before/after KPI charts. Saved markdown only if requested (`technical-reporting`).
 
 ## Final Checklist
 - [ ] Baseline run completed and metrics collected

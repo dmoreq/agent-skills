@@ -10,7 +10,7 @@ DIST_DIR="$REPO_DIR/dist"
 mkdir -p "$DIST_DIR"
 
 echo "========================================================"
-echo "==> Packaging Antigravity Customizations & Skills"
+echo "==> Packaging Agent Skills"
 echo "========================================================"
 
 BUILD_SKILLS=true
@@ -37,9 +37,9 @@ if [ "$BUILD_SKILLS" = true ]; then
     echo "    ✓ Created: $DIST_DIR/skills.tar.gz ($SKILLS_SIZE)"
 fi
 
-# 2. Package complete customization suite (dist/antigravity-customizations.tar.gz)
+# 2. Package complete customization suite (dist/agent-skills.tar.gz)
 if [ "$BUILD_BUNDLE" = true ]; then
-    echo "==> Creating full offline bundle: dist/antigravity-customizations.tar.gz"
+    echo "==> Creating full offline bundle: dist/agent-skills.tar.gz"
     tar --exclude='.git' \
         --exclude='.gitignore' \
         --exclude='.DS_Store' \
@@ -47,11 +47,11 @@ if [ "$BUILD_BUNDLE" = true ]; then
         --exclude='vigeors' \
         --exclude='__pycache__' \
         --exclude='*.pyc' \
-        -czf "$DIST_DIR/antigravity-customizations.tar.gz" \
+        -czf "$DIST_DIR/agent-skills.tar.gz" \
         -C "$REPO_DIR/.." \
         "$(basename "$REPO_DIR")"
-    BUNDLE_SIZE=$(du -h "$DIST_DIR/antigravity-customizations.tar.gz" | cut -f1 | xargs)
-    echo "    ✓ Created: $DIST_DIR/antigravity-customizations.tar.gz ($BUNDLE_SIZE)"
+    BUNDLE_SIZE=$(du -h "$DIST_DIR/agent-skills.tar.gz" | cut -f1 | xargs)
+    echo "    ✓ Created: $DIST_DIR/agent-skills.tar.gz ($BUNDLE_SIZE)"
 fi
 
 echo "========================================================"
@@ -62,10 +62,10 @@ echo ""
 echo "Instructions for Target Computer (Offline / No GitHub):"
 echo ""
 echo "[Option 1: Full Suite (Antigravity, Cursor, Pi, Grok)]"
-echo "  1. Copy 'antigravity-customizations.tar.gz' to target machine"
+echo "  1. Copy 'agent-skills.tar.gz' to target machine"
 echo "  2. Extract and run installer:"
-echo "       tar -xzf antigravity-customizations.tar.gz"
-echo "       cd antigravity-customizations"
+echo "       tar -xzf agent-skills.tar.gz"
+echo "       cd agent-skills"
 echo "       ./setup.sh"
 echo ""
 echo "[Option 2: Skills Only (portable + Antigravity)]"

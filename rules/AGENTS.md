@@ -50,5 +50,5 @@ Details live in skills. Do not restate Mermaid allowlists, Plotly layout, or cha
 - Prefix persistent files with ISO date (`YYYY-MM-DD_<topic>.md`).
 - Skip formal reports for one-off answers; prefer text + tables.
 - Charts only when they beat a compact table. One idea per visual; no overlapping labels.
-- Saved technical markdown, Mermaid, asset paths → **`antigravity-reporting`**.
+- Saved technical markdown, Mermaid, asset paths → **`technical-reporting`**.
 - Plotly figures / SVG export QA → **`data-visualization`**. Seaborn/Matplotlib only if the repo already uses them.
