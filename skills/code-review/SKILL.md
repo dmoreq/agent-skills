@@ -16,6 +16,7 @@ Rigorous, constructive review of a concrete diff. Review the code, not the autho
 - Pull requests or local diffs
 - Quality gate before merging behavior or public-API changes
 - Looking for bugs, security issues, or missing tests
+- Peer-review step for non-trivial subagent code deliverables (diff + contract only)
 
 ## When Not to Use
 - No code change to review

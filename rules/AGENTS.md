@@ -17,6 +17,15 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
   - Keep apologies and acknowledgments extremely brief (e.g., "Thanks for the correction — here's the fix:"). Zero defensive explanations or groveling.
   - Ask for missing information directly; never ask for permission to ask.
 - **Change Discipline**: Work in small, focused increments (~100-300 lines). Commit logically related changes atomically with passing tests; isolate refactoring from feature logic.
+- **Subagent & Parallel Execution Discipline**:
+  - **Delegation Threshold**: Handle localized, linear, or small tasks (< ~100 lines) directly in the main thread. Delegate to subagents only when work is non-trivial, modular, or benefits from parallel execution / broad context isolation.
+  - **Planning & Decomposition**: In the planning phase, decompose work into decoupled streams along clean architectural boundaries (distinct files/modules). Avoid micro-tasking to prevent merge contention and context overhead.
+  - **Context Economy**: Supply subagents with strictly minimal context: isolated task spec, target file paths, and explicit acceptance criteria. Never dump conversation transcripts.
+  - **Peer-Review Gate**:
+    - Non-trivial subagent deliverables (code diffs, architecture, decisions) require an independent peer-review before acceptance.
+    - Feed the reviewer only the isolated deliverable + contract/criteria (strip author reasoning).
+    - Run review passes concurrently as streams complete; bound review-fix cycles to $\le 2$ iterations.
+    - Reconcile and resolve all Critical and Important findings before declaring completion.
 
 ## 2. Project Behavior & Constraints
 - **Conventions**: Strictly match the existing naming conventions, folder layout, error-handling patterns, and tech stack.

@@ -68,7 +68,7 @@ agent-skills/
 
 ### Core Principles
 - Hầu hết quan hệ là **optional handoff** (chỉ kích hoạt khi thật sự có điều kiện).
-- Chỉ duy trì **3 quan hệ cứng (Hard Invariants)** cốt lõi.
+- Chỉ duy trì **4 quan hệ cứng (Hard Invariants)** cốt lõi.
 - **Không bao giờ chain dài theo mặc định** để tối ưu hóa context và token.
 - **One home per fact**: mỗi quy tắc/list chỉ sống trong một skill hoặc `AGENTS.md`; skill khác chỉ pointer.
 - **Không nhét merge-gate vào YAML `description`**. Invariant merge nằm ở README + `code-review`. Related Skills dùng `Use X when <condition>`.
@@ -78,6 +78,7 @@ agent-skills/
 | Fact | Home | Not here |
 | :--- | :--- | :--- |
 | Tone, no emoji, scope, git/secrets, temp files | `rules/AGENTS.md` | Skills |
+| Subagent delegation, parallel planning & peer-review | `rules/AGENTS.md` | Skills |
 | Skip formal reports; tables first; date-prefixed files | `AGENTS.md` §5 stub | Full viz encyclopedias |
 | Saved markdown, Mermaid allowlist, asset paths | `technical-reporting` | Plotly, QBR narrative |
 | Plotly chart type, anti-overlap, SVG/Kaleido | `data-visualization` | Reporting, Dash figure restatement |
@@ -123,15 +124,16 @@ agent-skills/
 | **Optimization** | **`algorithm-optimization`** | KPI/process kém trên data thật; candidate từ `tech-research`; chẩn đoán từ `data-science` | `data-visualization` (before/after chart); `technical-reporting` (báo cáo); `python-performance` (nếu lộ runtime bottleneck) | Optional |
 | **Testing** | **`python-testing`** | Python behavior change từ `python-pro`; parity từ `pyo3-maturin`; risk từ `doubt-driven`; migration / cleanup | Safety net trước `code-review` cho Python | **Required for Python behavior changes** |
 | **Cleanup** | **`code-simplification`** | Complexity, deep nesting, duplication từ `code-review` hoặc sau feature complete | Dựa trên `python-testing` giữ nguyên behavior; đưa lại `code-review` | Optional |
-| **QA Gate** | **`code-review`** | PR/diff từ `python-pro`, `pyo3-maturin`, `code-simplification`, `deprecation-migration`, hoặc agent khác | `python-pro` (sửa code); `code-simplification` (giảm complexity); `deprecation-migration` (sunset legacy); merge khi đạt chuẩn | **Required on merge path** |
+| **QA Gate** | **`code-review`** | PR/diff từ `python-pro`, `pyo3-maturin`, `code-simplification`, `deprecation-migration`, hoặc subagent/agent khác | `python-pro` (sửa code); `code-simplification` (giảm complexity); `deprecation-migration` (sunset legacy); merge khi đạt chuẩn | **Required on merge path** |
 
 ---
 
-### 2. Ba quan hệ cứng duy nhất (Hard Invariants)
+### 2. Bốn quan hệ cứng (Hard Invariants)
 
 1. **`data-storytelling`** bắt buộc phải dựa trên insight đã được validate từ **`data-science`** (không tự bịa số liệu).
 2. **Merge behavior hoặc public-API diffs vào main** bắt buộc qua **`code-review`**.
 3. **Mọi thay đổi hành vi** bắt buộc có test: Python → **`python-testing`**; Rust → crate tests; Dash → unit + `dash_duo` khi đụng UI.
+4. **Chạy subagents**: Chỉ phân rã subagent cho task phi tầm thường (non-trivial, có ranh giới module rõ ràng); deliverable bắt buộc qua bước **peer-review** độc lập (tối đa 2 vòng, bám sát artifact + contract) trước khi nghiệm thu.
 
 *Tất cả các quan hệ còn lại đều mang tính chất có điều kiện (conditional/optional).*
 
@@ -229,6 +231,8 @@ deprecation-migration
 - ❌ **Merge PR khi chưa qua `code-review`**: Bỏ qua cổng kiểm soát an toàn 5 trục.
 - ❌ **Chain bắt buộc Research $\rightarrow$ Optimize $\rightarrow$ Report cho mọi request**: Chỉ kích hoạt skill phù hợp trực tiếp với intent của người dùng.
 - ❌ **Nhét “always code-review” vào YAML `description` của skill khác**: Merge-gate chỉ thuộc README + `code-review`.
+- ❌ **Spam subagent cho task nhỏ hoặc tuyến tính**: Tác vụ cục bộ, đơn giản (< ~100 dòng) xử lý trực tiếp ở main thread để tránh lãng phí token khởi tạo.
+- ❌ **Dump toàn bộ transcript vào subagent hoặc reviewer**: Chỉ chuyển artifact cô lập + contract/tiêu chí đánh giá để tối ưu hóa context.
 
 ---
 
