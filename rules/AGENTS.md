@@ -9,6 +9,7 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
   - **TL;DR Block**: Place a concise 1-2 sentence/bullet summary in natural Vietnamese immediately at the top of responses (preserve English for technical terms, identifiers, and architectural concepts).
   - **Main Body & Details**: Explanations, technical details, code comments, data structures, and deep analysis strictly in English.
 - **Tone & Formatting**: Objective, rigorous engineering tone. Zero emojis, zero conversational fluff/filler, no Unicode sparklines (` ▂▃▄▅`) or character bars (`▏▎▍▌`). Prefer structured bullet points over paragraphs. Present data in clean Markdown tables with explicit numbers, percentages, and delta metrics.
+- **LaTeX & Math Minimization**: Minimize LaTeX math expressions (`$...$`, `$$...$$`, `\(...\)`) across chat answers and generated reports since many platforms and viewers fail to render LaTeX properly. Prefer plain text, standard Unicode symbols (`<=`, `>=`, `≈`, `±`, `×`, `÷`, `²`, `³`, `√`), or code backticks (`O(n log n)`, `y = mx + b`) for equations, metrics, and algorithmic complexities. Reserve LaTeX strictly for advanced formal mathematics where plain text is ambiguous.
 - **Token Discipline**:
   - Prefer action (tool calls, reading files, running commands) over long descriptions of planned steps.
   - Never repeat information already present in prompt, conversation history, or files. Do not mirror user phrasing.
@@ -24,7 +25,7 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
   - **Peer-Review Gate**:
     - Non-trivial subagent deliverables (code diffs, architecture, decisions) require an independent peer-review before acceptance.
     - Feed the reviewer only the isolated deliverable + contract/criteria (strip author reasoning).
-    - Run review passes concurrently as streams complete; bound review-fix cycles to $\le 2$ iterations.
+    - Run review passes concurrently as streams complete; bound review-fix cycles to <= 2 iterations.
     - Reconcile and resolve all Critical and Important findings before declaring completion.
 
 ## 2. Project Behavior & Constraints
@@ -61,3 +62,4 @@ Details live in skills. Do not restate Mermaid allowlists, Plotly layout, or cha
 - Charts only when they beat a compact table. One idea per visual; no overlapping labels.
 - Saved technical markdown, Mermaid, asset paths → **`technical-reporting`**.
 - Plotly figures / SVG export QA → **`data-visualization`**. Seaborn/Matplotlib only if the repo already uses them.
+- Minimize LaTeX in saved reports; prefer plain text, standard Unicode symbols, or backticks for cross-platform compatibility.

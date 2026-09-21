@@ -115,6 +115,6 @@ Stop when:
 - [ ] Review prompt is adversarial
 - [ ] Findings are classified, not rubber-stamped
 - [ ] Actionable issues are fixed or explicitly deferred
-- [ ] Stop condition is reached ($\le 3$ cycles)
+- [ ] Stop condition is reached (<= 3 cycles)
 - [ ] Important residual risks are visible to the user
 - [ ] If research-derived, recommendation is tied to constraints and evidence quality was challenged

@@ -77,7 +77,7 @@ agent-skills/
 
 | Fact | Home | Not here |
 | :--- | :--- | :--- |
-| Tone, no emoji, scope, git/secrets, temp files | `rules/AGENTS.md` | Skills |
+| Tone, no emoji, LaTeX minimization, scope, git/secrets, temp files | `rules/AGENTS.md` | Skills |
 | Subagent delegation, parallel planning & peer-review | `rules/AGENTS.md` | Skills |
 | Skip formal reports; tables first; date-prefixed files | `AGENTS.md` §5 stub | Full viz encyclopedias |
 | Saved markdown, Mermaid allowlist, asset paths | `technical-reporting` | Plotly, QBR narrative |
@@ -211,7 +211,7 @@ deprecation-migration
 | Chọn asyncio / threads / processes | **`python-concurrency`** |
 | Điểm nghẽn độ trễ, ngốn CPU hoặc RAM | **`python-performance`** |
 | Làm Rust service / crate / performance-critical code | **`rust-pro`** (+ `rust-async-patterns` nếu cần async) |
-| Viết Rust native extension cho Python (CPU hotspot) | **`pyo3-maturin`** $\rightarrow$ **`python-testing`** $\rightarrow$ **`code-review`** |
+| Viết Rust native extension cho Python (CPU hotspot) | **`pyo3-maturin`** → **`python-testing`** → **`code-review`** |
 | Tối ưu chất lượng / accuracy / KPI trên dữ liệu thực tế | **`algorithm-optimization`** |
 | Viết, debug hoặc bổ sung test suite (pytest / TDD) | **`python-testing`** |
 | Code chạy đúng nhưng rối, nesting sâu, cần refactor | **`code-simplification`** |
@@ -229,7 +229,7 @@ deprecation-migration
 - ❌ **Dùng `algorithm-optimization` cho pure runtime tuning**: Cần dùng `python-performance` có profiling thực tế.
 - ❌ **`data-storytelling` tự tạo số liệu/insight**: Luôn phải nhận insight đã được chứng thực từ `data-science`.
 - ❌ **Merge PR khi chưa qua `code-review`**: Bỏ qua cổng kiểm soát an toàn 5 trục.
-- ❌ **Chain bắt buộc Research $\rightarrow$ Optimize $\rightarrow$ Report cho mọi request**: Chỉ kích hoạt skill phù hợp trực tiếp với intent của người dùng.
+- ❌ **Chain bắt buộc Research → Optimize → Report cho mọi request**: Chỉ kích hoạt skill phù hợp trực tiếp với intent của người dùng.
 - ❌ **Nhét “always code-review” vào YAML `description` của skill khác**: Merge-gate chỉ thuộc README + `code-review`.
 - ❌ **Spam subagent cho task nhỏ hoặc tuyến tính**: Tác vụ cục bộ, đơn giản (< ~100 dòng) xử lý trực tiếp ở main thread để tránh lãng phí token khởi tạo.
 - ❌ **Dump toàn bộ transcript vào subagent hoặc reviewer**: Chỉ chuyển artifact cô lập + contract/tiêu chí đánh giá để tối ưu hóa context.
