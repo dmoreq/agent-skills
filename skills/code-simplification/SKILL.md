@@ -10,7 +10,7 @@ date_added: "2026-08-23"
 
 # Code Simplification Skill
 
-Simplify code for clarity and maintainability without changing behavior.
+Simplify code for clarity and maintainability without changing behavior. Focus on existing working code.
 
 ## When to Use
 - Code works but is harder to read, maintain, or extend than it should be
@@ -54,6 +54,7 @@ Simplify code for clarity and maintainability without changing behavior.
 
 ## Related Skills
 - Triggered from **code-review** when structural complexity is flagged.
+- Use **code-minimalism** if the primary problem is speculative over-engineering or unnecessary libraries.
 - Use **python-testing** (or crate tests) to lock behavior before simplifying.
 - Before merge: **code-review**.
 

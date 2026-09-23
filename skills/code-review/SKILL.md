@@ -1,7 +1,7 @@
 ---
 name: code-review
 description: >-
-  Review a code diff before merge: correctness, safety, performance, tests, public API.
+  Review a code diff before merge: correctness, safety, performance, YAGNI, tests, public API.
   Not the first skill for implementing features. After findings, hand off fixes to the language skill.
 risk: safe
 source: local
@@ -15,7 +15,7 @@ Rigorous, constructive review of a concrete diff. Review the code, not the autho
 ## When to Use
 - Pull requests or local diffs
 - Quality gate before merging behavior or public-API changes
-- Looking for bugs, security issues, or missing tests
+- Looking for bugs, security issues, over-engineering, or missing tests
 - Peer-review step for non-trivial subagent code deliverables (diff + contract only)
 
 ## When Not to Use
@@ -26,7 +26,8 @@ Rigorous, constructive review of a concrete diff. Review the code, not the autho
 After findings: implement fixes via the language skill. Do not refuse the repair loop.
 
 ## Related Skills
-- Use **code-simplification** when the main issue is structural complexity, not a bug.
+- Use **code-simplification** when the main issue is structural complexity or nesting in existing code.
+- Use **code-minimalism** when diff contains bloat, unrequested abstractions, or premature dependencies.
 - Use **deprecation-migration** when the diff (or review) surfaces a zombie API that should be sunset.
 - Use **python-testing** or crate tests when behavior changed without tests.
 
@@ -40,7 +41,7 @@ Language style encyclopedias live in `python-pro`, `rust-pro`, and `rust-async-p
 
 ## Severity (text only — no emoji)
 - **Critical** — must fix before merge (bugs, security, data loss, undefined behavior)
-- **Important** — should fix (quality, performance, maintainability)
+- **Important** — should fix (quality, performance, maintainability, over-engineering)
 - **Suggestion** — nicer alternative
 - **Nit** — style; label as nit
 
@@ -52,6 +53,8 @@ Language style encyclopedias live in `python-pro`, `rust-pro`, and `rust-async-p
 **Performance:** no obvious extra work on hot paths; I/O/allocs reasonable; concurrency used correctly.
 
 **Maintainability:** readable names; complex logic explained or simplified; public APIs intentional.
+
+**Over-Engineering & YAGNI:** no unrequested abstractions; no interface with only one implementation; no factory for a single product; no new external dependencies when stdlib or existing libraries suffice; deliberate minimal simplifications note their ceiling (`# ponytail: <limit>`).
 
 **Testing:** important paths and edges covered; tests assert behavior, not coverage theater.
 
