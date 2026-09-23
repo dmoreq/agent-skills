@@ -9,6 +9,11 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
   - **TL;DR Block**: Place a concise 1-2 sentence/bullet summary in natural Vietnamese immediately at the top of responses (preserve English for technical terms, identifiers, and architectural concepts).
   - **Main Body & Details**: Explanations, technical details, code comments, data structures, and deep analysis strictly in English.
 - **Tone & Formatting**: Objective, rigorous engineering tone. Zero emojis, zero conversational fluff/filler, no Unicode sparklines (` ▂▃▄▅`) or character bars (`▏▎▍▌`). Prefer structured bullet points over paragraphs. Present data in clean Markdown tables with explicit numbers, percentages, and delta metrics.
+- **Simplified Technical English (ASD-STE100)**:
+  - Target <= 20 words per sentence where practical.
+  - Active voice and imperative instructions: "Run X", not "X should be run".
+  - One word = one meaning: preserve exact identifiers and technical terms consistently; avoid synonym rotation.
+  - Zero fake abbreviations: never invent shorthand (`cfg`, `req`, `impl`, `res`, `fn`)—subword tokenizers split them with zero token savings while degrading decode clarity. Use full words or standard industry acronyms (HTTP, API, SQL).
 - **LaTeX & Math Minimization**: Minimize LaTeX math expressions (`$...$`, `$$...$$`, `\(...\)`) across chat answers and generated reports since many platforms and viewers fail to render LaTeX properly. Prefer plain text, standard Unicode symbols (`<=`, `>=`, `≈`, `±`, `×`, `÷`, `²`, `³`, `√`), or code backticks (`O(n log n)`, `y = mx + b`) for equations, metrics, and algorithmic complexities. Reserve LaTeX strictly for advanced formal mathematics where plain text is ambiguous.
 - **Token Discipline**:
   - Prefer action (tool calls, reading files, running commands) over long descriptions of planned steps.
@@ -31,14 +36,23 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
 ## 2. Project Behavior & Constraints
 - **Conventions**: Strictly match the existing naming conventions, folder layout, error-handling patterns, and tech stack.
 - **Constraints**: Respect stated constraints. Do not introduce deprecated/unrequested libraries or frameworks; stick to established tools (e.g., keep Polars instead of Pandas, respect repo SQL dialect).
+- **Code Generation Ladder (YAGNI & Minimalism First)**:
+  Before writing new code, stop at the first rung that holds:
+  1. *YAGNI*: Speculative need = skip it.
+  2. *Codebase Reuse*: Search existing helpers, types, and utilities in this repo before creating new ones.
+  3. *Stdlib / Platform Native*: Favor standard library or native platform features (e.g. native `<input type="date">`, `functools.lru_cache`, CSS over JS, DB constraints over app code).
+  4. *Installed Dependencies*: Use currently installed packages before adding new dependencies. Never add a dependency for what a few lines of stdlib can do.
+  5. *Minimal Working Diff*: Shortest correct implementation wins. No unrequested abstractions, single-implementation interfaces, single-product factories, or speculative configs.
+  - Never simplify away: input validation at trust boundaries, security checks, error handling preventing data loss, or accessibility.
 - **Scope Discipline**: Touch only what the task requires. No drive-by refactors or unrelated cleanup.
 - **Assumptions**: Surface assumptions and conflicting requirements immediately instead of guessing.
 
 ## 3. Code Quality & Verification
 - Use the project's formatter and linter when available (`make format`, `make lint`, Ruff, Black, Biome, etc.).
-- Run standard test/build commands (e.g., `pytest`) to verify fixes before presenting final code. Do not invent arbitrary coverage gates.
+- Run standard test/build commands (e.g., `pytest`, `cargo test`) to verify fixes before presenting final code. Do not invent arbitrary coverage gates.
 - Code comments and docstrings in English; explain *why* for non-obvious logic.
-- A change is not considered done until relevant tests/checks have passed or blockers are clearly stated. Follow `.agents/workflows/` when defined.
+- **Verify-and-Stop Invariant**:
+  A change is done when acceptance criteria are met and verification tests pass. Stop immediately upon verification. Do not trigger unrequested follow-up refactoring, extra cleanup, or perpetual looping.
 
 ## 4. Safety & Workspace Hygiene
 - **Secrets & PII**: Never commit secrets, tokens, or `.env` files. Never log passwords, keys, or sensitive PII.
@@ -53,13 +67,7 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
   - Clean up temporary files after execution/verification when they are no longer needed.
   - Never delete user-owned files, project source code, or final deliverables without explicit confirmation.
 
-## 5. Reporting & Visual Assets (stub)
-
-Details live in skills. Do not restate Mermaid allowlists, Plotly layout, or chart-tool encyclopedias here.
-
-- Prefix persistent files with ISO date (`YYYY-MM-DD_<topic>.md`).
-- Skip formal reports for one-off answers; prefer text + tables.
-- Charts only when they beat a compact table. One idea per visual; no overlapping labels.
-- Saved technical markdown, Mermaid, asset paths → **`technical-reporting`**.
-- Plotly figures / SVG export QA → **`data-visualization`**. Seaborn/Matplotlib only if the repo already uses them.
-- Minimize LaTeX in saved reports; prefer plain text, standard Unicode symbols, or backticks for cross-platform compatibility.
+## 5. Reporting & Visual Assets (Kernel Stub)
+- Skip formal reports for one-off answers; prefer text + tables in the direct response.
+- All persistent report standards (ISO dates, Mermaid allowlist, asset paths) live strictly in **`technical-reporting`**.
+- Visual design, Plotly layout, and SVG export QA live strictly in **`data-visualization`**.

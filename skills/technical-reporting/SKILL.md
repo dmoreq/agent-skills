@@ -45,9 +45,7 @@ Create a saved technical markdown document when the user asked for a durable rep
 
 ## 4. Content Standards
 - Start with `TL;DR` / Executive Summary (metrics + takeaway).
-- Professional engineering prose. No emojis, no Unicode sparklines or character bars (see global rules).
-- Default to Markdown tables with explicit numbers, percentages (2 decimals), and deltas vs baseline.
-- Minimize LaTeX math notation (`$...$`, `$$...$$`). Many downstream platforms (internal wikis, issue trackers, terminal renderers) lack KaTeX/MathJax. Express equations, bounds, and metrics using plain text, standard Unicode symbols (`<=`, `>=`, `≈`, `±`, `×`), or backticks (`O(n log n)`). Reserve LaTeX only for advanced multi-line formal mathematics.
+- Inherit global communication invariants (`AGENTS.md` §1): zero fluff, table preferences, and plain-text/Unicode math over LaTeX.
 - Charts only when they reveal a pattern a table would hide.
 
 ## Final Checklist
@@ -56,5 +54,4 @@ Create a saved technical markdown document when the user asked for a durable rep
 - [ ] TL;DR with key metrics
 - [ ] Mermaid headers from the allowlist, or SVG via `data-visualization`
 - [ ] Relative asset paths
-- [ ] Claims backed by numbers
-- [ ] LaTeX minimized in favor of plain text, Unicode, or backticks
+- [ ] Claims backed by explicit numbers
