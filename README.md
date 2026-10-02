@@ -137,17 +137,18 @@ agent-skills/
 | **Rust Concurrency**| **`rust-async-patterns`** | Tokio, channels, streams | `rust-pro`; `code-review` | Optional (Rust skill) |
 | **Optimization** | **`algorithm-optimization`** | KPI/quality degradation on real data | `data-visualization` (charts); `technical-reporting` | Optional |
 | **Testing** | **`python-testing`** | Logic change from `python-pro` or cleanup | Pre-merge verification safety net | **Required for logic changes** |
-| **Cleanup** | **`code-simplification`** | Deep nesting, complexity flagged in review | Verified by tests; returned to `code-review` | Optional |
-| **QA Gate** | **`code-review`** | PR/diff from implementation or refactoring | Merged when passing 6 review axes | **Required on merge path** |
+| **Cleanup** | **`code-simplification`** | Deep nesting, Cyclomatic/Cognitive complexity flagged | Verified by tests; returned to `code-review` | Optional |
+| **QA Gate** | **`code-review`** | PR/diff from implementation or refactoring | Merged when passing 6 review axes & complexity gates | **Required on merge path** |
 
 ---
 
-### 2. Four Hard Invariants
+### 2. Five Hard Invariants
 
 1. **`data-storytelling`** must strictly use validated metrics from **`data-science`** (zero invented numbers).
 2. **Behavior or public-API diffs** must pass **`code-review`** before merge.
 3. **Behavior modifications** require tests: Python → **`python-testing`**; Rust → crate tests; Dash → integration tests.
 4. **Subagent Delegation**: Only delegate non-trivial, modular tasks (< ~100 lines stays in main thread); subagent deliverables require independent **peer-review** (<= 2 rounds) before acceptance.
+5. **Structural Complexity Limits**: Functions must maintain Cyclomatic Complexity <= 10, Cognitive Complexity <= 15, and Nesting Depth <= 3.
 
 ---
 

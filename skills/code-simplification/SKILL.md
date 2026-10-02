@@ -45,6 +45,16 @@ Simplify code for clarity and maintainability without changing behavior. Focus o
 4. Verify tests/build still pass.
 5. Stop when a new teammate would understand it faster.
 
+## Refactoring Recipes for Complexity
+1. **Invert and Guard (Reduces Cognitive and Nesting Complexity)**:
+   - Invert nested conditional branches to return or continue early.
+   - Keep maximum indentation depth <= 3.
+2. **Dispatch Table or Dictionary Map (Reduces Cyclomatic Complexity)**:
+   - Replace long `if/elif/else` ladders with dictionary or match-case lookups for discrete keys.
+3. **Pipeline and Decomposition (Reduces Function Volume and Coupling)**:
+   - Extract multi-step sequences into private helper functions or generator pipelines.
+   - Keep function bodies <= 50 effective lines.
+
 ## Do Not
 - Change behavior to make code "nicer"
 - Remove error handling, logging, or guards that encode intent
