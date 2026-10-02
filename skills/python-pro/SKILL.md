@@ -56,7 +56,8 @@ Unsupported for new work unless the repo MSRV is already pinned there. State the
 
 ## Recommended Defaults (adapt to version)
 - Package & environment: `uv` (or the repo's existing venv)
-- Lint + format: `ruff`
+- Lint + format: `ruff` (enforce complexity: `C901` max-complexity = 10, `PLR0912` max-branches = 12, `PLR0915` max-statements = 50)
+- Cognitive Complexity audit: `complexipy` (target score <= 15 per function)
 - Types: `pyright` (strict where viable) or `mypy`
 - Tests: `pytest`
 - Config: `pyproject.toml`
@@ -69,7 +70,7 @@ Unsupported for new work unless the repo MSRV is already pinned there. State the
 2. Define module boundaries, `__all__`, and data contracts.
 3. Implement with types, no import-time side effects, explicit errors.
 4. Add isolated tests (`python-testing`).
-5. Run `ruff` and `pyright`/`mypy`.
+5. Run `ruff` (with `C901` complexity checks) and `pyright`/`mypy`.
 6. Profile only when there is a measured hotspot (`python-performance`).
 
 ## Output Expectations
@@ -86,5 +87,6 @@ Unsupported for new work unless the repo MSRV is already pinned there. State the
 - [ ] Dependencies abstracted via Protocol or injection
 - [ ] No import-time I/O
 - [ ] Types complete for the target version
+- [ ] Complexity within limits (Cyclomatic <= 10, Cognitive <= 15, Nesting <= 3)
 - [ ] No bare `except:`
 - [ ] Older-runtime limitations noted when applicable

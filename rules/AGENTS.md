@@ -51,6 +51,11 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
 - Use the project's formatter and linter when available (`make format`, `make lint`, Ruff, Black, Biome, etc.).
 - Run standard test/build commands (e.g., `pytest`, `cargo test`) to verify fixes before presenting final code. Do not invent arbitrary coverage gates.
 - Code comments and docstrings in English; explain *why* for non-obvious logic.
+- **Structural Complexity Thresholds**:
+  - Maximum Nesting Depth: <= 3 indentation levels. Refactor deeper logic with guard clauses or helper functions.
+  - Cyclomatic Complexity: <= 10 per function/method.
+  - Cognitive Complexity: <= 15 per function/method.
+  - Function Length: Target <= 50 effective lines of code (excluding docstrings and type annotations).
 - **Verify-and-Stop Invariant**:
   A change is done when acceptance criteria are met and verification tests pass. Stop immediately upon verification. Do not trigger unrequested follow-up refactoring, extra cleanup, or perpetual looping.
 
