@@ -43,8 +43,8 @@ Load `resources/implementation-playbook.md` **only** for a named profiler recipe
 Latency, CPU, memory, or throughput? Numeric target? Constraints (Python version, deps, architecture freeze)?
 
 ### 2. Profile
-- **CPU / runtime**: `cProfile`, `py-spy`, `scalene`
-- **Memory**: `tracemalloc`, `scalene` (`memory_profiler` if already in the repo)
+- **CPU / runtime**: `py-spy` (non-intrusive sampling for live processes), `cProfile` (deterministic), `scalene`
+- **Memory**: `memray` (SOTA heap profiler, tracks native C and Python allocations, generates flamegraphs), `scalene`, `tracemalloc`
 - **Line-level**: `line_profiler` or sampling profilers
 - **I/O**: timing/logs or async-aware profilers
 
@@ -54,18 +54,24 @@ Use `time.perf_counter` / `timeit`, not `time.time()`. Ignore micro-gains off th
 
 | Type | Signs | Direction |
 | :--- | :--- | :--- |
-| **CPU-bound** | High CPU, pure compute | Algorithm, vectorization (NumPy/Polars if dataframes), concurrency |
-| **I/O-bound** | Waiting on net/disk/DB | Async, batching, caching, pooling |
-| **Memory-bound** | High RSS, GC pressure | Generators, in-place ops, smaller structures |
-| **Database** | Slow queries, N+1 | Indexes, query shape, batching |
-| **Algorithmic** | Scales poorly with n | Better complexity, early exit |
+| **CPU-bound** | High CPU, pure compute | Algorithm, vectorization (NumPy/Polars), SIMD libraries, concurrency |
+| **I/O-bound** | Waiting on net/disk/DB | Async, batching, caching, connection pooling |
+| **Memory-bound** | High RSS, GC pressure, OOM | `memray` flamegraph, generators, `@dataclass(slots=True)`, `memoryview` |
+| **Database** | Slow queries, N+1 queries | Indexes, query shape, batch fetching |
+| **Algorithmic** | Scales poorly with n (O(n²)) | Better complexity, early exit, hash lookups |
 
 ### 4. Apply (in order)
-1. Better algorithm or data structure
-2. Less work (cache, batch, skip repeats)
-3. Better libraries (Polars/NumPy where the repo already processes tables/arrays)
-4. Concurrency only when appropriate
-5. Low-level tricks last
+1. Better algorithm or data structure (replace linear search with dict/set, early exit).
+2. Less work (memoize/cache with `@functools.lru_cache`, batch operations).
+3. **Drop-in SIMD / Native Accelerators**:
+   - JSON parsing: `orjson` (Rust-based, 5x–10x faster serialization of datetime, dataclasses, dicts).
+   - Fuzzy string matching: `rapidfuzz` (C++ bindings, 10x–50x faster than fuzzywuzzy).
+   - Large text search & hashing: `stringzilla` (C/SIMD vector instructions on AVX2/NEON).
+   - Data processing: `polars` (Rust arrow engine) over Pandas.
+   - Zero-copy buffer slicing: `memoryview` and `bytearray` (prevents intermediate string copies).
+   - Memory footprint: `@dataclass(slots=True)` (eliminates `__dict__`, reducing RAM by 40–60%).
+4. Concurrency or parallelism only when workload matches (`python-concurrency`).
+5. Low-level tricks or Rust FFI (`pyo3-maturin`) last.
 
 ### 5. Validate
 Same benchmark as baseline. Correctness preserved. Gain worth the complexity.

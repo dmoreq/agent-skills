@@ -39,7 +39,7 @@ All must be true:
 Prefer extracting a hot function over rewriting a module.
 
 ## Recommended Stack
-- PyO3, Maturin (`maturin develop`, `maturin build`)
+- PyO3 (0.21+ with `Bound<'py, T>` API), Maturin (`maturin develop`, `maturin build`)
 - `pyproject.toml` + `Cargo.toml`
 - `uv` for the Python env
 
@@ -56,11 +56,16 @@ my-project/
 - Native submodule e.g. `my_project._native`
 - Ignore `*.so`, `*.pyd`, `target/`
 
-## GIL
-1. Extract/copy args while holding the GIL
-2. `py.allow_threads(...)` for compute
-3. Pure Rust (Rayon only **after** detaching)
-4. Return `PyResult<T>` mapped to Python exceptions
+## GIL & Memory Transfer (PyO3 0.21+)
+1. **Modern Bound API**: Use `Bound<'py, T>` smart pointers (e.g. `Bound<'_, PyList>`, `Bound<'_, PyDict>`) for compile-time GIL safety.
+2. **Zero-Copy Exchange**:
+   - For arrays: use `numpy` crate with `PyReadonlyArray` / `PyReadwriteArray` to access memory directly without allocation.
+   - For binary data: use `PyBuffer<u8>` to inspect contiguous memory without cloning.
+   - For tabular queries: use `pyo3-polars` for native Polars expression plugins executed without GIL overhead.
+3. **GIL Release**:
+   - `py.allow_threads(...)` for pure compute.
+   - Run parallel iterators (Rayon) only **after** detaching GIL via `allow_threads`.
+4. **Return Types**: Return `PyResult<T>` mapped to standard Python exceptions (`PyValueError`, `PyRuntimeError`).
 
 Never hold the GIL in long CPU loops. Minimize boundary crossings; process bulk data.
 
