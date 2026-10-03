@@ -58,8 +58,9 @@ Unsupported for new work unless the repo MSRV is already pinned there. State the
 - Package & environment: `uv` (or the repo's existing venv)
 - Lint + format: `ruff` (enforce complexity: `C901` max-complexity = 10, `PLR0912` max-branches = 12, `PLR0915` max-statements = 50)
 - Cognitive Complexity audit: `complexipy` (target score <= 15 per function)
+- Code duplication detection: `jscpd` (target clone threshold <= 3%, min-lines = 15, min-tokens = 60)
 - Types: `pyright` (strict where viable) or `mypy`
-- Quality gates: `pre-commit` (ruff-check, ruff-format, pyright, bandit, complexipy ratchet, vulture, pip-audit)
+- Quality gates: `pre-commit` (ruff-check, ruff-format, pyright, bandit, complexipy ratchet, vulture, jscpd, pip-audit)
 - Tests: `pytest`
 - Config: `pyproject.toml`
 - Models: `dataclasses` + `slots=True` internally; Pydantic v2 at I/O boundaries
@@ -144,6 +145,19 @@ repos:
         args: [--min-confidence=80, <target_packages>]
         pass_filenames: false
 
+  # Code duplication detection (Type-1 and Type-2 clones)
+  - repo: https://github.com/kucherenko/jscpd
+    rev: v5.4.0
+    hooks:
+      - id: jscpd
+        args: [
+          "--min-lines", "15",
+          "--min-tokens", "60",
+          "--threshold", "3",
+          "--ignore", "tests/**,**/fixtures/**,**/*.json,**/*.xz"
+        ]
+        pass_filenames: false
+
   # Validate pyproject.toml structure
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.22
@@ -160,21 +174,25 @@ repos:
 ```
 
 ### 2. Standard Makefile Integration
-Always configure standard pre-commit targets in `Makefile`:
+Always configure standard pre-commit and duplication targets in `Makefile`:
 ```makefile
 pre-commit-install:
 	pre-commit install
 
 pre-commit-run:
 	pre-commit run --all-files
+
+duplication-check:
+	npx jscpd <target_packages> --min-lines 15 --min-tokens 60 --threshold 3 --ignore "tests/**,**/fixtures/**"
 ```
 
 ### 3. Provisioning & Verification Protocol
 1. Add `pre-commit` to `[project.optional-dependencies] dev` in `pyproject.toml`.
-2. Write `.pre-commit-config.yaml` with the project package directories in `complexipy` and `vulture`.
+2. Write `.pre-commit-config.yaml` with the project package directories in `complexipy`, `vulture`, and `jscpd`.
 3. If legacy functions exceed cognitive complexity 15, initialize the watermark baseline:
    `complexipy <packages> --max-complexity-allowed 15 --snapshot-create`
 4. Run `pre-commit install && pre-commit run --all-files` to verify all hooks pass cleanly.
+5. Verify repository code duplication stays within the 3% budget.
 
 ## Output Expectations
 - Code compatible with the confirmed Python version
@@ -191,6 +209,7 @@ pre-commit-run:
 - [ ] No import-time I/O
 - [ ] Types complete for the target version
 - [ ] Complexity within limits (Cyclomatic <= 10, Cognitive <= 15, Nesting <= 3)
+- [ ] Code duplication within limits (jscpd <= 3%)
 - [ ] Pre-commit quality gates provisioned and passing cleanly
 - [ ] No bare `except:`
 - [ ] Older-runtime limitations noted when applicable
