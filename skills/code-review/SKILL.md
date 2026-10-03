@@ -39,28 +39,37 @@ Language style encyclopedias live in `python-pro`, `rust-pro`, and `rust-async-p
 - Explain *why*
 - Teach when it is cheap
 
-## Review Workflow & Pre-Flight Gate
-Always execute automated repository gates before manual semantic review:
+## Review Workflow & Gates
+Execute automated and structural gates before manual semantic review:
 1. **Automated Quality Pre-Flight Gate (Execute First)**:
    - If `.pre-commit-config.yaml` exists: run `pre-commit run` (or `make pre-commit-run`).
    - If test suite exists: run verification tests (`pytest -q` or `cargo test`).
    - If pre-commit or tests fail: halt deep review immediately. Report failures as a **Critical** blocker.
    - Never spend manual review effort on mechanical linting, formatting, or typing errors.
-2. **Semantic & Architectural Review**:
-   - Once automated checks pass, inspect the diff against the Universal Checklist.
+2. **Reviewability & Blast Radius Gate**:
+   - **Reviewability Budget**: Diff exceeds 400 effective lines of code (excluding lockfiles/fixtures) -> **Important** (request splitting into modular stacked PRs).
+   - **Separation of Concerns**: Diff mixes mechanical refactoring with business logic -> **Important** (request isolating refactors into dedicated commits).
+   - **Public Surface**: Public function or API signature changed without backward compatibility or version bump -> **Critical**.
+3. **Omission Checklist (Verify What Is Missing)**:
+   - **Error Path Cleanup**: Are open resources (files, sockets, DB transactions) released in failure branches?
+   - **Observability**: Are new error states logged with contextual parameters?
+   - **Negative & Edge Tests**: Are boundary cases (empty collections, None inputs, timeouts) covered by tests?
+   - **Documentation Sync**: Are `CHANGELOG.md`, `__all__`, or `README.md` updated for public changes?
+4. **Semantic & Architectural Review**:
+   - Once automated and structural checks pass, inspect the diff against the Universal Checklist.
 
 ## Severity (text only — no emoji)
-- **Critical** — must fix before merge (bugs, security, data loss, undefined behavior, pre-commit/test failures)
-- **Important** — should fix (quality, performance, maintainability, over-engineering, complexity violations)
-- **Suggestion** — nicer alternative
-- **Nit** — style; label as nit
+- **Critical** — must fix before merge (bugs, security vulnerabilities, data loss, pre-commit/test failures, breaking API shifts)
+- **Important** — should fix (maintainability, complexity violations, missing error handling, missing tests, diff size violations)
+- **Suggestion** — nicer alternative with clear technical trade-off
+- **Nit** — non-blocking style preference; limit to <= 2 items per review; never block a merge on nits
 
 ## Universal Checklist
 **Correctness:** does what it claims; edge and error paths; no obvious races.
 
 **Safety & Security:** inputs validated; no injection; no hardcoded secrets; errors do not leak secrets.
 
-**Performance:** no obvious extra work on hot paths; I/O/allocs reasonable; concurrency used correctly.
+**Performance & Concurrency:** no extra work on hot paths; I/O/allocs reasonable; concurrency used correctly; no shared mutable state without locks.
 
 **Maintainability & Complexity:** readable names; complex logic explained or simplified; public APIs intentional.
 - Gate: Cyclomatic Complexity > 10, Cognitive Complexity > 15, or Nesting Depth >= 4 -> **Important** (must request simplification via `code-simplification`).
@@ -76,12 +85,17 @@ Always execute automated repository gates before manual semantic review:
 - **Rust:** `rust-pro`; no `.unwrap()` in non-test prod; `// SAFETY:` on unsafe; no locks across `.await` (`rust-async-patterns`).
 
 ## Output Format
-1. **Summary** — 1–3 sentences
-2. **Findings** — Critical → Nit
-3. **Positive notes** — if any
-4. **Questions** — if any
+1. **Summary** — 1–3 sentences stating diff scope, pre-flight gate status, and verdict.
+2. **Findings** — Ordered by severity: Critical → Nit.
+3. **Positive notes** — Highlight clean patterns or effective tests (if any).
+4. **Questions** — Clarify ambiguous architectural assumptions (if any).
 
-Each finding: severity, file:line, description, suggested fix, why it matters.
+### Finding Format Invariant
+Every Critical and Important finding MUST contain:
+- **Location**: `path/to/file.py#L42-L46`
+- **Failure Scenario**: Concrete input condition or race condition that triggers the defect.
+- **Drop-in Fix**: Exact replacement code block ready to apply.
+- **Rationale**: Operational impact, security vulnerability, or data loss risk.
 
 ## Tone
-Direct, professional, constructive. Prefer “This can cause…” over “You should…”.
+Direct, professional, constructive. Prefer “This causes…” over “You should…”. Zero comments is valid when the diff is clean.
