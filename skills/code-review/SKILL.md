@@ -55,6 +55,7 @@ Language style encyclopedias live in `python-pro`, `rust-pro`, and `rust-async-p
 **Maintainability & Complexity:** readable names; complex logic explained or simplified; public APIs intentional.
 - Gate: Cyclomatic Complexity > 10, Cognitive Complexity > 15, or Nesting Depth >= 4 -> **Important** (must request simplification via `code-simplification`).
 - Gate: Cyclomatic Complexity > 20 or Cognitive Complexity > 20 without architectural rationale -> **Critical**.
+- Gate: Unjustified code duplication (> 15 identical lines or cloned logic blocks) -> **Important** (must extract to shared helper).
 
 **Over-Engineering & YAGNI:** no unrequested abstractions; no interface with only one implementation; no factory for a single product; no new external dependencies when stdlib or existing libraries suffice; deliberate minimal simplifications note their ceiling (`# ponytail: <limit>`).
 
