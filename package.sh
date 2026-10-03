@@ -16,7 +16,7 @@ echo "========================================================"
 BUILD_SKILLS=true
 BUILD_BUNDLE=true
 
-case "$1" in
+case "${1:-}" in
     --skills-only)
         BUILD_BUNDLE=false
         ;;
@@ -44,7 +44,6 @@ if [ "$BUILD_BUNDLE" = true ]; then
         --exclude='.gitignore' \
         --exclude='.DS_Store' \
         --exclude='dist' \
-        --exclude='vigeors' \
         --exclude='__pycache__' \
         --exclude='*.pyc' \
         -czf "$DIST_DIR/agent-skills.tar.gz" \
@@ -61,12 +60,13 @@ echo "========================================================"
 echo ""
 echo "Instructions for Target Computer (Offline / No GitHub):"
 echo ""
-echo "[Option 1: Full Suite (Antigravity, Cursor, Pi, Grok)]"
+echo "[Option 1: Full Suite (Antigravity, Cursor, Pi, Grok, Windsurf)]"
 echo "  1. Copy 'agent-skills.tar.gz' to target machine"
 echo "  2. Extract and run installer:"
 echo "       tar -xzf agent-skills.tar.gz"
 echo "       cd agent-skills"
-echo "       ./setup.sh"
+echo "       ./setup.sh              # Default: skips Rust skills"
+echo "       ./setup.sh --with-rust  # Includes Rust skills (rust-pro, rust-async-patterns, pyo3-maturin)"
 echo ""
 echo "[Option 2: Skills Only (portable + Antigravity)]"
 echo "  1. Copy 'skills.tar.gz' to target machine"

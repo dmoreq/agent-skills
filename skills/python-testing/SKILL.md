@@ -41,16 +41,29 @@ Load `resources/implementation-playbook.md` **only** for a concrete pytest recip
 | Layer | Purpose | Typical tools |
 | :--- | :--- | :--- |
 | **Unit** | Business logic, pure functions | pytest, parametrize |
+| **Property-based** | Data invariants, parsers, serializers | hypothesis |
 | **Integration** | API, DB, queue, filesystem | pytest + TestClient/httpx |
 | **End-to-end** | Critical flows | few, high-value |
 
 Prioritize: critical paths → edge/failure modes → regressions for fixed bugs.
 
-## Pytest Patterns
+## Pytest Configuration & Patterns
+- Set strict flags in `pyproject.toml`:
+  ```toml
+  [tool.pytest.ini_options]
+  addopts = "--strict-markers --strict-config -ra"
+  testpaths = ["tests"]
+  ```
 - Fixtures for reusable setup, not hidden magic.
-- Parametrize input matrices.
+- Parametrize input matrices; use `hypothesis` for generative property tests.
 - Factory helpers over giant fixture graphs.
 - Name by behavior: `test_rejects_invalid_token`.
+
+## Flaky-Test & Determinism Guardrails
+- **Hash-Seed Stability**: Verify dictionary/set iteration order does not break tests:
+  Run with `PYTHONHASHSEED=random pytest`.
+- **Time Mocking**: Use `time-machine` (or `freezegun`) to freeze time deterministically. Never monkeypatch `time.time()` manually.
+- **Randomness**: Always seed RNG fixtures (`random.seed(42)`).
 
 ## Mocking
 Mock: external HTTP, third-party services, time/randomness.
@@ -74,7 +87,8 @@ Skip ritual TDD on spikes; add tests before the code hardens.
 
 ## Test Design Checklist
 - [ ] Behavior under test is clear
-- [ ] Deterministic and isolated
+- [ ] Deterministic and isolated (passes under `PYTHONHASHSEED=random`)
+- [ ] Strict markers and config enforced in `pyproject.toml`
 - [ ] Assertions specific
 - [ ] External deps handled appropriately
 - [ ] Failure messages diagnosable

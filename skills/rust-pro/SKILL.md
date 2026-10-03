@@ -74,6 +74,8 @@ Senior Rust for services, crates, CLIs, and systems code. Edition 2024 requires 
 - Unit + integration + doc tests
 - proptest on invariants; criterion on hot paths
 - clippy + `cargo deny` / `cargo audit` as the repo already uses them
+- Enforce complexity thresholds in `clippy.toml`: `cognitive-complexity-threshold = 15`
+- Warn on excessive complexity or function size: `#![warn(clippy::cognitive_complexity)]`, `#![warn(clippy::too_many_lines)]`
 
 ## Response Approach
 1. Clarify safety, performance, MSRV, and runtime constraints
@@ -89,6 +91,6 @@ Senior Rust for services, crates, CLIs, and systems code. Edition 2024 requires 
 - [ ] Lifetimes/ownership are minimal and correct
 - [ ] All `unsafe` blocks have `// SAFETY:`
 - [ ] Public API is minimal and documented
-- [ ] Clippy-clean at the repo's clippy level
+- [ ] Clippy-clean and complexity within limits (Cognitive <= 15, nesting <= 3)
 - [ ] Tests for the behavior change
 - [ ] Async work handed to `rust-async-patterns`
