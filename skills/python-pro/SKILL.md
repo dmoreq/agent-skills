@@ -34,7 +34,10 @@ Write clean, typed, idiomatic Python. Prefer Python 3.12+ when the runtime allow
 Confirm the target Python version first.
 
 ### Python 3.12+ (Preferred)
-Use modern syntax: `type` aliases (PEP 695), native generics, enhanced f-strings, `@override` (`from typing import override`).
+Use modern syntax:
+- PEP 695 type statements: `type Coordinate = tuple[float, float]` (replaces `TypeAlias`).
+- Native generics on functions and classes: `def first[T](items: list[T]) -> T: ...` (replaces `TypeVar`).
+- Enhanced f-strings and `@override` (`from typing import override`).
 
 ### Python 3.10–3.11 (Constrained)
 Stay compatible with the runtime. Use `typing_extensions` where the project already allows it (`Protocol`, `ParamSpec`, `TypeGuard`). Avoid 3.12-only syntax. Note upgrade benefits when relevant.
@@ -44,7 +47,10 @@ Unsupported for new work unless the repo MSRV is already pinned there. State the
 
 ## Core Principles
 - Prefer the newest features the target version allows.
-- Functions and data over gratuitous OOP. Prefer `dataclass(slots=True)` or Pydantic at boundaries.
+- **Model Boundary Separation**:
+  - Untrusted I/O boundaries (HTTP API, CLI parsing, external config): Pydantic v2 (`model_validate`, `model_dump`).
+  - Internal domain logic & hot computation loops: `@dataclass(slots=True)` for 5x–10x faster instantiation and 60% lower memory.
+- **PEP 561 Packaging Invariant**: Every typed library package MUST include a `py.typed` marker file in package data so downstream type checkers recognize its types.
 - Structural subtyping: `typing.Protocol` over deep `abc.ABC` trees.
 - Explicit public surface: `__all__`; `_name` for internals.
 - Rule of Three before shared abstractions.
@@ -211,5 +217,6 @@ duplication-check:
 - [ ] Complexity within limits (Cyclomatic <= 10, Cognitive <= 15, Nesting <= 3)
 - [ ] Code duplication within limits (jscpd <= 3%)
 - [ ] Pre-commit quality gates provisioned and passing cleanly
+- [ ] py.typed marker file included if library package is typed (PEP 561)
 - [ ] No bare `except:`
 - [ ] Older-runtime limitations noted when applicable

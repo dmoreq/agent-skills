@@ -38,21 +38,29 @@ Choose based on context, not habit.
 
 Ask: API-only or full-stack? Need built-in admin? Team async-ready? Existing constraints?
 
-## 2. Typing Strategy
-Always type function parameters/returns, public APIs, and class attributes that matter. Can be lighter on obvious locals, one-off scripts, and some tests. Prefer `list[str]`, `str | None` when the version allows. Pydantic for request/response, settings, validation.
+## 2. Typing & Configuration Strategy
+Always type function parameters/returns, public APIs, and class attributes that matter. Can be lighter on obvious locals, one-off scripts, and some tests. Prefer `list[str]`, `str | None` when the version allows.
+- **External Configuration**: Use `pydantic-settings` (`BaseSettings`) to validate environment variables at the trust boundary.
+- **API Payloads**: Use Pydantic v2 schemas for request and response serialization.
 
-## 3. Project Structure
-- **Small**: flat files
-- **Medium API**: `app/` with routes, services, models, schemas
-- **Large**: `src/myapp/` with layers or feature modules
-
-Routes/views stay thin. Services own business logic. Models/schemas own shape. Data access isolated when needed.
+## 3. Project Structure & Layout
+- **Production Libraries & Services**: Use the `src/` layout (`src/<package_name>/`).
+  *Prevents test runners from importing uninstalled working-tree code; guarantees testing against the installed package.*
+- **Small CLI or Utilities**: Flat layout or single module if under 300 LOC.
+- **Service Layers**:
+  - `routes/` / `api/`: Thin HTTP adapters; parameter parsing and status codes only.
+  - `services/`: Core business logic; framework-agnostic.
+  - `models/`: Three-tier model separation:
+    1. **Domain Model**: `@dataclass(slots=True)` containing pure domain rules (no ORM or Pydantic base classes).
+    2. **API Schema**: `pydantic.BaseModel` for external I/O validation.
+    3. **Persistence Entity**: ORM or raw SQL mapping.
+    *Invariant*: Never leak database ORM objects directly out of API routes.
 
 ## 4. Error Handling
 - Domain exceptions in services
-- Convert at the API boundary
+- Convert at the API boundary (exception handlers)
 - Consistent error shape (code, message, details)
-- Never expose stack traces to clients
+- Never expose internal tracebacks or SQL queries to clients
 
 ## 5. Background Tasks
 - Simple fire-and-forget → framework background tasks

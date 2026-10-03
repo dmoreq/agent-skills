@@ -64,22 +64,48 @@ loop = asyncio.get_running_loop()
 result = await loop.run_in_executor(process_pool, cpu_heavy_function, data)
 ```
 
-## 4. Async Patterns
-- TaskGroups / bounded gather
-- `asyncio.Semaphore` for downstream backpressure
-- `asyncio.Queue` for producer/consumer
-- `asyncio.timeout` (3.11+) or `asyncio.wait_for` on every external call
-- `try/finally` on cancellation for sessions and connections
+## 4. Modern Async Patterns (Python 3.11+)
+- **Structured Concurrency with `TaskGroup`**:
+  Use `asyncio.TaskGroup` instead of `asyncio.gather`. If one task fails, all sibling tasks are cancelled and awaited automatically:
+  ```python
+  async with asyncio.TaskGroup() as tg:
+      task1 = tg.create_task(fetch_a())
+      task2 = tg.create_task(fetch_b())
+  # Both tasks completed cleanly, or ExceptionGroup raised
+  ```
+- **Handling Composite Errors (`except*`)**:
+  Catch task group errors with PEP 654 syntax:
+  ```python
+  try:
+      async with asyncio.TaskGroup() as tg:
+          tg.create_task(fetch_data())
+  except* (TimeoutError, ConnectionError) as eg:
+      logger.error(f"Network failure: {eg.exceptions}")
+  ```
+- **Cancellation Hygiene & Shielding**:
+  - Never swallow `asyncio.CancelledError` in generic exception blocks. Always re-raise.
+  - Protect critical rollback or cleanup from interruption:
+    ```python
+    try:
+        await do_work()
+    except asyncio.CancelledError:
+        await asyncio.shield(release_lock_or_rollback())
+        raise
+    ```
+- **Backpressure & Flow Control**:
+  - `asyncio.Semaphore` for downstream rate limiting.
+  - `asyncio.Queue` for producer/consumer pipelines.
+  - `asyncio.timeout(seconds)` (Python 3.11+) on external calls.
 
 ## 5. Anti-Patterns
-- asyncio for CPU-bound work on a GIL build
-- Thousands of tiny processes for I/O
-- Blocking calls on the event loop
-- Treating async as "faster compute"
-- Swallowing task exceptions
+- Using `asyncio.gather` without bounds (leaks uncancelled zombie tasks on failure)
+- Swallowing `asyncio.CancelledError` via bare `except:` or `except Exception:`
+- Running CPU-bound work directly on the event loop (GIL stalls all concurrent I/O)
+- Thousands of tiny OS processes for light I/O
+- Blocking standard library calls (`time.sleep()`, `requests.get()`) on the event loop
 
 ## Output Expectations
 - Explicit justification of asyncio vs threads vs processes
-- Named pattern (TaskGroup, Queue, Semaphore, executor)
-- Timeouts and cancellation handled
+- Structured concurrency pattern (`TaskGroup`, `Queue`, `Semaphore`, executor)
+- Timeouts and cancellation explicitly handled
 - Notes on IPC/process cost when using processes
