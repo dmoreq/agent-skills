@@ -39,8 +39,18 @@ Language style encyclopedias live in `python-pro`, `rust-pro`, and `rust-async-p
 - Explain *why*
 - Teach when it is cheap
 
+## Review Workflow & Pre-Flight Gate
+Always execute automated repository gates before manual semantic review:
+1. **Automated Quality Pre-Flight Gate (Execute First)**:
+   - If `.pre-commit-config.yaml` exists: run `pre-commit run` (or `make pre-commit-run`).
+   - If test suite exists: run verification tests (`pytest -q` or `cargo test`).
+   - If pre-commit or tests fail: halt deep review immediately. Report failures as a **Critical** blocker.
+   - Never spend manual review effort on mechanical linting, formatting, or typing errors.
+2. **Semantic & Architectural Review**:
+   - Once automated checks pass, inspect the diff against the Universal Checklist.
+
 ## Severity (text only — no emoji)
-- **Critical** — must fix before merge (bugs, security, data loss, undefined behavior, severe complexity spikes)
+- **Critical** — must fix before merge (bugs, security, data loss, undefined behavior, pre-commit/test failures)
 - **Important** — should fix (quality, performance, maintainability, over-engineering, complexity violations)
 - **Suggestion** — nicer alternative
 - **Nit** — style; label as nit
