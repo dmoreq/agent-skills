@@ -1,6 +1,6 @@
 # Agent Skills
 
-A curated, token-efficient collection of **Global Agent Rules** and **Custom Skills** designed for the **Google Antigravity**, **Cursor**, **Pi**, **Grok**, and **Windsurf** coding assistant environments.
+A curated, token-efficient collection of **Global Agent Rules** and **Custom Skills** designed for the **Google Antigravity**, **Cursor**, **Pi**, **Grok**, **Windsurf**, and **OpenAI Codex** coding assistant environments.
 
 ---
 
@@ -242,10 +242,10 @@ Useful flags:
 ./setup.sh --with-rust              # include Rust skills
 ./setup.sh --all                    # enable --with-rust and install to all detected hosts
 ./setup.sh --dry-run                # print destinations only
-./setup.sh --host cursor,grok       # subset of hosts
+./setup.sh --host cursor,codex       # subset of hosts
 ./setup.sh --project                # current repo: .agents/skills + AGENTS.md
 ./setup.sh --link                   # symlink skills from this clone (dev)
-./setup.sh --mirror-native          # also copy into ~/.cursor|~/.grok|~/.pi skills dirs
+./setup.sh --mirror-native          # also copy into ~/.cursor|~/.grok|~/.pi|~/.codex skills dirs
 ./setup.sh --force                  # create host dirs even if the app is not detected
 ```
 
