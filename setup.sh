@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sync Global Agent Rules + Skills to Antigravity, Cursor, Pi, Grok Build, Windsurf, Claude, and OpenCode.
+# Sync Global Agent Rules + Skills to Antigravity, Cursor, Pi, Grok Build, Windsurf, Claude, OpenCode, and Codex.
 # Default: user-global, skips Rust skills. See --help.
 set -euo pipefail
 
@@ -11,7 +11,7 @@ SCOPE="user"          # user | project
 MODE="copy"           # copy | link
 DRY_RUN=false
 FORCE=false
-MIRROR_NATIVE=false   # also copy skills into ~/.cursor|~/.grok|~/.pi (duplicates ~/.agents)
+MIRROR_NATIVE=false   # also copy skills into ~/.cursor|~/.grok|~/.pi|~/.codex (duplicates ~/.agents)
 HOSTS_FILTER=""       # empty = auto-detect
 WITH_RUST=false       # skip Rust skills by default
 
@@ -27,8 +27,8 @@ Install this repo's rules (AGENTS.md) and skills to coding agents.
 Options:
   --project          Install into the current directory (.agents/skills, AGENTS.md)
   --user             Install user-global (default)
-  --host LIST        Comma-separated: antigravity,cursor,pi,grok,claude,windsurf,opencode,portable
-                     Default: portable + antigravity always; cursor/pi/grok/windsurf/claude if detected
+  --host LIST        Comma-separated: antigravity,cursor,pi,grok,claude,windsurf,opencode,codex,portable
+                     Default: portable + antigravity always; cursor/pi/grok/windsurf/claude/codex if detected
   --with-rust        Include Rust skills (rust-pro, rust-async-patterns, pyo3-maturin). Default: skipped.
   --all              Enable --with-rust and install to all detected hosts.
   --link             Symlink skill folders from this repo (dev). Default is copy.
@@ -85,6 +85,10 @@ detected_opencode() {
     [[ -d "$HOME/.opencode" ]] || have_cmd opencode
 }
 
+detected_codex() {
+    [[ -d "$HOME/.codex" ]] || have_cmd codex || [[ -d "/Applications/ChatGPT.app/Contents/Resources/codex-cli" ]]
+}
+
 is_rust_skill() {
     local name="$1"
     for r in "${RUST_SKILLS[@]}"; do
@@ -107,6 +111,7 @@ host_wanted() {
         windsurf) detected_windsurf || $FORCE ;;
         claude)   detected_claude || $FORCE ;;
         opencode) detected_opencode || $FORCE ;;
+        codex)    detected_codex || $FORCE ;;
         *)        return 1 ;;
     esac
 }
@@ -364,11 +369,25 @@ else
         log "==> [opencode] rules and skills via ~/.agents/skills"
         INSTALLED+=("opencode|-|~/.agents/skills")
     fi
+
+    if host_wanted codex; then
+        log "==> [codex] ~/.codex/AGENTS.md (skills via ~/.agents/skills)"
+        write_file "$HOME/.codex/AGENTS.md" "$RULES_FILE"
+        if $MIRROR_NATIVE; then
+            sync_skills "$HOME/.codex/skills"
+            INSTALLED+=("codex|$HOME/.codex/AGENTS.md|$HOME/.codex/skills + ~/.agents/skills")
+        else
+            prune_our_skills "$HOME/.codex/skills"
+            INSTALLED+=("codex|$HOME/.codex/AGENTS.md|~/.agents/skills")
+        fi
+    elif [[ -z "$HOSTS_FILTER" ]]; then
+        log "==> [codex] skipped (Codex not detected)"
+    fi
 fi
 
 log "========================================================"
 if [[ ${#INSTALLED[@]} -eq 0 ]]; then
-    log "Nothing installed. Use --force or --host antigravity,cursor,pi,grok,portable"
+    log "Nothing installed. Use --force or --host antigravity,cursor,pi,grok,codex,portable"
     exit 1
 fi
 log "Done. Restart each agent session so it re-scans skills."
@@ -381,6 +400,7 @@ done
 log "========================================================"
 log "Verify:"
 log "  Antigravity: ask which skills are available, or /skills"
+log "  Codex:       ask which skills are available, /skills, or codex exec 'What skills are installed?'"
 log "  Grok Build:  grok inspect"
 log "  Cursor:      Settings → Skills"
 log "  Pi:          /skill:python-pro  (after restart)"

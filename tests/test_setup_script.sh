@@ -50,4 +50,19 @@ fi
 
 echo "  ✓ --with-rust flag correctly syncs Rust skills"
 
+# Test 3: Codex host detection and dry-run targets
+OUT_CODEX="$("$REPO_DIR/setup.sh" --dry-run --host codex)"
+
+if ! echo "$OUT_CODEX" | grep -q "file -> .*/\.codex/AGENTS.md"; then
+    echo "FAIL: codex AGENTS.md was not targeted by setup.sh!"
+    exit 1
+fi
+
+if ! echo "$OUT_CODEX" | grep -q "codex *.*\.codex/AGENTS.md"; then
+    echo "FAIL: codex was not listed in installed summary table!"
+    exit 1
+fi
+
+echo "  ✓ Codex host detection and AGENTS.md installation verified"
+
 echo "==> All setup script tests passed!"

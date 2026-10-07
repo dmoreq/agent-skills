@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - (v1.5.0)
 
 ### Added
+- `setup.sh`: OpenAI Codex Desktop and CLI host integration installing global rules (`~/.codex/AGENTS.md`) and discovering skills (`~/.agents/skills` / `~/.codex/skills`).
 - `code-review`: Automated quality pre-flight gate running `pre-commit run` and test suite before semantic review.
 - `code-review`: Reviewability budget (diff <= 400 LOC) and blast radius public surface gates.
 - `code-review`: Omission checklist (resource cleanup in error paths, observability/logging, negative/edge tests, docs synchronization).
