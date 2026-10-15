@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `python-testing` & `code-simplification`: Confined flaky-test (`PYTHONHASHSEED=random`) and refactoring test passes strictly to modified modules.
 
 ### Added
+- `setup.sh`: DeepSeek Harness host integration installing global rules (`$DSH_HOME/AGENTS.md`, default `~/.dsh/AGENTS.md`) and native skills (`~/.dsh/skills`); detects `$DSH_HOME`, the macOS app bundle, or a `dsh` CLI on `PATH`.
 - `setup.sh`: OpenAI Codex Desktop and CLI host integration installing global rules (`~/.codex/AGENTS.md`) and discovering skills (`~/.agents/skills` / `~/.codex/skills`).
 - `code-review`: Automated quality pre-flight gate running targeted `pre-commit` and tests before semantic review.
 - `code-review`: Reviewability budget (diff <= 400 LOC) and blast radius public surface gates.

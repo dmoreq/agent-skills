@@ -65,4 +65,24 @@ fi
 
 echo "  ✓ Codex host detection and AGENTS.md installation verified"
 
+# Test 4: DeepSeek Harness host detection and dry-run targets
+OUT_DSH="$("$REPO_DIR/setup.sh" --dry-run --host dsh --mirror-native)"
+
+if ! echo "$OUT_DSH" | grep -q "file -> .*/\.dsh/AGENTS.md"; then
+    echo "FAIL: DSH AGENTS.md was not targeted by setup.sh!"
+    exit 1
+fi
+
+if ! echo "$OUT_DSH" | grep -q "skill code-minimalism -> .*/\.dsh/skills/code-minimalism"; then
+    echo "FAIL: DSH native skills root was not targeted by setup.sh!"
+    exit 1
+fi
+
+if ! echo "$OUT_DSH" | grep -q "dsh *.*\.dsh/AGENTS.md"; then
+    echo "FAIL: dsh was not listed in installed summary table!"
+    exit 1
+fi
+
+echo "  ✓ DeepSeek Harness host detection and AGENTS.md installation verified"
+
 echo "==> All setup script tests passed!"
