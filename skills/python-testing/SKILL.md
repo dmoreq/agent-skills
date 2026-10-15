@@ -36,6 +36,7 @@ Load `resources/implementation-playbook.md` **only** for a concrete pytest recip
 4. Mock only what you do not own or cannot control.
 5. Arrange → act → assert. One main behavior per test (not a hard one-assert rule).
 6. Maintainability over coverage theater.
+7. Targeted execution first: Run only affected test files/functions during iteration (`pytest path/to/test.py -k test_name`). Run broader suites at most once at final completion.
 
 ## Test Strategy
 | Layer | Purpose | Typical tools |
@@ -61,7 +62,7 @@ Prioritize: critical paths → edge/failure modes → regressions for fixed bugs
 
 ## Flaky-Test & Determinism Guardrails
 - **Hash-Seed Stability**: Verify dictionary/set iteration order does not break tests:
-  Run with `PYTHONHASHSEED=random pytest`.
+  Run against the targeted test file: `PYTHONHASHSEED=random pytest path/to/test_file.py -k test_name`. Never run the full test suite with random hash seeds during incremental iteration.
 - **Time Mocking**: Use `time-machine` (or `freezegun`) to freeze time deterministically. Never monkeypatch `time.time()` manually.
 - **Randomness**: Always seed RNG fixtures (`random.seed(42)`).
 

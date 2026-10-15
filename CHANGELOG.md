@@ -7,9 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - (v1.5.0)
 
+### Optimized
+- `rules/AGENTS.md`: Mandatory targeted test execution (`pytest <file> -k <test>`, `cargo test <test>`), prohibiting full-suite repetition during incremental edits.
+- `rules/AGENTS.md` & `code-review`: Verification deduplication invariant reusing prior passing test/lint outputs instead of re-running identical suites.
+- `code-review`: Scoped pre-flight quality gate to changed files (`pre-commit run --files <changed_files>`) and targeted tests; skipped completely for non-executable diffs.
+- `python-pro`: Gated full pre-commit execution (`--all-files`) strictly to one-time repository bootstrapping; switched Makefile `pre-commit-run` to target git diff modified files.
+- `verify-and-stop`: Enabled immediate proof reuse from preceding step, preventing redundant post-review test executions.
+- `python-testing` & `code-simplification`: Confined flaky-test (`PYTHONHASHSEED=random`) and refactoring test passes strictly to modified modules.
+
 ### Added
 - `setup.sh`: OpenAI Codex Desktop and CLI host integration installing global rules (`~/.codex/AGENTS.md`) and discovering skills (`~/.agents/skills` / `~/.codex/skills`).
-- `code-review`: Automated quality pre-flight gate running `pre-commit run` and test suite before semantic review.
+- `code-review`: Automated quality pre-flight gate running targeted `pre-commit` and tests before semantic review.
 - `code-review`: Reviewability budget (diff <= 400 LOC) and blast radius public surface gates.
 - `code-review`: Omission checklist (resource cleanup in error paths, observability/logging, negative/edge tests, docs synchronization).
 - `code-review`: Performance & Concurrency review gate guarding shared mutable state across async tasks and worker threads.

@@ -41,9 +41,11 @@ Language style encyclopedias live in `python-pro`, `rust-pro`, and `rust-async-p
 
 ## Review Workflow & Gates
 Execute automated and structural gates before manual semantic review:
-1. **Automated Quality Pre-Flight Gate (Execute First)**:
-   - If `.pre-commit-config.yaml` exists: run `pre-commit run` (or `make pre-commit-run`).
-   - If test suite exists: run verification tests (`pytest -q` or `cargo test`).
+1. **Automated Quality Pre-Flight Gate (Targeted & Deduplicated)**:
+   - **Skip Gate for Non-Executable Changes**: If the diff contains only documentation, markdown, or static non-code assets, skip pre-commit and test execution entirely.
+   - **Reuse Verified Proof**: If the authoring agent or subagent already provided passing test and lint outputs for this diff, do not re-run them.
+   - **Targeted Pre-commit Only**: If `.pre-commit-config.yaml` exists and validation is required, run ONLY against modified files: `pre-commit run --files <changed_files>` (never `--all-files`). Prefer fast direct checks (`ruff check <files>`, `pyright <files>`) when feasible.
+   - **Targeted Tests**: Run only tests relevant to the modified modules (`pytest path/to/changed_test.py` or `cargo test <module>`), not the full repository suite.
    - If pre-commit or tests fail: halt deep review immediately. Report failures as a **Critical** blocker.
    - Never spend manual review effort on mechanical linting, formatting, or typing errors.
 2. **Reviewability & Blast Radius Gate**:
