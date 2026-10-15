@@ -78,8 +78,8 @@ Unsupported for new work unless the repo MSRV is already pinned there. State the
 2. Define module boundaries, `__all__`, and data contracts.
 3. Implement with types, no import-time side effects, explicit errors.
 4. Add isolated tests (`python-testing`).
-5. Run `ruff` (with `C901` complexity checks) and `pyright`/`mypy`.
-6. Provision or verify pre-commit quality gates before declaring setup complete.
+5. Run fast targeted checks on modified files: `ruff check <files>`, `pyright <files>`.
+6. Provision pre-commit quality gates ONLY when setting up or modernizing project infrastructure (skip for routine module edits or bugfixes).
 7. Profile only when there is a measured hotspot (`python-performance`).
 
 ## Pre-commit & Repository Quality Gate Setup
@@ -186,18 +186,24 @@ pre-commit-install:
 	pre-commit install
 
 pre-commit-run:
-	pre-commit run --all-files
+	pre-commit run --files $$(git diff --name-only HEAD)
+
+pre-commit-all:
+	pre-commit run --all-files  # One-time baseline / CI only
 
 duplication-check:
 	npx jscpd <target_packages> --min-lines 15 --min-tokens 60 --threshold 3 --ignore "tests/**,**/fixtures/**"
 ```
 
 ### 3. Provisioning & Verification Protocol
+> [!NOTE]
+> The full-suite command `pre-commit run --all-files` applies strictly to initial repo setup or baseline migrations. Routine feature development and bugfixes must never run full-repo pre-commit hooks.
+
 1. Add `pre-commit` to `[project.optional-dependencies] dev` in `pyproject.toml`.
 2. Write `.pre-commit-config.yaml` with the project package directories in `complexipy`, `vulture`, and `jscpd`.
 3. If legacy functions exceed cognitive complexity 15, initialize the watermark baseline:
    `complexipy <packages> --max-complexity-allowed 15 --snapshot-create`
-4. Run `pre-commit install && pre-commit run --all-files` to verify all hooks pass cleanly.
+4. Run `pre-commit install && pre-commit run --all-files` once to verify the initial baseline.
 5. Verify repository code duplication stays within the 3% budget.
 
 ## Output Expectations
@@ -216,7 +222,7 @@ duplication-check:
 - [ ] Types complete for the target version
 - [ ] Complexity within limits (Cyclomatic <= 10, Cognitive <= 15, Nesting <= 3)
 - [ ] Code duplication within limits (jscpd <= 3%)
-- [ ] Pre-commit quality gates provisioned and passing cleanly
+- [ ] Pre-commit quality gates provisioned (if project setup) or targeted checks passing cleanly on modified files
 - [ ] py.typed marker file included if library package is typed (PEP 561)
 - [ ] No bare `except:`
 - [ ] Older-runtime limitations noted when applicable

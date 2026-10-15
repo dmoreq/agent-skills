@@ -49,7 +49,18 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
 
 ## 3. Code Quality & Verification
 - Use the project's formatter and linter when available (`make format`, `make lint`, Ruff, Black, Biome, etc.).
-- Run standard test/build commands (e.g., `pytest`, `cargo test`) to verify fixes before presenting final code. Do not invent arbitrary coverage gates.
+- **Targeted Test Execution**:
+  - Run *targeted* tests for modified modules/functions during iteration (`pytest path/to/test.py -k test_name`, `cargo test test_name`).
+  - Never run full repository test suites repeatedly for incremental changes.
+  - Run full test suites at most once, and only at the final pre-merge gate when touching shared components.
+  - Skip test runs entirely for changes that do not modify runtime behavior (docs, comments, markdown, non-code files).
+  - Do not invent arbitrary coverage gates.
+- **Pre-commit Discipline**:
+  - Never run `pre-commit run --all-files` during normal tasks or feature work. Reserve full runs for one-time project setup.
+  - Target only changed files when running pre-commit: `pre-commit run --files <changed_files>`. Prefer fast direct linters (`ruff check <files>`).
+  - Skip pre-commit runs entirely on non-executable diffs (documentation, markdown).
+- **Verification Deduplication Invariant**:
+  - If a preceding step or authoring agent already verified tests/lint with passing output, reuse that result. Never repeat identical verification commands.
 - Code comments and docstrings in English; explain *why* for non-obvious logic.
 - **Structural Complexity Thresholds**:
   - Maximum Nesting Depth: <= 3 indentation levels. Refactor deeper logic with guard clauses or helper functions.

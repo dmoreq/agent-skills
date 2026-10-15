@@ -71,7 +71,7 @@ Senior Rust for services, crates, CLIs, and systems code. Edition 2024 requires 
 - Miri when validating unsafe
 
 ## Testing & Quality
-- Unit + integration + doc tests
+- Unit + integration + doc tests (target specific tests during iteration: `cargo test <test_name>`; avoid full-workspace test runs on minor edits)
 - proptest on invariants; criterion on hot paths
 - clippy + `cargo deny` / `cargo audit` as the repo already uses them
 - Enforce complexity thresholds in `clippy.toml`: `cognitive-complexity-threshold = 15`
