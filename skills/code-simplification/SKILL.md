@@ -42,7 +42,7 @@ Simplify code for clarity and maintainability without changing behavior. Focus o
    - duplication → shared canonical helper when stable
    - dead code → remove only when confirmed unused
 3. Apply one simplification at a time.
-4. Verify targeted tests/build still pass (`pytest path/to/test_module.py`). Do not run full test suites or pre-commit hooks between incremental simplification edits.
+4. Verify targeted tests/build still pass (`pytest -n 4 path/to/test_module.py`). Do not run full test suites or pre-commit hooks between incremental simplification edits.
 5. Stop when a new teammate would understand it faster.
 
 ## Refactoring Recipes for Complexity

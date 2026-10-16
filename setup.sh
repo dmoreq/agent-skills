@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
-# Sync Global Agent Rules + Skills to Antigravity, Cursor, Pi, Grok Build, Windsurf, Claude, OpenCode, and Codex.
+# Sync Global Agent Rules + Skills to Antigravity, Cursor, Pi, Grok Build, Windsurf, Claude, OpenCode, Codex, and DeepSeek Harness.
 # Default: user-global, skips Rust skills. See --help.
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RULES_FILE="$REPO_DIR/rules/AGENTS.md"
 SKILLS_DIR="$REPO_DIR/skills"
+
+# DeepSeek Harness config root. DSH resolves $DSH_HOME, else ~/.dsh.
+DSH_HOME_DIR="${DSH_HOME:-$HOME/.dsh}"
 
 SCOPE="user"          # user | project
 MODE="copy"           # copy | link
@@ -27,8 +30,8 @@ Install this repo's rules (AGENTS.md) and skills to coding agents.
 Options:
   --project          Install into the current directory (.agents/skills, AGENTS.md)
   --user             Install user-global (default)
-  --host LIST        Comma-separated: antigravity,cursor,pi,grok,claude,windsurf,opencode,codex,portable
-                     Default: portable + antigravity always; cursor/pi/grok/windsurf/claude/codex if detected
+  --host LIST        Comma-separated: antigravity,cursor,pi,grok,claude,windsurf,opencode,codex,dsh,portable
+                     Default: portable + antigravity always; cursor/pi/grok/windsurf/claude/codex/dsh if detected
   --with-rust        Include Rust skills (rust-pro, rust-async-patterns, pyo3-maturin). Default: skipped.
   --all              Enable --with-rust and install to all detected hosts.
   --link             Symlink skill folders from this repo (dev). Default is copy.
@@ -43,6 +46,7 @@ Canonical skill path (all modern hosts scan it):
 Native extras (hosts that do not reliably use ~/.agents/skills):
   Antigravity IDE    ~/.gemini/config/skills
   Antigravity CLI    ~/.gemini/antigravity-cli/skills
+  DeepSeek Harness   ~/.dsh/skills   (rules: ~/.dsh/AGENTS.md; DSH_HOME overrides ~/.dsh)
 EOF
 }
 
@@ -89,6 +93,10 @@ detected_codex() {
     [[ -d "$HOME/.codex" ]] || have_cmd codex || [[ -d "/Applications/ChatGPT.app/Contents/Resources/codex-cli" ]]
 }
 
+detected_dsh() {
+    [[ -d "$DSH_HOME_DIR" ]] || [[ -d "/Applications/DeepSeek Harness.app" ]] || have_cmd dsh
+}
+
 is_rust_skill() {
     local name="$1"
     for r in "${RUST_SKILLS[@]}"; do
@@ -112,6 +120,7 @@ host_wanted() {
         claude)   detected_claude || $FORCE ;;
         opencode) detected_opencode || $FORCE ;;
         codex)    detected_codex || $FORCE ;;
+        dsh)      detected_dsh || $FORCE ;;
         *)        return 1 ;;
     esac
 }
@@ -135,7 +144,9 @@ prune_our_skills() {
 # Overwrite only skill folders shipped by this repo. Other skills stay.
 sync_skills() {
     local dest="$1"
-    mkdir -p "$dest"
+    if ! $DRY_RUN; then
+        mkdir -p "$dest"
+    fi
     local skill name dest_skill
     for skill in "$SKILLS_DIR"/*; do
         [[ -d "$skill" ]] || continue
@@ -383,11 +394,28 @@ else
     elif [[ -z "$HOSTS_FILTER" ]]; then
         log "==> [codex] skipped (Codex not detected)"
     fi
+
+    if host_wanted dsh; then
+        log "==> [dsh] $DSH_HOME_DIR/AGENTS.md + native skills root"
+        if [[ -f "$DSH_HOME_DIR/AGENTS.md" ]] && ! cmp -s "$DSH_HOME_DIR/AGENTS.md" "$RULES_FILE"; then
+            log "    note: replacing existing $DSH_HOME_DIR/AGENTS.md (differs from rules/AGENTS.md)"
+        fi
+        write_file "$DSH_HOME_DIR/AGENTS.md" "$RULES_FILE"
+        if $MIRROR_NATIVE; then
+            sync_skills "$DSH_HOME_DIR/skills"
+            INSTALLED+=("dsh|$DSH_HOME_DIR/AGENTS.md|$DSH_HOME_DIR/skills + ~/.agents/skills")
+        else
+            prune_our_skills "$DSH_HOME_DIR/skills"
+            INSTALLED+=("dsh|$DSH_HOME_DIR/AGENTS.md|~/.agents/skills")
+        fi
+    elif [[ -z "$HOSTS_FILTER" ]]; then
+        log "==> [dsh] skipped (DeepSeek Harness not detected; pass --force or --host dsh)"
+    fi
 fi
 
 log "========================================================"
 if [[ ${#INSTALLED[@]} -eq 0 ]]; then
-    log "Nothing installed. Use --force or --host antigravity,cursor,pi,grok,codex,portable"
+    log "Nothing installed. Use --force or --host antigravity,cursor,pi,grok,codex,dsh,portable"
     exit 1
 fi
 log "Done. Restart each agent session so it re-scans skills."
@@ -401,6 +429,7 @@ log "========================================================"
 log "Verify:"
 log "  Antigravity: ask which skills are available, or /skills"
 log "  Codex:       ask which skills are available, /skills, or codex exec 'What skills are installed?'"
+log "  DSH:         ask which skills are available, or /skills"
 log "  Grok Build:  grok inspect"
 log "  Cursor:      Settings → Skills"
 log "  Pi:          /skill:python-pro  (after restart)"

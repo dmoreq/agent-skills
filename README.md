@@ -1,6 +1,6 @@
 # Agent Skills
 
-A curated, token-efficient collection of **Global Agent Rules** and **Custom Skills** designed for the **Google Antigravity**, **Cursor**, **Pi**, **Grok**, **Windsurf**, and **OpenAI Codex** coding assistant environments.
+A curated, token-efficient collection of **Global Agent Rules** and **Custom Skills** designed for the **Google Antigravity**, **Cursor**, **Pi**, **Grok**, **Windsurf**, **OpenAI Codex**, and **DeepSeek Harness** coding assistant environments.
 
 ---
 
@@ -228,6 +228,20 @@ code-review
 
 Skills are installed into the portable Agent Skills root (`~/.agents/skills`) and native host trees.
 
+### Host Discovery Paths
+
+| Host | Rules file | Skill roots scanned (priority order) |
+|---|---|---|
+| DeepSeek Harness | `~/.dsh/AGENTS.md` (`$DSH_HOME`) | `~/.dsh/skills`, `~/.agents/skills` |
+| Codex | `~/.codex/AGENTS.md` | `~/.codex/skills`, `~/.agents/skills` |
+| Antigravity | `~/.gemini/GEMINI.md` | `~/.gemini/config/skills`, `~/.gemini/antigravity-cli/skills` |
+| Cursor | `~/.cursor/rules/agent-rules.mdc` | `~/.agents/skills` |
+| Pi / Grok | `~/.pi/agent/AGENTS.md`, `~/.grok/AGENTS.md` | `~/.agents/skills` |
+| Windsurf | `~/.windsurf/rules/agent-rules.md` | `~/.agents/skills` |
+
+DeepSeek Harness also scans `<project>/.dsh/skills` and `<project>/.agents/skills`, and loads project
+`AGENTS.md` files from the repository root down to the working directory, on top of `~/.dsh/AGENTS.md`.
+
 ### Automated Setup Script
 
 ```bash
@@ -243,9 +257,10 @@ Useful flags:
 ./setup.sh --all                    # enable --with-rust and install to all detected hosts
 ./setup.sh --dry-run                # print destinations only
 ./setup.sh --host cursor,codex       # subset of hosts
+./setup.sh --host dsh --link        # DeepSeek Harness: symlink ~/.dsh/skills from this clone (dev)
 ./setup.sh --project                # current repo: .agents/skills + AGENTS.md
 ./setup.sh --link                   # symlink skills from this clone (dev)
-./setup.sh --mirror-native          # also copy into ~/.cursor|~/.grok|~/.pi|~/.codex skills dirs
+./setup.sh --mirror-native          # also copy into ~/.cursor|~/.grok|~/.pi|~/.codex|~/.dsh skills dirs
 ./setup.sh --force                  # create host dirs even if the app is not detected
 ```
 

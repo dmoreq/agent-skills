@@ -14,8 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `python-pro`: Gated full pre-commit execution (`--all-files`) strictly to one-time repository bootstrapping; switched Makefile `pre-commit-run` to target git diff modified files.
 - `verify-and-stop`: Enabled immediate proof reuse from preceding step, preventing redundant post-review test executions.
 - `python-testing` & `code-simplification`: Confined flaky-test (`PYTHONHASHSEED=random`) and refactoring test passes strictly to modified modules.
+- `rules/AGENTS.md` & `python-testing`: Prioritized 4 parallel workers (`pytest -n 4` via `pytest-xdist`) across global rules and Python skills to accelerate test runs.
 
 ### Added
+- `setup.sh`: DeepSeek Harness host integration installing global rules (`$DSH_HOME/AGENTS.md`, default `~/.dsh/AGENTS.md`) and native skills (`~/.dsh/skills`); detects `$DSH_HOME`, the macOS app bundle, or a `dsh` CLI on `PATH`.
 - `setup.sh`: OpenAI Codex Desktop and CLI host integration installing global rules (`~/.codex/AGENTS.md`) and discovering skills (`~/.agents/skills` / `~/.codex/skills`).
 - `code-review`: Automated quality pre-flight gate running targeted `pre-commit` and tests before semantic review.
 - `code-review`: Reviewability budget (diff <= 400 LOC) and blast radius public surface gates.

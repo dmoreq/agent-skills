@@ -67,7 +67,7 @@ Unsupported for new work unless the repo MSRV is already pinned there. State the
 - Code duplication detection: `jscpd` (target clone threshold <= 3%, min-lines = 15, min-tokens = 60)
 - Types: `pyright` (strict where viable) or `mypy`
 - Quality gates: `pre-commit` (ruff-check, ruff-format, pyright, bandit, complexipy ratchet, vulture, jscpd, pip-audit)
-- Tests: `pytest`
+- Tests: `pytest` (prioritize 4 workers via `pytest-xdist`: `-n 4`)
 - Config: `pyproject.toml`
 - Models: `dataclasses` + `slots=True` internally; Pydantic v2 at I/O boundaries
 - HTTP: FastAPI only if `python-patterns` already chose it

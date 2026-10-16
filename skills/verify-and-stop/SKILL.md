@@ -28,7 +28,7 @@ Enforces strict termination discipline for coding agents. Complete the requested
 2. **Execute One Decisive Verification (or Reuse Prior Proof)**:
    - **Reuse Prior Proof**: If the immediately preceding step or tool call already executed a verification command that proved correctness with clean passing output, **do NOT re-run it**. Reuse that output as proof.
    - Otherwise, run the smallest runnable command that proves correctness:
-     - Python: `pytest path/to/test.py -k test_name`
+     - Python: `pytest -n 4 path/to/test.py -k test_name`
      - Rust: `cargo test test_name`
      - Build / Lint: targeted linter check (`ruff check <files>`)
 3. **Present Decisive Proof**:
