@@ -37,6 +37,7 @@ Load `resources/implementation-playbook.md` **only** for a concrete pytest recip
 5. Arrange → act → assert. One main behavior per test (not a hard one-assert rule).
 6. Maintainability over coverage theater.
 7. Targeted execution first: Run only affected test files/functions during iteration (`pytest path/to/test.py -k test_name`). Run broader suites at most once at final completion.
+8. Parallel workers prioritization: Execute test suites across 4 workers (`pytest -n 4` via `pytest-xdist`) to minimize execution latency.
 
 ## Test Strategy
 | Layer | Purpose | Typical tools |
@@ -49,12 +50,13 @@ Load `resources/implementation-playbook.md` **only** for a concrete pytest recip
 Prioritize: critical paths → edge/failure modes → regressions for fixed bugs.
 
 ## Pytest Configuration & Patterns
-- Set strict flags in `pyproject.toml`:
+- Set strict flags and parallel workers in `pyproject.toml`:
   ```toml
   [tool.pytest.ini_options]
-  addopts = "--strict-markers --strict-config -ra"
+  addopts = "--strict-markers --strict-config -ra -n 4 --dist=loadscope"
   testpaths = ["tests"]
   ```
+- Use `pytest-xdist` with 4 workers (`-n 4`) for parallel execution; ensure test fixtures avoid shared mutable state across worker processes.
 - Fixtures for reusable setup, not hidden magic.
 - Parametrize input matrices; use `hypothesis` for generative property tests.
 - Factory helpers over giant fixture graphs.
