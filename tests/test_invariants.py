@@ -1,4 +1,4 @@
-"""Tests for repository invariants and cross-skill references."""
+"""Tests for repository invariants, cross-skill references, and progressive disclosure links."""
 from pathlib import Path
 import re
 
@@ -32,11 +32,9 @@ def test_no_forbidden_rule_duplicates_in_skills():
 
 
 def test_cross_skill_references_exist():
-    """Verify that skills referenced in 'Related Skills' match actual skills."""
+    """Verify that every bolded kebab-case skill name in 'Related Skills' exists in skills/."""
     all_skill_names = {d.name for d in SKILLS_DIR.iterdir() if d.is_dir()}
-
-    # Regex for bolded skill names like **python-testing** or **code-review**
-    ref_pattern = re.compile(r"\*\*([a-z0-9-]+)\*\*")
+    ref_pattern = re.compile(r"\*\*([a-z0-9]+-[a-z0-9-]+)\*\*")
 
     for skill_dir in SKILLS_DIR.iterdir():
         if not skill_dir.is_dir():
@@ -49,15 +47,24 @@ def test_cross_skill_references_exist():
         related_section = content.split("## Related Skills", 1)[1].split("##", 1)[0]
         matches = ref_pattern.findall(related_section)
         for target in matches:
-            # Check if this matches a known skill or acceptable target
-            if target in ("python-testing", "code-simplification", "code-review",
-                          "code-minimalism", "verify-and-stop", "deprecation-migration",
-                          "tech-research", "doubt-driven-development", "data-visualization",
-                          "data-science", "data-storytelling", "plotly-dash",
-                          "python-pro", "python-patterns", "python-concurrency",
-                          "python-performance", "rust-pro", "rust-async-patterns",
-                          "pyo3-maturin", "context7-mcp", "technical-reporting",
-                          "algorithm-optimization"):
-                assert target in all_skill_names, (
-                    f"Referenced skill '{target}' in {skill_file} does not exist in skills/"
-                )
+            assert target in all_skill_names, (
+                f"Referenced skill '{target}' in {skill_file} does not exist in skills/"
+            )
+
+
+def test_skill_internal_file_references_exist():
+    """Verify that any references/*.md or scripts/*.py path mentioned in SKILL.md exists."""
+    rel_path_pattern = re.compile(r"\b(?:references/[a-z0-9-]+\.md|scripts/[a-z0-9_]+\.py)\b")
+    for skill_dir in SKILLS_DIR.iterdir():
+        if not skill_dir.is_dir():
+            continue
+        assert not (skill_dir / "resources").exists(), (
+            f"Legacy 'resources/' folder found in {skill_dir.name}; use 'references/' instead."
+        )
+        skill_file = skill_dir / "SKILL.md"
+        content = skill_file.read_text(encoding="utf-8")
+        for rel_match in set(rel_path_pattern.findall(content)):
+            target_path = skill_dir / rel_match
+            assert target_path.exists(), (
+                f"Missing referenced file '{rel_match}' in {skill_file} (expected {target_path})"
+            )

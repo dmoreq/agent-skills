@@ -30,22 +30,43 @@ Enforces strict termination discipline for coding agents. Complete the requested
    - Otherwise, run the smallest runnable command that proves correctness:
      - Python: `pytest -n 4 path/to/test.py -k test_name`
      - Rust: `cargo test test_name`
-     - Build / Lint: targeted linter check (`ruff check <files>`)
+     - Build / Lint: targeted linter check (`ruff check <files>`). When deleting packaged modules, verify the built wheel/archive contents from a clean staging tree, not just the build exit code: cached `build/bdist` files can ship deleted modules. Smoke-import the clean artifact outside the source checkout.
 3. **Present Decisive Proof**:
    Output the result concisely:
    - Status (PASS / FAIL)
    - Scope touched (files and delta LOC)
    - Verification evidence (command output or reused proof from immediate prior step)
    - Zero speculative commentary
+
+   **A background run is not a reusable proof.** When a test command was launched with `background=true` and its completion arrives later, its output describes the tree at launch time. If you edited files after launching it, reconcile before reporting: re-run the suite in the foreground against the current tree, or state plainly that the result is stale and what changed since. Do not present a delayed green or red as the state of the code — a stale red in particular invites debugging a failure you already fixed. If a final full suite fails only on changed-contract fixtures, audit every changed snapshot for ID removal, added rows, and shared-score drift before regenerating it. Run the affected modules after updating fixtures; report the original full-suite failure and targeted repair honestly, not as a full-suite pass.
 4. **STOP**:
    Call no more tools. Do not initiate drive-by refactoring, extra cleanup, or tangential improvements. State completion directly.
 
+## Git Branch and Commit Verification
+
+When a task includes branch creation, rebasing, conflict resolution, or a commit, verify those outcomes explicitly before stopping:
+1. Inspect `git status --short --branch` before changing branches. Preserve existing edits and leave unrelated untracked files unstaged.
+2. Identify the intended rebase target from the requested integration target (usually the repository's default branch for a new feature branch), not just the feature branch's tracking configuration. Fetch that target and confirm its remote-tracking ref is current.
+3. Rebase onto the confirmed integration target. If the user asks to catch up a branch for an MR and no target is specified, inspect the repository's default branch and MR context; use that base rather than the source branch's own remote ref. Ask only when the target remains ambiguous.
+4. For dirty worktrees, preserve tracked edits before rebasing. Resolve conflicts by combining the intended feature change with upstream content, not by choosing an entire side blindly. After resolving an autostash conflict, confirm the stash-applied feature edits are present before committing.
+5. Verify `git status --short --branch`, `git show --stat --oneline HEAD`, `git show --check HEAD`, and the commit count against the chosen base.
+6. If the rebased branch was already pushed, update it with `git push --force-with-lease <remote> <branch>`, never plain force. Confirm the remote branch points to the rebased commit and the local branch is no longer behind its remote.
+7. When splitting a finished change into several conventional commits under a pre-commit hook suite: format the full set first; stage and commit only slices that leave the tree importable and typecheck-clean on their own (re-export removal + consumer retarget = one commit). Commit each git root separately. Leave handoff-listed unrelated dirty paths unstaged. If a hook rewrites files and rolls back, re-stage the rewritten content and retry that slice once — do not `--no-verify`.
+
+Keep existing untracked files untouched and out of the commit unless the user explicitly includes them.
+
 ## Anti-Patterns
+- ❌ Reporting a number, then discovering the harness was wrong, then reporting a fresh number, then discovering the metric definition was wrong — across successive turns. Two mid-series corrections on the same claim means the measurement protocol is unvalidated, not that the third number is the good one. Stop publishing deltas; validate the harness against a known-good figure and fix the metric definition first, then report once.
+- ❌ Reusing an assumption that a prior turn already falsified. If `prod_ids` was shown to mix two id sources, do not later reason "ids in `prod_ids` are children". Carry the correction forward explicitly, or the next measurement inherits the same defect and produces the same retracted result.
 - ❌ Continuing to edit unrelated files after the requested test passes.
 - ❌ Running multiple redundant test commands that check the same thing.
 - ❌ Re-running tests or pre-commit when the previous step already verified the exact same code with passing output.
 - ❌ Running full repository test suites or `pre-commit run --all-files` when targeted checks suffice.
 - ❌ Asking the user "Would you like me to also refactor X, Y, and Z?" when not requested.
+- ❌ Treating a delayed background test result as proof of the current tree. Launch a background suite only for work you will not edit while it runs; otherwise run it in the foreground.
+- ❌ Reporting a suite as green from the working copy when you just changed what is actually committed. `pytest` reads the filesystem, so a directory removed from git but still on disk keeps the suite passing; the tracked artifact is a different state. Prove the committed state by extracting it first (`git archive HEAD | tar -x -C /tmp/probe`, run there) and report both counts when they differ.
+- ❌ Running the project's `pytest` with a shell whose `PYTHONPATH`/`PYTHONHOME` leaked from another toolchain. Symptoms are import errors from unrelated third-party packages. Clear them explicitly (`env -u PYTHONPATH -u PYTHONHOME <venv>/bin/python -m pytest ...`) instead of concluding the repo's dependencies are broken.
+- ❌ Leaving the shell in a directory you then delete. Every later `cd` in that session fails with `getcwd: cannot access parent directories`. Run scratch work under a directory you keep, and if the shell is already wedged, recover by passing an explicit `workdir` rather than chaining `cd`.
 
 ## Related Skills
 - Use **python-testing** to write or debug targeted test assertions.

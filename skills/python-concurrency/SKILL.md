@@ -10,7 +10,7 @@ date_added: "2026-02-27"
 
 # Python Concurrency & Parallelism Skill
 
-Select the right concurrency or parallelism model for the workload.
+Select the right concurrency or parallelism model for the workload, enforce structured concurrency, and bound in-flight resources.
 
 - `asyncio` for **I/O-bound** concurrency.
 - `ProcessPoolExecutor` / `multiprocessing` for **CPU-bound** work (default on GIL builds).
@@ -18,7 +18,7 @@ Select the right concurrency or parallelism model for the workload.
 
 ## When to Use
 - Designing async services (FastAPI, aiohttp, Starlette) once the framework is already chosen
-- High-concurrency I/O (HTTP, DB, files, sockets)
+- High-concurrency I/O (HTTP, DB, files, sockets) and rate-limited remote batch pipelines
 - Parallel CPU jobs (transforms, image/video, large parsing)
 - Offloading blocking I/O or CPU from an event loop
 - Deciding among asyncio, threads, and processes
@@ -28,11 +28,10 @@ Select the right concurrency or parallelism model for the workload.
 - Measuring whether concurrency helps (`python-performance`)
 - Native CPU rewrite (`pyo3-maturin`)
 - Sequential scripts with no concurrency need
-- Non-Python stacks
 
 ## Related Skills
-- Use **python-performance** to measure whether the model actually helps.
-- Use **python-testing** for cancellation/timeout/exception paths.
+- Use **python-performance** to measure whether the concurrency model actually improves throughput/latency.
+- Use **python-testing** for cancellation, timeout, retry, and exception paths.
 - Before merge: **code-review**.
 
 ## 1. Decision Guide
@@ -47,65 +46,64 @@ Select the right concurrency or parallelism model for the workload.
 
 ## 2. Core Principles
 1. Match model to workload.
-2. Structured concurrency: `TaskGroup` (3.11+) over fire-and-forget.
+2. Structured concurrency: `asyncio.TaskGroup` (3.11+) over fire-and-forget `gather`.
 3. Never block the event loop: blocking I/O → `ThreadPoolExecutor`; heavy CPU → `ProcessPoolExecutor`.
 4. Timeouts, cancellation, and resource cleanup by default.
 5. Do not force async onto simple sync or CPU-only jobs.
 
-## 3. Parallel CPU
-Use `concurrent.futures.ProcessPoolExecutor` or `multiprocessing`.
+## 3. Resumable & Rate-Limited Remote Batch Pipelines
 
-- Process spawn and IPC are expensive; batch coarse jobs.
-- Arguments/results must pickle (unless using shared buffers).
-- No shared memory by default.
+When running concurrent batch jobs against external APIs, search backends, or databases:
+1. **Freeze Manifests Before Dispatch**: Inspect input schema and partition counts first. Persist fixed-seed sampled IDs and partition manifests before issuing requests so interrupted runs resume deterministically without re-sampling.
+2. **Separate Worker Concurrency from Transport Rate Limits**:
+   - Pipeline calls often fan out into fallback or retry requests. Enforce rate limits (`requests/sec`) at the **HTTP transport boundary** (charging every attempt, including retries and reconnects) rather than assuming worker count caps QPS.
+   - Maintain per-worker limiters when quotas are per-worker, plus a shared aggregate limiter when protecting a single downstream service.
+3. **Atomic Batch Checkpoints**:
+   - Keep in-flight futures bounded (`asyncio.Semaphore` or bounded queue). Write completed partition batches via atomic temp-file rename stamped with manifest/source hashes, and validate existing batch payloads before skipping on resume.
+4. **Separate Transport Failures from Empty Results**:
+   - Validate both HTTP status and response payload (upstream proxies may return HTTP 200 with an embedded backend 4xx/5xx error).
+   - Retry only transient network/5xx/429 errors with explicit backoff; fail fast on permanent 4xx errors; treat a valid zero-hit response as a completed result, never a retry trigger.
+5. **Cooperative Stop & Completion Accounting**:
+   - Check OS process tables before relaunching to avoid duplicate workers, support cooperative stop-after-partition signals, and verify `completed + failed == input_total` with unique IDs before publishing final metrics.
+
+## 4. Parallel CPU
+Use `concurrent.futures.ProcessPoolExecutor` or `multiprocessing`:
+- Process spawn and IPC serialization are expensive; batch coarse chunks rather than dispatching tiny per-item tasks.
+- Arguments and return values must be picklable (or use `multiprocessing.shared_memory`).
 
 ```python
 loop = asyncio.get_running_loop()
 result = await loop.run_in_executor(process_pool, cpu_heavy_function, data)
 ```
 
-## 4. Modern Async Patterns (Python 3.11+)
+## 5. Modern Async Patterns (Python 3.11+)
 - **Structured Concurrency with `TaskGroup`**:
-  Use `asyncio.TaskGroup` instead of `asyncio.gather`. If one task fails, all sibling tasks are cancelled and awaited automatically:
   ```python
   async with asyncio.TaskGroup() as tg:
       task1 = tg.create_task(fetch_a())
       task2 = tg.create_task(fetch_b())
-  # Both tasks completed cleanly, or ExceptionGroup raised
   ```
-- **Handling Composite Errors (`except*`)**:
-  Catch task group errors with PEP 654 syntax:
+- **Handling Composite Errors (`except*`, PEP 654)**:
   ```python
   try:
       async with asyncio.TaskGroup() as tg:
           tg.create_task(fetch_data())
   except* (TimeoutError, ConnectionError) as eg:
-      logger.error(f"Network failure: {eg.exceptions}")
+      logger.error("Network failure: %s", eg.exceptions)
   ```
 - **Cancellation Hygiene & Shielding**:
-  - Never swallow `asyncio.CancelledError` in generic exception blocks. Always re-raise.
-  - Protect critical rollback or cleanup from interruption:
-    ```python
-    try:
-        await do_work()
-    except asyncio.CancelledError:
-        await asyncio.shield(release_lock_or_rollback())
-        raise
-    ```
-- **Backpressure & Flow Control**:
-  - `asyncio.Semaphore` for downstream rate limiting.
-  - `asyncio.Queue` for producer/consumer pipelines.
-  - `asyncio.timeout(seconds)` (Python 3.11+) on external calls.
+  - Never swallow `asyncio.CancelledError` in broad `except Exception:` blocks; always re-raise.
+  - Use `await asyncio.shield(release_lock_or_rollback())` inside `except asyncio.CancelledError:` before re-raising when cleanup must complete.
+- **Backpressure & Timeouts**:
+  - Use `asyncio.Semaphore` for rate/concurrency limiting, bounded `asyncio.Queue(maxsize=N)` for producer/consumer pipelines, and `asyncio.timeout(seconds)` on all external I/O.
 
-## 5. Anti-Patterns
-- Using `asyncio.gather` without bounds (leaks uncancelled zombie tasks on failure)
-- Swallowing `asyncio.CancelledError` via bare `except:` or `except Exception:`
-- Running CPU-bound work directly on the event loop (GIL stalls all concurrent I/O)
-- Thousands of tiny OS processes for light I/O
-- Blocking standard library calls (`time.sleep()`, `requests.get()`) on the event loop
+## 6. Anti-Patterns
+- Unbounded `asyncio.gather(*thousands_of_tasks)` (exhausts sockets/memory and leaks zombie tasks on error)
+- Swallowing `asyncio.CancelledError`
+- Running CPU-bound loops or blocking calls (`time.sleep()`, `requests.get()`) on the async event loop
 
-## Output Expectations
-- Explicit justification of asyncio vs threads vs processes
-- Structured concurrency pattern (`TaskGroup`, `Queue`, `Semaphore`, executor)
-- Timeouts and cancellation explicitly handled
-- Notes on IPC/process cost when using processes
+## Final Checklist
+- [ ] Executor choice (`asyncio` vs `ThreadPoolExecutor` vs `ProcessPoolExecutor`) matched to workload
+- [ ] `asyncio.TaskGroup` and `asyncio.timeout()` used instead of unbounded fire-and-forget tasks
+- [ ] `asyncio.CancelledError` re-raised cleanly with critical cleanup shielded
+- [ ] Batch pipelines enforce transport-level rate limits and atomic checkpoint manifests

@@ -5,6 +5,7 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RULES_FILE="$REPO_DIR/rules/AGENTS.md"
+HERMES_PREAMBLE="$REPO_DIR/rules/hermes-preamble.md"
 SKILLS_DIR="$REPO_DIR/skills"
 
 # DeepSeek Harness config root. DSH resolves $DSH_HOME, else ~/.dsh.
@@ -30,8 +31,8 @@ Install this repo's rules (AGENTS.md) and skills to coding agents.
 Options:
   --project          Install into the current directory (.agents/skills, AGENTS.md)
   --user             Install user-global (default)
-  --host LIST        Comma-separated: antigravity,cursor,pi,grok,claude,windsurf,opencode,codex,dsh,portable
-                     Default: portable + antigravity always; cursor/pi/grok/windsurf/claude/codex/dsh if detected
+  --host LIST        Comma-separated: antigravity,cursor,pi,grok,claude,windsurf,opencode,codex,dsh,hermes,portable
+                     Default: portable + antigravity always; cursor/pi/grok/windsurf/claude/codex/dsh/hermes if detected
   --with-rust        Include Rust skills (rust-pro, rust-async-patterns, pyo3-maturin). Default: skipped.
   --all              Enable --with-rust and install to all detected hosts.
   --link             Symlink skill folders from this repo (dev). Default is copy.
@@ -47,6 +48,7 @@ Native extras (hosts that do not reliably use ~/.agents/skills):
   Antigravity IDE    ~/.gemini/config/skills
   Antigravity CLI    ~/.gemini/antigravity-cli/skills
   DeepSeek Harness   ~/.dsh/skills   (rules: ~/.dsh/AGENTS.md; DSH_HOME overrides ~/.dsh)
+  Hermes             ~/.hermes/SOUL.md  (skills via skills.external_dirs, not a copy)
 EOF
 }
 
@@ -97,6 +99,10 @@ detected_dsh() {
     [[ -d "$DSH_HOME_DIR" ]] || [[ -d "/Applications/DeepSeek Harness.app" ]] || have_cmd dsh
 }
 
+detected_hermes() {
+    [[ -d "${HERMES_HOME:-$HOME/.hermes}" ]] || have_cmd hermes
+}
+
 is_rust_skill() {
     local name="$1"
     for r in "${RUST_SKILLS[@]}"; do
@@ -121,6 +127,7 @@ host_wanted() {
         opencode) detected_opencode || $FORCE ;;
         codex)    detected_codex || $FORCE ;;
         dsh)      detected_dsh || $FORCE ;;
+        hermes)   detected_hermes || $FORCE ;;
         *)        return 1 ;;
     esac
 }
@@ -187,6 +194,24 @@ write_file() {
     fi
     mkdir -p "$(dirname "$dest")"
     cp "$src" "$dest"
+}
+
+write_hermes_soul() {
+    local dest="${HERMES_HOME:-$HOME/.hermes}/SOUL.md"
+    if $DRY_RUN; then
+        log "  file -> $dest"
+        return 0
+    fi
+    if [[ ! -f "$HERMES_PREAMBLE" ]]; then
+        log "Missing $HERMES_PREAMBLE"
+        exit 1
+    fi
+    mkdir -p "$(dirname "$dest")"
+    {
+        cat "$HERMES_PREAMBLE"
+        printf '\n'
+        cat "$RULES_FILE"
+    } > "$dest"
 }
 
 write_cursor_mdc() {
@@ -411,11 +436,19 @@ else
     elif [[ -z "$HOSTS_FILTER" ]]; then
         log "==> [dsh] skipped (DeepSeek Harness not detected; pass --force or --host dsh)"
     fi
+
+    if host_wanted hermes; then
+        log "==> [hermes] \$HERMES_HOME/SOUL.md (skills stay in the repo via skills.external_dirs)"
+        write_hermes_soul
+        INSTALLED+=("hermes|${HERMES_HOME:-$HOME/.hermes}/SOUL.md|skills.external_dirs")
+    elif [[ -z "$HOSTS_FILTER" ]]; then
+        log "==> [hermes] skipped (Hermes not detected; pass --force or --host hermes)"
+    fi
 fi
 
 log "========================================================"
 if [[ ${#INSTALLED[@]} -eq 0 ]]; then
-    log "Nothing installed. Use --force or --host antigravity,cursor,pi,grok,codex,dsh,portable"
+    log "Nothing installed. Use --force or --host antigravity,cursor,pi,grok,codex,dsh,hermes,portable"
     exit 1
 fi
 log "Done. Restart each agent session so it re-scans skills."
@@ -433,4 +466,5 @@ log "  DSH:         ask which skills are available, or /skills"
 log "  Grok Build:  grok inspect"
 log "  Cursor:      Settings → Skills"
 log "  Pi:          /skill:python-pro  (after restart)"
+log "  Hermes:      hermes skills list  (after restart)"
 log "========================================================"

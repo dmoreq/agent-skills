@@ -57,6 +57,9 @@ Simplify code for clarity and maintainability without changing behavior. Focus o
 
 ## Do Not
 - Change behavior to make code "nicer"
+- Replace a local pattern with a "similar" shared pattern. Copy the pattern string exactly, then call the shared singleton. A broader keyword set, added flags, or a following collapse/expand step changes matches.
+- Do not merge two similar classification ladders by also merging their context. Share the classifier and pass each caller's flags (which text, which branches). The ladders look duplicated because the flags differ.
+- Prove "no compile outside the SSOT module" with a source-text search. Walk `ast.Call` nodes whose function is `re.compile` or `regex.compile`. Suggestion strings contain those words and are not compiles.
 - Remove error handling, logging, or guards that encode intent
 - Optimize solely for fewer lines of code
 - Mix simplification with feature work in the same change/commit

@@ -12,103 +12,79 @@ date_added: "2026-02-27"
 
 Write clean, typed, idiomatic Python. Prefer Python 3.12+ when the runtime allows.
 
+Load `references/standalone-distribution.md` when packaging a library into a standalone wheel/sdist, auditing `pyproject.toml` dependencies, or adapting domain schemas across package boundaries.
+
 ## When to Use
-- Writing or modernizing Python modules
-- Setting up a Python project (`uv`, `ruff`, `pyright`, `pyproject.toml`)
-- Production libraries, APIs, or tooling implementation
+- Writing or modernizing Python modules and packages
+- Setting up a Python project (`uv`, `ruff`, `pyright`, `pyproject.toml`, `.pre-commit-config.yaml`)
+- Implementing production libraries, APIs, CLI tools, or data models
 
 ## When Not to Use
-- Choosing FastAPI vs Django vs layout (`python-patterns`)
+- Choosing FastAPI vs Django vs project layout (`python-patterns`)
 - Choosing asyncio vs threads vs processes (`python-concurrency`)
 - Profiling latency/CPU/memory (`python-performance`)
+- Tabular Polars/DuckDB data wrangling (`polars-duckdb`)
 - Reviewing a diff (`code-review`)
-- Non-Python stacks
-- Basic syntax-only questions
 
 ## Related Skills
 - Use **python-patterns** when architecture (framework/layout/ADR) is still open.
-- Use **python-testing** to protect behavior.
+- Use **python-testing** to protect behavior with targeted `pytest` suites.
 - Before merge: **code-review**.
 
-## Version Handling
-Confirm the target Python version first.
+## 1. Version Handling
+Confirm the target Python version from `pyproject.toml` or `.python-version` first:
+- **Python 3.12+ (Preferred)**: Use PEP 695 `type Alias = ...` statements, native generic syntax `def first[T](items: list[T]) -> T:`, and `@override` (`from typing import override`).
+- **Python 3.10–3.11**: Use `X | Y` unions, builtin generic types (`list[str]`, `dict[str, Any]`), and `typing_extensions` (`Self`, `Protocol`, `ParamSpec`, `TypeGuard`) where supported.
+- **Python <= 3.9**: Legacy maintenance only; keep changes minimal.
 
-### Python 3.12+ (Preferred)
-Use modern syntax:
-- PEP 695 type statements: `type Coordinate = tuple[float, float]` (replaces `TypeAlias`).
-- Native generics on functions and classes: `def first[T](items: list[T]) -> T: ...` (replaces `TypeVar`).
-- Enhanced f-strings and `@override` (`from typing import override`).
-
-### Python 3.10–3.11 (Constrained)
-Stay compatible with the runtime. Use `typing_extensions` where the project already allows it (`Protocol`, `ParamSpec`, `TypeGuard`). Avoid 3.12-only syntax. Note upgrade benefits when relevant.
-
-### Python ≤3.9
-Unsupported for new work unless the repo MSRV is already pinned there. State the constraint and keep changes minimal.
-
-## Core Principles
-- Prefer the newest features the target version allows.
+## 2. Core Engineering Principles
 - **Model Boundary Separation**:
-  - Untrusted I/O boundaries (HTTP API, CLI parsing, external config): Pydantic v2 (`model_validate`, `model_dump`).
-  - Internal domain logic & hot computation loops: `@dataclass(slots=True)` for 5x–10x faster instantiation and 60% lower memory.
-- **PEP 561 Packaging Invariant**: Every typed library package MUST include a `py.typed` marker file in package data so downstream type checkers recognize its types.
-- Structural subtyping: `typing.Protocol` over deep `abc.ABC` trees.
-- Explicit public surface: `__all__`; `_name` for internals.
-- Rule of Three before shared abstractions.
-- End-to-end type hints targeting strict `pyright` or `mypy`.
-- Tests: DAMP over aggressive DRY (`python-testing`).
-- Tooling: `uv`, `ruff`, `pyright`/`mypy`, `pyproject.toml`.
-- Stdlib first; justify new dependencies.
-- Zero import-time I/O or heavy compute.
+  - **Untrusted I/O Boundaries** (HTTP payloads, CLI args, external configs): Use Pydantic v2 (`model_validate`, `model_dump(mode="json")`, `by_alias=True`). Distinguish confirmed empty config (`[]`) from unavailable/unreadable config (`None` or explicit error).
+  - **Internal Domain Logic & Hot Loops**: Use `@dataclass(slots=True)` (or `frozen=True, slots=True`) for 5x–10x faster instantiation and 60% lower RAM.
+- **Explicit Public Surface & Typing**:
+  - Declare `__all__` explicitly in public modules; prefix internal helpers with `_`.
+  - Include a PEP 561 `py.typed` marker file in every typed library package.
+  - Re-export `Final` constants with `from module import NAME` (never `NAME as NAME`, which Pyright flags as a `Final` reassignment).
+  - Prefer `typing.Protocol` (structural subtyping) over deep `abc.ABC` inheritance hierarchies.
+- **Zero Import-Time Side Effects**: Never execute network I/O, database connections, or heavy file loads at module import time.
+- **Standalone Packaging Hygiene**: Never read checkout-relative paths (`Path(__file__).parents[N] / "data"`) at runtime in a distributable package; restrict `package-data` to explicit extensions and verify built wheels in a clean venv (`references/standalone-distribution.md`).
 
-## Recommended Defaults (adapt to version)
-- Package & environment: `uv` (or the repo's existing venv)
-- Lint + format: `ruff` (enforce complexity: `C901` max-complexity = 10, `PLR0912` max-branches = 12, `PLR0915` max-statements = 50)
-- Cognitive Complexity audit: `complexipy` (target score <= 15 per function)
-- Code duplication detection: `jscpd` (target clone threshold <= 3%, min-lines = 15, min-tokens = 60)
-- Types: `pyright` (strict where viable) or `mypy`
-- Quality gates: `pre-commit` (ruff-check, ruff-format, pyright, bandit, complexipy ratchet, vulture, jscpd, pip-audit)
-- Tests: `pytest` (prioritize 4 workers via `pytest-xdist`: `-n 4`)
-- Config: `pyproject.toml`
-- Models: `dataclasses` + `slots=True` internally; Pydantic v2 at I/O boundaries
-- HTTP: FastAPI only if `python-patterns` already chose it
-- CLI: `typer` or `click`
+## 3. Recommended Tooling & Quality Thresholds
+- **Environment & Packaging**: `uv` + `pyproject.toml`
+- **Lint & Format**: `ruff` (`C901` max-complexity = 10, `PLR0912` max-branches = 12, `PLR0915` max-statements = 50)
+- **Cognitive Complexity**: `complexipy` (`<= 15` per function)
+- **Code Duplication**: `jscpd` (`<= 3%` clone threshold, min-lines = 15, min-tokens = 60)
+- **Type Checking**: `pyright` (or `mypy`)
+- **Tests**: `pytest -n 4` (`python-testing`)
 
-## Working Approach
-1. Confirm Python version, runtime, and project constraints.
-2. Define module boundaries, `__all__`, and data contracts.
-3. Implement with types, no import-time side effects, explicit errors.
-4. Add isolated tests (`python-testing`).
-5. Run fast targeted checks on modified files: `ruff check <files>`, `pyright <files>`.
-6. Provision pre-commit quality gates ONLY when setting up or modernizing project infrastructure (skip for routine module edits or bugfixes).
-7. Profile only when there is a measured hotspot (`python-performance`).
+## 4. Working Approach
+1. Confirm Python version, runtime, and repository conventions.
+2. Define module boundaries, `__all__`, and data contracts (`Pydantic` at boundaries, `@dataclass(slots=True)` internally).
+3. Implement with complete type annotations, explicit error handling, and complexity within caps (`CC <= 10`, `Cognitive <= 15`, `Nesting <= 3`).
+4. Add targeted unit/property tests (`python-testing`).
+5. Run fast targeted checks on modified files only: `ruff check <files>`, `pyright <files>`, `pytest -n 4 <test_file>`.
+6. When a pre-commit hook rewrites a file (formatter or complexity snapshot), stage the updated file and re-commit cleanly without `--no-verify`.
 
-## Pre-commit & Repository Quality Gate Setup
+## 5. Pre-commit & Repository Quality Gate Setup (Project Bootstrap Only)
+Provision `.pre-commit-config.yaml` and `Makefile` targets **only** when initializing or modernizing repository infrastructure (never run `pre-commit run --all-files` during routine feature edits):
 
-When creating or modernizing a Python project, verify if `.pre-commit-config.yaml` exists. If missing or incomplete, provision the standard configuration:
-
-### 1. Canonical `.pre-commit-config.yaml`
 ```yaml
 repos:
-  # Standard hygiene and file guards
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-        exclude: ^complexipy-snapshot\.json$  # complexipy writes without trailing newline
+        exclude: ^complexipy-snapshot\.json$
       - id: check-yaml
+      - id: check-toml
+      - id: check-json
       - id: check-added-large-files
         args: ['--maxkb=4000']
-      - id: check-json
-      - id: check-toml
       - id: check-merge-conflict
       - id: debug-statements
-      - id: mixed-line-ending
-      - id: check-docstring-first
-      - id: check-case-conflict
       - id: detect-private-key
 
-  # Ruff - Fast Python linter and formatter
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.16.10
     hooks:
@@ -116,7 +92,6 @@ repos:
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
-  # Type checking with Pyright (uses local python environment with installed packages)
   - repo: local
     hooks:
       - id: pyright
@@ -126,7 +101,6 @@ repos:
         types: [python]
         pass_filenames: false
 
-  # Security checks with Bandit
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.10
     hooks:
@@ -135,7 +109,6 @@ repos:
         additional_dependencies: ["bandit[toml]"]
         exclude: ^(tests/|eval/)
 
-  # Cognitive complexity ratchet (freezes legacy hotspots in snapshot)
   - repo: https://github.com/rohaquinlop/complexipy-pre-commit
     rev: v8.0.1
     hooks:
@@ -143,7 +116,6 @@ repos:
         args: [--max-complexity-allowed=15, <target_packages>]
         pass_filenames: false
 
-  # Dead code detection (high-confidence cross-module findings)
   - repo: https://github.com/jendrikseipp/vulture
     rev: v2.16
     hooks:
@@ -151,36 +123,15 @@ repos:
         args: [--min-confidence=80, <target_packages>]
         pass_filenames: false
 
-  # Code duplication detection (Type-1 and Type-2 clones)
   - repo: https://github.com/kucherenko/jscpd
     rev: v5.4.0
     hooks:
       - id: jscpd
-        args: [
-          "--min-lines", "15",
-          "--min-tokens", "60",
-          "--threshold", "3",
-          "--ignore", "tests/**,**/fixtures/**,**/*.json,**/*.xz"
-        ]
+        args: ["--min-lines", "15", "--min-tokens", "60", "--threshold", "3", "--ignore", "tests/**,**/fixtures/**,**/*.json,**/*.xz"]
         pass_filenames: false
-
-  # Validate pyproject.toml structure
-  - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.22
-    hooks:
-      - id: validate-pyproject
-
-  # Dependency security scanning via PyPA pip-audit
-  - repo: https://github.com/pypa/pip-audit
-    rev: v2.7.3
-    hooks:
-      - id: pip-audit
-        args: ["-r", "requirements.txt"]
-        files: ^(requirements\.txt|pyproject\.toml)$
 ```
 
-### 2. Standard Makefile Integration
-Always configure standard pre-commit and duplication targets in `Makefile`:
+Standard `Makefile` targets:
 ```makefile
 pre-commit-install:
 	pre-commit install
@@ -190,39 +141,11 @@ pre-commit-run:
 
 pre-commit-all:
 	pre-commit run --all-files  # One-time baseline / CI only
-
-duplication-check:
-	npx jscpd <target_packages> --min-lines 15 --min-tokens 60 --threshold 3 --ignore "tests/**,**/fixtures/**"
 ```
 
-### 3. Provisioning & Verification Protocol
-> [!NOTE]
-> The full-suite command `pre-commit run --all-files` applies strictly to initial repo setup or baseline migrations. Routine feature development and bugfixes must never run full-repo pre-commit hooks.
-
-1. Add `pre-commit` to `[project.optional-dependencies] dev` in `pyproject.toml`.
-2. Write `.pre-commit-config.yaml` with the project package directories in `complexipy`, `vulture`, and `jscpd`.
-3. If legacy functions exceed cognitive complexity 15, initialize the watermark baseline:
-   `complexipy <packages> --max-complexity-allowed 15 --snapshot-create`
-4. Run `pre-commit install && pre-commit run --all-files` once to verify the initial baseline.
-5. Verify repository code duplication stays within the 3% budget.
-
-## Output Expectations
-- Code compatible with the confirmed Python version
-- Type hints on signatures and data definitions
-- Minimal public surface
-- Protocols for swappable dependencies
-- Justified third-party deps
-
 ## Final Checklist
-- [ ] Target Python version confirmed
-- [ ] Functions/dataclasses where classes are unnecessary
-- [ ] Public vs private surface explicit
-- [ ] Dependencies abstracted via Protocol or injection
-- [ ] No import-time I/O
-- [ ] Types complete for the target version
-- [ ] Complexity within limits (Cyclomatic <= 10, Cognitive <= 15, Nesting <= 3)
-- [ ] Code duplication within limits (jscpd <= 3%)
-- [ ] Pre-commit quality gates provisioned (if project setup) or targeted checks passing cleanly on modified files
-- [ ] py.typed marker file included if library package is typed (PEP 561)
-- [ ] No bare `except:`
-- [ ] Older-runtime limitations noted when applicable
+- [ ] Target Python version confirmed and modern syntax applied appropriately
+- [ ] Pydantic v2 at I/O boundaries; `@dataclass(slots=True)` for internal models
+- [ ] Public surface (`__all__`) and `py.typed` marker explicit; zero import-time I/O
+- [ ] Complexity (`CC <= 10`, `Cognitive <= 15`, `Nesting <= 3`) and duplication (`<= 3%`) respected
+- [ ] Targeted `ruff`, `pyright`, and `pytest -n 4` checks passing on modified files

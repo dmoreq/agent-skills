@@ -1,7 +1,7 @@
 ---
 name: python-performance
 description: >-
-  Profile and fix Python runtime, memory, or I/O bottlenecks with evidence (cProfile, py-spy, scalene).
+  Profile and fix Python runtime, memory, or I/O bottlenecks with evidence (cProfile, py-spy, scalene, memray).
   Not for accuracy/F1/quality KPI loops or unmeasured micro-optimizations.
 risk: safe
 source: local
@@ -12,80 +12,82 @@ date_added: "2026-02-27"
 
 Find and fix real performance problems. Measure first.
 
-Load `resources/implementation-playbook.md` **only** for a named profiler recipe (cProfile, py-spy, tracemalloc, scalene). Do not load it for process or policy.
+Load `references/implementation-playbook.md` **only** for a named profiler recipe (`cProfile`, `py-spy`, `tracemalloc`, `scalene`). Do not load it for process or policy.
 
 ## When to Use
-- Slow Python, high latency, CPU, or memory
-- Data-processing, I/O, or DB access that is measurably expensive
-- Before/after profiling of a change
+- Slow Python execution, high latency, CPU saturation, or excessive memory RSS
+- Data-processing, I/O, or database access that is measurably expensive
+- Before/after benchmarking of an optimization or container change
 
 ## When Not to Use
 - No evidence of a performance problem
-- Quality KPIs (accuracy, F1, confidence) → **algorithm-optimization**
-- Premature optimization off the critical path
-- Non-Python performance
+- Quality KPIs (accuracy, F1, Hit@K) → **algorithm-optimization**
+- Standard Polars/DuckDB query authoring → **polars-duckdb**
+- Premature micro-optimization off the critical path
 
 ## Related Skills
-- Use **python-concurrency** when the bottleneck is I/O-bound or needs CPU parallelism.
+- Use **polars-duckdb** when migrating slow Pandas/Python loops to vectorized Polars or DuckDB.
+- Use **python-concurrency** when the bottleneck is I/O wait or needs multi-core CPU parallelism.
 - Use **pyo3-maturin** when a confirmed CPU hotspot cannot be accelerated further in Python.
 - Use **algorithm-optimization** for quality KPIs on real cases, not runtime.
 
 ## Core Principles
 1. Measure first — never optimize from guesses.
 2. Fix the actual hotspot, not the whole codebase.
-3. Simple readable fixes before rewrites.
-4. Re-measure after each meaningful change.
+3. Simple readable fixes and container/representation upgrades before rewrites.
+4. Re-measure after each meaningful change in a clean process.
 5. Stop when the target is met.
 
 ## Optimization Process
 
 ### 1. Clarify Goals
-Latency, CPU, memory, or throughput? Numeric target? Constraints (Python version, deps, architecture freeze)?
+Latency, CPU, peak RSS memory, or throughput? Numeric target? Constraints (Python version, dependencies, architecture freeze)?
 
-### 2. Profile
+### 2. Profile with Rigor
 - **CPU / runtime**: `py-spy` (non-intrusive sampling for live processes), `cProfile` (deterministic), `scalene`
-- **Memory**: `memray` (SOTA heap profiler, tracks native C and Python allocations, generates flamegraphs), `scalene`, `tracemalloc`
-- **Line-level**: `line_profiler` or sampling profilers
-- **I/O**: timing/logs or async-aware profilers
+- **Memory**: `memray` (tracks native C and Python heap allocations, generates flamegraphs), `scalene`, `tracemalloc`
+- **Line-level**: `line_profiler`
 
-Use `time.perf_counter` / `timeit`, not `time.time()`. Ignore micro-gains off the critical path.
+Use `time.perf_counter` / `timeit`, never `time.time()`. Warm lazy caches, time dataset I/O and compute separately on the same bounded rows, then use `cProfile` or `py-spy` to locate hot calls. Re-time a wrapped hotspot without deterministic profiling before quoting its wall-clock share (`cProfile` magnifies call-heavy functions). Disclose if serialization or disk I/O is inside the timed loop.
 
-### 3. Classify
+### 3. Classify the Bottleneck
 
 | Type | Signs | Direction |
 | :--- | :--- | :--- |
-| **CPU-bound** | High CPU, pure compute | Algorithm, vectorization (NumPy/Polars), SIMD libraries, concurrency |
-| **I/O-bound** | Waiting on net/disk/DB | Async, batching, caching, connection pooling |
+| **CPU-bound** | High CPU, pure compute | Better algorithm, vectorization (NumPy/Polars), SIMD libraries, concurrency |
+| **I/O-bound** | Waiting on net/disk/DB | Async (`asyncio`), batching, caching, connection pooling |
 | **Memory-bound** | High RSS, GC pressure, OOM | `memray` flamegraph, generators, `@dataclass(slots=True)`, `memoryview` |
-| **Database** | Slow queries, N+1 queries | Indexes, query shape, batch fetching |
-| **Algorithmic** | Scales poorly with n (O(n²)) | Better complexity, early exit, hash lookups |
+| **Lookup-table RSS** | Large dict survives load, RSS >> on-disk size | Compact trie (`marisa_trie`) or sorted byte arrays + `numpy.searchsorted` |
+| **String/Scanner slicing** | Repeated `text[pos:]` copies in loops | Positional indexing (`re.Pattern.match(text, pos)`) and bounded lookahead |
+| **Database** | Slow queries, N+1 queries | Indexes, query projection, batch fetching |
+| **Algorithmic** | Scales poorly with `n` (`O(n²)`) | Hash lookups (`set`/`dict`), early exit, prefix trees |
 
-### 4. Apply (in order)
-1. Better algorithm or data structure (replace linear search with dict/set, early exit).
-2. Less work (memoize/cache with `@functools.lru_cache`, batch operations).
+### 4. Apply Fixes (in Order of Leverage)
+1. **Better algorithm or data structure** (replace linear scan with `dict`/`set`, positional matching over slicing copies).
+2. **Do less work** (`@functools.lru_cache`, column projection in Parquet scans, batching).
 3. **Drop-in SIMD / Native Accelerators**:
-   - JSON parsing: `orjson` (Rust-based, 5x–10x faster serialization of datetime, dataclasses, dicts).
-   - Fuzzy string matching: `rapidfuzz` (C++ bindings, 10x–50x faster than fuzzywuzzy).
-   - Large text search & hashing: `stringzilla` (C/SIMD vector instructions on AVX2/NEON).
-   - Data processing: `polars` (Rust arrow engine) over Pandas.
-   - Zero-copy buffer slicing: `memoryview` and `bytearray` (prevents intermediate string copies).
-   - Memory footprint: `@dataclass(slots=True)` (eliminates `__dict__`, reducing RAM by 40–60%).
-4. Concurrency or parallelism only when workload matches (`python-concurrency`).
-5. Low-level tricks or Rust FFI (`pyo3-maturin`) last.
+   - JSON serialization: `orjson` (5x–10x faster than stdlib `json`).
+   - Fuzzy matching: `rapidfuzz` (10x–50x faster than pure Python).
+   - Large text search: `stringzilla` (SIMD AVX2/NEON).
+   - Tabular data: `polars` / `duckdb` over Pandas (`polars-duckdb`).
+   - Zero-copy slicing: `memoryview` and `bytearray`.
+   - Object memory footprint: `@dataclass(slots=True)` (40–60% lower RAM than standard dicts/classes).
+   - Large static lookup tables (`>1M` keys): Re-encode `dict[str, int]` (~100 B/entry in RSS) into `marisa_trie.BytesTrie` or sorted arrays + `numpy.searchsorted` (up to 25x RSS reduction with zero accuracy loss; always measure RSS in a fresh process).
+4. **Concurrency or parallelism** when workload matches (`python-concurrency`).
+5. **Rust native extension** (`pyo3-maturin`) last, only after Python options are exhausted.
 
 ### 5. Validate
-Same benchmark as baseline. Correctness preserved. Gain worth the complexity.
+Run the exact baseline benchmark on the same inputs, verify bit-for-bit or parity correctness, and confirm the speedup or RSS reduction justifies the added code complexity.
 
 ## Output Expectations
-- Bottleneck statement with profiler evidence
-- Prioritized changes
-- Before/after when possible
-- Trade-offs
+- Bottleneck diagnosis backed by profiler output
+- Prioritized changes applied
+- Before/after table (wall-clock latency, throughput, peak RSS in a fresh process)
+- Explicit trade-offs
 
 ## Final Checklist
-- [ ] Goal and constraints clear
-- [ ] Profiled before changing
-- [ ] Bottleneck type named
-- [ ] Changes target the hotspot
-- [ ] Re-measured
-- [ ] Correctness preserved
+- [ ] Goal and numeric constraints defined
+- [ ] Profiled before changing (`time.perf_counter`, `py-spy`/`cProfile`/`memray`)
+- [ ] Bottleneck type classified
+- [ ] Changes target the measured hotspot
+- [ ] Re-measured in a clean process with correctness preserved
