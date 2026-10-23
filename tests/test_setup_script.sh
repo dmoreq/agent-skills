@@ -65,4 +65,69 @@ fi
 
 echo "  ✓ Codex host detection and AGENTS.md installation verified"
 
+# Test 4: DeepSeek Harness host detection and dry-run targets
+OUT_DSH="$("$REPO_DIR/setup.sh" --dry-run --host dsh --mirror-native)"
+
+if ! echo "$OUT_DSH" | grep -q "file -> .*/\.dsh/AGENTS.md"; then
+    echo "FAIL: DSH AGENTS.md was not targeted by setup.sh!"
+    exit 1
+fi
+
+if ! echo "$OUT_DSH" | grep -q "skill code-minimalism -> .*/\.dsh/skills/code-minimalism"; then
+    echo "FAIL: DSH native skills root was not targeted by setup.sh!"
+    exit 1
+fi
+
+if ! echo "$OUT_DSH" | grep -q "dsh *.*\.dsh/AGENTS.md"; then
+    echo "FAIL: dsh was not listed in installed summary table!"
+    exit 1
+fi
+
+echo "  ✓ DeepSeek Harness host detection and AGENTS.md installation verified"
+
+# Test 5: Hermes composes SOUL.md and does not copy skills into ~/.hermes/skills
+OUT_HERMES="$("$REPO_DIR/setup.sh" --dry-run --host hermes)"
+
+if ! echo "$OUT_HERMES" | grep -q "file -> .*/\\.hermes/SOUL.md"; then
+    echo "FAIL: Hermes SOUL.md was not targeted by setup.sh!"
+    exit 1
+fi
+
+if echo "$OUT_HERMES" | grep -q "skill .* -> .*/\\.hermes/skills"; then
+    echo "FAIL: Hermes host copied skills into ~/.hermes/skills!"
+    exit 1
+fi
+
+if ! echo "$OUT_HERMES" | grep -q "hermes *.*SOUL.md"; then
+    echo "FAIL: hermes was not listed in the installed summary table!"
+    exit 1
+fi
+
+TMP_HOME="$(mktemp -d)"
+env -u HERMES_HOME HOME="$TMP_HOME" "$REPO_DIR/setup.sh" --host hermes >/dev/null
+python3 - "$TMP_HOME" "$REPO_DIR" <<'PY'
+import sys
+from pathlib import Path
+
+home = Path(sys.argv[1])
+repo = Path(sys.argv[2])
+soul = (home / ".hermes" / "SOUL.md").read_text(encoding="utf-8")
+rules = (repo / "rules" / "AGENTS.md").read_text(encoding="utf-8").strip()
+preamble = (repo / "rules" / "hermes-preamble.md").read_text(encoding="utf-8").strip()
+if not soul.startswith(preamble):
+    raise SystemExit("FAIL: SOUL.md does not start with hermes-preamble.md")
+if not soul.rstrip().endswith(rules):
+    raise SystemExit("FAIL: SOUL.md does not end with rules/AGENTS.md")
+if "one-line question" in soul:
+    raise SystemExit("FAIL: SOUL.md still conflicts with the Vietnamese TL;DR rule")
+if len(soul) >= 20000:
+    raise SystemExit(f"FAIL: SOUL.md is {len(soul)} chars, at or over the 20000 cap")
+if (home / ".hermes" / "skills").exists():
+    raise SystemExit("FAIL: Hermes install created ~/.hermes/skills")
+print(f"  composed SOUL.md chars={len(soul)}")
+PY
+rm -rf "$TMP_HOME"
+
+echo "  ✓ Hermes SOUL.md composition verified"
+
 echo "==> All setup script tests passed!"

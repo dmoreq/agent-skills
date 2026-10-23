@@ -1,8 +1,8 @@
 ---
 name: code-review
 description: >-
-  Review a code diff before merge: correctness, safety, performance, YAGNI, tests, public API.
-  Not the first skill for implementing features. After findings, hand off fixes to the language skill.
+  Review code diffs, audit public APIs, or inspect unpacked repo snapshots for correctness, safety, performance, YAGNI, and test coverage.
+  Not the first skill for implementing features from scratch.
 risk: safe
 source: local
 date_added: "2026-09-11"
@@ -10,94 +10,83 @@ date_added: "2026-09-11"
 
 # Code Review Skill
 
-Rigorous, constructive review of a concrete diff. Review the code, not the author. Zero comments is valid when the diff is good.
+Review concrete diffs or an explicitly scoped existing API surface. Review the code, not the author. Zero findings is valid when evidence supports it.
+
+- Load `references/public-api-audits.md` when auditing all exports, contracts, and consumers of an existing package.
+- Load `references/repo-snapshot-review.md` when reviewing an unpacked archive, fresh clone, or colleague handoff with no PR diff.
 
 ## When to Use
-- Pull requests or local diffs
+- Pull requests or local git diffs
 - Quality gate before merging behavior or public-API changes
 - Looking for bugs, security issues, over-engineering, or missing tests
+- Auditing public API exports, contracts, actual consumers, and algorithm suitability
+- Reviewing a repo snapshot against its own README claims
 - Peer-review step for non-trivial subagent code deliverables (diff + contract only)
 
 ## When Not to Use
-- No code change to review
-- Pure design discussion without a diff (`doubt-driven-development` / `python-patterns`)
+- No concrete code surface or change to inspect
+- Pure design discussion without concrete code (`doubt-driven-development` / `python-patterns`)
 - Starting a feature from scratch (implement first via `python-pro` / `rust-pro`, then review)
 
-After findings: implement fixes via the language skill. Do not refuse the repair loop.
+Keep review-only requests read-only. Implement fixes through the language skill only when requested; an audit backlog is not implementation authorization.
 
 ## Related Skills
 - Use **code-simplification** when the main issue is structural complexity or nesting in existing code.
-- Use **code-minimalism** when diff contains bloat, unrequested abstractions, or premature dependencies.
-- Use **deprecation-migration** when the diff (or review) surfaces a zombie API that should be sunset.
+- Use **code-minimalism** when the diff contains bloat, unrequested abstractions, or premature dependencies.
+- Use **deprecation-migration** when the diff or review surfaces a legacy API that should be sunset.
 - Use **python-testing** or crate tests when behavior changed without tests.
-
-Language style encyclopedias live in `python-pro`, `rust-pro`, and `rust-async-patterns`. This skill checks that they were applied.
-
-## Review Principles
-- Evidence-based, actionable comments
-- Distinguish severity
-- Explain *why*
-- Teach when it is cheap
+- Use **technical-reporting** when saving a formal audit handoff document.
 
 ## Review Workflow & Gates
-Execute automated and structural gates before manual semantic review:
+
+Select the review mode first: diff review (below), package export audit (`references/public-api-audits.md`), or repo snapshot review (`references/repo-snapshot-review.md`).
+
+For all modes:
+- Capture git revision and dirty-tree scope; recheck before finalizing if concurrent edits occur.
+- Separate static observations, independently executed failures, and proposed fixes. Never present an untested correction as a validated patch.
+- Reproduce important delegated findings through the actual consumer when possible.
+- Resolve every method and class a README or spec advertises against the built artifact; a documented API absent from the code is a **Critical** finding.
+- When reviewing a refactor or deletion plan, verify that old and new paths were executed on identical inputs with matching observable outputs.
+
+For diff reviews, execute automated and structural gates before manual semantic review:
 1. **Automated Quality Pre-Flight Gate (Targeted & Deduplicated)**:
    - **Skip Gate for Non-Executable Changes**: If the diff contains only documentation, markdown, or static non-code assets, skip pre-commit and test execution entirely.
-   - **Reuse Verified Proof**: If the authoring agent or subagent already provided passing test and lint outputs for this diff, do not re-run them.
-   - **Targeted Pre-commit Only**: If `.pre-commit-config.yaml` exists and validation is required, run ONLY against modified files: `pre-commit run --files <changed_files>` (never `--all-files`). Prefer fast direct checks (`ruff check <files>`, `pyright <files>`) when feasible.
-   - **Targeted Tests**: Run only tests relevant to the modified modules (`pytest path/to/changed_test.py` or `cargo test <module>`), not the full repository suite.
-   - If pre-commit or tests fail: halt deep review immediately. Report failures as a **Critical** blocker.
-   - Never spend manual review effort on mechanical linting, formatting, or typing errors.
+   - **Reuse Verified Proof**: If the authoring agent or subagent already provided passing test and lint outputs for this exact diff, do not re-run them.
+   - **Targeted Pre-commit Only**: Run only against modified files: `pre-commit run --files <changed_files>` or fast direct checks (`ruff check <files>`, `pyright <files>`). Never run `--all-files` during routine diff reviews.
+   - **Targeted Tests**: Run only tests relevant to the modified modules (`pytest -n 4 path/to/changed_test.py` or `cargo test <module>`).
+   - If pre-commit or tests fail: halt deep review immediately and report failures as a **Critical** blocker.
 2. **Reviewability & Blast Radius Gate**:
-   - **Reviewability Budget**: Diff exceeds 400 effective lines of code (excluding lockfiles/fixtures) -> **Important** (request splitting into modular stacked PRs).
-   - **Separation of Concerns**: Diff mixes mechanical refactoring with business logic -> **Important** (request isolating refactors into dedicated commits).
-   - **Public Surface**: Public function or API signature changed without backward compatibility or version bump -> **Critical**.
+   - **Reviewability Budget**: Diff exceeds 400 effective LOC (excluding lockfiles/fixtures) → **Important** (request splitting into stacked PRs).
+   - **Separation of Concerns**: Diff mixes mechanical refactoring with behavioral logic → **Important** (request isolating refactors).
+   - **Public Surface**: Public signature changed without backward compatibility or version bump → **Critical**.
 3. **Omission Checklist (Verify What Is Missing)**:
    - **Error Path Cleanup**: Are open resources (files, sockets, DB transactions) released in failure branches?
+   - **Callers of Deleted Symbols**: Did a repo-wide grep confirm every importer (including sibling scripts) was retargeted in the same commit?
    - **Observability**: Are new error states logged with contextual parameters?
-   - **Negative & Edge Tests**: Are boundary cases (empty collections, None inputs, timeouts) covered by tests?
+   - **Negative & Edge Tests**: Are empty collections, `None` inputs, and timeouts tested?
    - **Documentation Sync**: Are `CHANGELOG.md`, `__all__`, or `README.md` updated for public changes?
 4. **Semantic & Architectural Review**:
-   - Once automated and structural checks pass, inspect the diff against the Universal Checklist.
+   - **Correctness**: Does what it claims; edge and error paths; no obvious race conditions.
+   - **Safety & Security**: Inputs validated; parameterized queries; no hardcoded or leaked secrets.
+   - **Performance & Concurrency**: No extra work on hot paths; no shared mutable state across async tasks/threads without locks.
+   - **Maintainability & Complexity**:
+     - Cyclomatic Complexity > 10, Cognitive Complexity > 15, or Nesting Depth >= 4 → **Important** (hand off to `code-simplification`).
+     - Cyclomatic Complexity > 20 or Cognitive Complexity > 20 without justification → **Critical**.
+     - Unjustified code duplication (> 15 identical lines) → **Important**.
+   - **Over-Engineering & YAGNI**: No single-implementation interfaces, unrequested dependencies, or speculative abstractions; deliberate shortcuts annotated with `# ponytail: <limit>`.
 
-## Severity (text only — no emoji)
-- **Critical** — must fix before merge (bugs, security vulnerabilities, data loss, pre-commit/test failures, breaking API shifts)
-- **Important** — should fix (maintainability, complexity violations, missing error handling, missing tests, diff size violations)
-- **Suggestion** — nicer alternative with clear technical trade-off
-- **Nit** — non-blocking style preference; limit to <= 2 items per review; never block a merge on nits
-
-## Universal Checklist
-**Correctness:** does what it claims; edge and error paths; no obvious races.
-
-**Safety & Security:** inputs validated; no injection; no hardcoded secrets; errors do not leak secrets.
-
-**Performance & Concurrency:** no extra work on hot paths; I/O/allocs reasonable; concurrency used correctly; no shared mutable state without locks.
-
-**Maintainability & Complexity:** readable names; complex logic explained or simplified; public APIs intentional.
-- Gate: Cyclomatic Complexity > 10, Cognitive Complexity > 15, or Nesting Depth >= 4 -> **Important** (must request simplification via `code-simplification`).
-- Gate: Cyclomatic Complexity > 20 or Cognitive Complexity > 20 without architectural rationale -> **Critical**.
-- Gate: Unjustified code duplication (> 15 identical lines or cloned logic blocks) -> **Important** (must extract to shared helper).
-
-**Over-Engineering & YAGNI:** no unrequested abstractions; no interface with only one implementation; no factory for a single product; no new external dependencies when stdlib or existing libraries suffice; deliberate minimal simplifications note their ceiling (`# ponytail: <limit>`).
-
-**Testing:** important paths and edges covered; tests assert behavior, not coverage theater.
-
-## Language Pointers
-- **Python:** `python-pro` + ruff; no mutable defaults; no bare `except:`; context managers; `pathlib`.
-- **Rust:** `rust-pro`; no `.unwrap()` in non-test prod; `// SAFETY:` on unsafe; no locks across `.await` (`rust-async-patterns`).
+## Severity Levels (Text Only — No Emoji)
+- **Critical** — must fix before merge (bugs, security flaws, data loss, test/lint failures, breaking API shifts)
+- **Important** — should fix (complexity violations, missing error handling/tests, diff > 400 LOC)
+- **Suggestion** — cleaner alternative with clear technical trade-off
+- **Nit** — non-blocking style preference (<= 2 per review; never block merge)
 
 ## Output Format
-1. **Summary** — 1–3 sentences stating diff scope, pre-flight gate status, and verdict.
-2. **Findings** — Ordered by severity: Critical → Nit.
-3. **Positive notes** — Highlight clean patterns or effective tests (if any).
+1. **Summary** — 1–3 sentences stating diff scope, pre-flight gate status, and overall verdict.
+2. **Findings** — Ordered by severity (`Critical` → `Nit`). Every `Critical` and `Important` finding MUST include:
+   - **Location**: `path/to/file.py#L42-L46`
+   - **Failure Scenario**: Concrete input or race condition that triggers the defect.
+   - **Correction & Acceptance**: Smallest fix direction, drop-in replacement diff when helpful, and regression test criteria.
+   - **Rationale**: Operational, security, or data integrity impact.
+3. **Positive Notes** — Highlight clean patterns or effective tests (if any).
 4. **Questions** — Clarify ambiguous architectural assumptions (if any).
-
-### Finding Format Invariant
-Every Critical and Important finding MUST contain:
-- **Location**: `path/to/file.py#L42-L46`
-- **Failure Scenario**: Concrete input condition or race condition that triggers the defect.
-- **Drop-in Fix**: Exact replacement code block ready to apply.
-- **Rationale**: Operational impact, security vulnerability, or data loss risk.
-
-## Tone
-Direct, professional, constructive. Prefer “This causes…” over “You should…”. Zero comments is valid when the diff is clean.

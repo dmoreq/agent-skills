@@ -16,6 +16,7 @@ Decision-making for Python architecture: framework, project structure, and trade
 - Choosing a Python framework or service shape
 - Structuring a new or growing Python project
 - Recording an ADR for a durable architecture choice
+- Assessing an existing Python subsystem's design, generalization, and architectural trade-offs
 
 ## When Not to Use
 - Executor choice (asyncio / threads / processes) → **python-concurrency**
@@ -27,6 +28,28 @@ Decision-making for Python architecture: framework, project structure, and trade
 ## Related Skills
 - Use **python-pro** once the architecture decision is made.
 - Use **python-concurrency** when the remaining question is I/O vs CPU execution model.
+
+## Existing Subsystem Assessment
+
+1. Read module boundaries, public exports, dependency manifests, representative callers, and behavioral tests before judging the design.
+2. Separate four questions: architectural cohesion, behavioral correctness, domain generalization, and measured efficiency. Evidence for one does not establish the others.
+3. Trace suspected defects through callers. Distinguish an internal component's documented input contract from an end-to-end failure.
+4. Audit evaluation assertions before trusting benchmark labels. Compare fixture fields with fields actually checked; confidence and quality scores are not substitutes for output correctness.
+5. Run targeted verification and bounded probes. Report failures without silently fixing snapshots or production code during a read-only assessment. A failing baseline limits confidence but does not prevent an explicitly qualified architecture review.
+6. Present a verdict by dimension, concrete findings with `path:line` and observed outputs, strengths, evidence limitations, and prioritized minimal changes. Avoid unsupported numerical design scores.
+
+For grammar, lexer, or normalization subsystems, load `references/parser-generalization.md`. Use **python-performance** for measured runtime analysis rather than inferring optimization from algorithm names.
+
+### Unifying existing workflows without speculative abstractions
+
+1. Name workflows by functionality rather than customer segment or input source. Separate workflow, intent, execution target, storage schema, and transport as independent dimensions.
+2. Build an explicit supported workflow/schema matrix before proposing interfaces. Select concrete implementations at construction and reject unsupported combinations before I/O; future combinations justify a seam, not empty implementations or a plugin registry.
+3. Trace the complete observable stage sequence through callers, not just the nominal component. Retrieval may hydrate candidates from priors; ranking may continue through deduplication, target refinement, and personalization outside the scorer.
+4. Put DSL, fallback queries, projections, nested semantics, and decoding under schema ownership. Inventory raw-document reads in ranking before claiming schema independence; normalize only consumed evidence rather than forcing a universal candidate model.
+5. Preserve distinct result and score semantics. Share dependency wiring and genuinely identical utilities, not algorithms whose apparent similarity hides different domain contracts.
+6. Lock stage order, mutation ownership, early stops, batching, candidate budgets, identity changes, and consumer compatibility before extraction. Wrapping a concrete client can disable type-based batching and regress latency without changing output tests.
+7. Require paired per-case parity for mechanical migration, plus separate performance measurements. Audit cohort exclusions, grouped versus primary identity metrics, fixture skips, and stage timers before treating existing thresholds as accuracy or latency proof.
+8. Introduce functional aliases first, extract boundaries next, and move package layout last. Keep compatibility adapters thin and defer removal until actual consumers migrate.
 
 ## 1. Framework Selection
 Choose based on context, not habit.
@@ -45,7 +68,7 @@ Always type function parameters/returns, public APIs, and class attributes that 
 
 ## 3. Project Structure & Layout
 - **Production Libraries & Services**: Use the `src/` layout (`src/<package_name>/`).
-  *Prevents test runners from importing uninstalled working-tree code; guarantees testing against the installed package.*
+  *Reduces accidental working-tree imports. Verify the built wheel outside the checkout; `src/` alone does not guarantee installed-package testing when editable installs or path overrides are active. For existing projects, isolate layout migration from behavioral refactoring.*
 - **Small CLI or Utilities**: Flat layout or single module if under 300 LOC.
 - **Service Layers**:
   - `routes/` / `api/`: Thin HTTP adapters; parameter parsing and status codes only.

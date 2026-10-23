@@ -1,6 +1,6 @@
 # Agent Skills
 
-A curated, token-efficient collection of **Global Agent Rules** and **Custom Skills** designed for the **Google Antigravity**, **Cursor**, **Pi**, **Grok**, **Windsurf**, and **OpenAI Codex** coding assistant environments.
+A curated, token-efficient collection of **Global Agent Rules** and **Custom Skills** designed for the **Google Antigravity**, **Cursor**, **Claude Code**, **Pi**, **Grok**, **Windsurf**, **OpenAI Codex**, **Hermes**, and **DeepSeek Harness** coding assistant environments.
 
 ---
 
@@ -9,33 +9,35 @@ A curated, token-efficient collection of **Global Agent Rules** and **Custom Ski
 ```text
 agent-skills/
 ├── rules/
-│   └── AGENTS.md                    # Global agent behavioral directives & kernel standards
+│   ├── AGENTS.md                    # Global agent behavioral directives & kernel standards
+│   └── hermes-preamble.md           # Hermes SOUL.md preamble
 ├── skills/
-│   ├── algorithm-optimization/      # Systematic KPI & algorithm improvement loop
-│   ├── code-minimalism/             # YAGNI-first minimalist code generation (stdlib/platform native)
-│   ├── code-review/                 # Multi-axis review + YAGNI/bloat quality gate
+│   ├── algorithm-optimization/      # Systematic KPI & algorithm improvement loop (+ 3 references)
+│   ├── code-minimalism/             # YAGNI-first minimalist code generation (+ 2 references)
+│   ├── code-review/                 # Multi-axis review + YAGNI/bloat quality gate (+ 2 references)
 │   ├── code-simplification/         # Safe refactoring, reducing nesting & accidental complexity
 │   ├── context7-mcp/                # Live documentation lookup for libraries/frameworks
-│   ├── data-science/                # EDA, modeling, statistics, causal inference & A/B testing
+│   ├── data-science/                # EDA, modeling, statistics, causal inference & A/B (+ script & reference)
 │   ├── data-storytelling/           # Decision-ready narratives for business stakeholders
 │   ├── data-visualization/          # Plotly-first charts, layout optimization & anti-overlap QA
-│   ├── deprecation-migration/       # Safe removal, replacement & sunsetting of legacy APIs/systems
+│   ├── deprecation-migration/       # Safe removal, replacement & sunsetting of legacy APIs (+ 2 references)
 │   ├── doubt-driven-development/    # Adversarial stress-testing of non-trivial architectural choices
 │   ├── plotly-dash/                 # Interactive Python data apps with Plotly Dash & clean callbacks
+│   ├── polars-duckdb/               # High-performance DataFrame & local SQL ETL (+ migration reference)
 │   ├── pyo3-maturin/                # Rust native extensions with PyO3 & Maturin for CPU hotspots
 │   ├── python-concurrency/          # Concurrency models: asyncio, thread pool, process pool
-│   ├── python-patterns/             # Architecture-time: framework, layout, ADR
-│   ├── python-performance/          # Profile-driven performance optimization
-│   ├── python-pro/                  # Modern Python 3.12+ implementation (uv, ruff, pyright)
-│   ├── python-testing/              # Testing strategies with pytest, fixtures & TDD
+│   ├── python-patterns/             # Architecture-time: framework, layout, ADR (+ parser reference)
+│   ├── python-performance/          # Profile-driven performance optimization (+ playbook reference)
+│   ├── python-pro/                  # Modern Python 3.12+ implementation (uv, ruff, pyright, packaging)
+│   ├── python-testing/              # Testing strategies with pytest, fixtures & TDD (+ 2 references)
 │   ├── rust-async-patterns/         # Production async Rust patterns with Tokio, channels & cancellation
 │   ├── rust-pro/                    # Modern Rust 2024+ engineering, memory safety & performance
 │   ├── tech-research/               # SOTA survey, benchmark comparison & technical trade-offs
-│   ├── technical-reporting/         # Saved technical reports, benchmarks, Mermaid, asset paths
+│   ├── technical-reporting/         # Saved technical reports, benchmarks, Mermaid, asset paths (+ reference)
 │   └── verify-and-stop/             # Termination discipline, decisive checks & runaway prevention
 ├── tests/                           # Automated schema validation & invariant verification
 ├── setup.sh                         # Unified setup (default skips Rust; --with-rust to enable)
-├── package.sh                       # Offline distribution packager
+├── package.sh                       # Offline distribution packager (tar.gz & zip)
 └── README.md
 ```
 
@@ -56,6 +58,7 @@ agent-skills/
 | **`deprecation-migration`** | Safely sunset, replace, and migrate legacy APIs/systems using Strangler, Adapter, and Feature Flags. |
 | **`doubt-driven-development`** | Adversarial review to stress-test high-risk decisions and uncover unstated assumptions. |
 | **`plotly-dash`** | Production-grade Plotly Dash apps with modular layouts, disciplined callbacks, state hygiene & performance. |
+| **`polars-duckdb`** | High-performance tabular data wrangling, ETL, and analytical SQL with Polars, DuckDB, PyArrow, and Pandas 2.x. |
 | **`pyo3-maturin`** | High-performance Rust native extensions with PyO3 and Maturin for CPU-bound hotspots. *(Rust skill)* |
 | **`python-concurrency`** | Concurrency models: `asyncio` for I/O, `ThreadPool` for blocking I/O, `ProcessPool` for CPU. |
 | **`python-patterns`** | Architecture-time: framework, project layout, ADR. Executor choice lives in `python-concurrency`. |
@@ -93,6 +96,7 @@ agent-skills/
 | Saved markdown, Mermaid allowlist, asset paths | `technical-reporting` | Plotly, QBR narrative |
 | Plotly chart type, anti-overlap, SVG/Kaleido | `data-visualization` | Reporting, Dash figure restatement |
 | Stakeholder Hook → Ask | `data-storytelling` | Analysis |
+| High-volume CSV/Parquet ETL, Polars/DuckDB query mechanics | `polars-duckdb` | `data-science`, `python-performance` |
 | EDA / inference / A/B / forecasting | `data-science` | Charts, Dash, SOTA survey |
 | External SOTA / papers / benchmarks | `tech-research` | Implementation |
 | Quality KPIs on real cases | `algorithm-optimization` | Runtime profiling |
@@ -123,6 +127,7 @@ agent-skills/
 | **Design** | **`code-minimalism`** | Code creation or bloat reduction (/minimal, /ponytail) | `verify-and-stop` (verify completion); `code-review` (merge gate) | Optional |
 | **Execution** | **`verify-and-stop`** | Implementation complete | Emits proof and stops; prevents runaway loops | Mandatory on task finish |
 | **Migration** | **`deprecation-migration`** | Zombie/legacy code from review | `python-testing` (verify compatibility); `code-simplification` (clean shims) | Optional |
+| **ETL & Data** | **`polars-duckdb`** | Tabular datasets (CSV, Parquet, Arrow, SQL) | `data-science` (analysis & ML); `python-performance` | Optional |
 | **Analysis** | **`data-science`** | Raw data, EDA, modeling, statistics, A/B | `data-visualization` (charts); `data-storytelling` (narrative); `technical-reporting` | Optional / Required* |
 | **Visualization** | **`data-visualization`** | Metrics/insights from `data-science` | `plotly-dash`, `technical-reporting`, `data-storytelling` | Optional |
 | **Dashboard** | **`plotly-dash`** | Figures from `data-visualization`; pipeline from `data-science` | `python-testing` (callback test); `code-review` (merge gate) | Optional |
@@ -205,6 +210,7 @@ code-review
 | Explore SOTA methods, evaluate technical alternatives | **`tech-research`** |
 | Adversarial review of a high-risk architectural decision | **`doubt-driven-development`** |
 | EDA, statistics, machine learning, A/B testing | **`data-science`** |
+| High-performance ETL, Polars / DuckDB queries, Parquet / Arrow | **`polars-duckdb`** |
 | Create clean Plotly charts with anti-overlap QA | **`data-visualization`** |
 | Build interactive dashboard / data app | **`plotly-dash`** |
 | Present data insights to business stakeholders | **`data-storytelling`** |
@@ -228,6 +234,21 @@ code-review
 
 Skills are installed into the portable Agent Skills root (`~/.agents/skills`) and native host trees.
 
+### Host Discovery Paths
+
+| Host | Rules file | Skill roots scanned (priority order) |
+|---|---|---|
+| DeepSeek Harness | `~/.dsh/AGENTS.md` (`$DSH_HOME`) | `~/.dsh/skills`, `~/.agents/skills` |
+| Codex | `~/.codex/AGENTS.md` | `~/.codex/skills`, `~/.agents/skills` |
+| Antigravity | `~/.gemini/GEMINI.md` | `~/.gemini/config/skills`, `~/.gemini/antigravity-cli/skills` |
+| Cursor | `~/.cursor/rules/agent-rules.mdc` | `~/.agents/skills` |
+| Pi / Grok | `~/.pi/agent/AGENTS.md`, `~/.grok/AGENTS.md` | `~/.agents/skills` |
+| Windsurf | `~/.windsurf/rules/agent-rules.md` | `~/.agents/skills` |
+| Hermes | `~/.hermes/SOUL.md` (`rules/hermes-preamble.md` + `rules/AGENTS.md`) | repo `skills/` via `skills.external_dirs` (no copy into `~/.hermes/skills`) |
+
+DeepSeek Harness also scans `<project>/.dsh/skills` and `<project>/.agents/skills`, and loads project
+`AGENTS.md` files from the repository root down to the working directory, on top of `~/.dsh/AGENTS.md`.
+
 ### Automated Setup Script
 
 ```bash
@@ -243,9 +264,11 @@ Useful flags:
 ./setup.sh --all                    # enable --with-rust and install to all detected hosts
 ./setup.sh --dry-run                # print destinations only
 ./setup.sh --host cursor,codex       # subset of hosts
+./setup.sh --host hermes             # compose ~/.hermes/SOUL.md; do not copy skills
+./setup.sh --host dsh --link        # DeepSeek Harness: symlink ~/.dsh/skills from this clone (dev)
 ./setup.sh --project                # current repo: .agents/skills + AGENTS.md
 ./setup.sh --link                   # symlink skills from this clone (dev)
-./setup.sh --mirror-native          # also copy into ~/.cursor|~/.grok|~/.pi|~/.codex skills dirs
+./setup.sh --mirror-native          # also copy into ~/.cursor|~/.grok|~/.pi|~/.codex|~/.dsh skills dirs
 ./setup.sh --force                  # create host dirs even if the app is not detected
 ```
 
@@ -276,6 +299,6 @@ chmod +x package.sh
 ./package.sh
 ```
 
-Tarballs generated in `dist/`:
-- **`dist/skills.tar.gz`**: Standalone skills package.
-- **`dist/agent-skills.tar.gz`**: Complete offline bundle (`skills/`, `rules/`, `tests/`, `setup.sh`).
+Packages generated in `dist/`:
+- **`dist/skills.tar.gz` & `dist/skills.zip`**: Standalone skills package.
+- **`dist/agent-skills.tar.gz` & `dist/agent-skills.zip`**: Complete offline bundle (`skills/`, `rules/`, `tests/`, `setup.sh`).

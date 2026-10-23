@@ -49,8 +49,9 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
 
 ## 3. Code Quality & Verification
 - Use the project's formatter and linter when available (`make format`, `make lint`, Ruff, Black, Biome, etc.).
-- **Targeted Test Execution**:
+- **Targeted Test Execution & Parallelism**:
   - Run *targeted* tests for modified modules/functions during iteration (`pytest path/to/test.py -k test_name`, `cargo test test_name`).
+  - Prioritize running pytest with 4 workers (`pytest -n 4` via `pytest-xdist`) to accelerate execution.
   - Never run full repository test suites repeatedly for incremental changes.
   - Run full test suites at most once, and only at the final pre-merge gate when touching shared components.
   - Skip test runs entirely for changes that do not modify runtime behavior (docs, comments, markdown, non-code files).

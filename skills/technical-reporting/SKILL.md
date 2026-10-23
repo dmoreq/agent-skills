@@ -27,9 +27,11 @@ Create a saved technical markdown document when the user asked for a durable rep
 - Numbers come from the skill that produced them; do not chain research → optimize → report.
 
 ## 1. Execution Flow
-1. **Generate assets first**: compute metrics and export SVG (via `data-visualization`) before drafting.
-2. **Draft the markdown** using verified numbers.
-3. **Embed assets** with relative paths from the report file.
+1. **Inspect the destination**: read repository instructions and existing docs layout; identify the current revision and dirty-tree scope for code reports.
+2. **Prepare evidence**: distinguish executed results, static findings, recommendations, and unresolved decisions. Generate chart assets only when they improve the report.
+3. **Draft the markdown** using verified numbers and repository-relative source references. Relocate symbols before relying on historical line numbers.
+4. **Embed assets**, when needed, with relative paths from the report file.
+5. **Validate the deliverable**: check enumerated IDs/counts, referenced repository paths, and code fences. Do not rerun runtime tests for a documentation-only handoff.
 
 ## 2. File Organization & Naming
 - Prefix persistent files with ISO date: `YYYY-MM-DD_<topic>.md`.
@@ -47,6 +49,27 @@ Create a saved technical markdown document when the user asked for a durable rep
 - Start with `TL;DR` / Executive Summary (metrics + takeaway).
 - Inherit global communication invariants (`AGENTS.md` §1): zero fluff, table preferences, and plain-text/Unicode math over LaTeX.
 - Charts only when they reveal a pattern a table would hide.
+- When a claim in an earlier version of the same document turns out to be wrong, open with a **retraction section before anything else**: state the claim, the probe that produced it, the mechanism that made the probe wrong, and the corrected measurement. Patching the wrong sentence silently and keeping the same title leaves a document whose conclusion cannot be trusted; the reader needs to see which statement was withdrawn.
+- Every measured row carries its harvesting command next to the number. A figure without the command that produced it is a reading from memory, and the next session cannot reproduce or falsify it.
+- Keep projections visibly separate from measurements — label a projected capture size or wall clock as an estimate and say which measured value it was scaled from.
+
+## Implementation Handoffs
+
+- A proposal or plan is a report too. Honor an explicit plan-mode target path over the `docs/reports/` default; in plan mode, write only that plan file and perform no implementation, mutating commands, or commits. Otherwise save in the owning repo's `docs/reports/`. State that the plan authorizes no code, data, or commit yet.
+- For a remediation handoff to an implementer without context, enumerate every reviewed finding and separate actionable defects from unproven cleanup. Give each behavior change an exact file, complete test and minimal patch, expected RED failure and GREEN result, targeted verification command, and commit boundary. Use a characterization check instead of fabricating a failing test for deletion of unreachable code.
+- Every defect claim in a plan carries the measurement next to it (the count, the rank boundary, the probe result) or is marked as a static reading. A plan that asserts "the current artifact is dirty" without the observed numbers is not verifiable by the implementer.
+- Make accept criteria executable: name each verification check, its pass condition, and the command that produces it. Add an explicit "if a check fails, report the failure instead of adjusting the gate to make it pass" instruction — self-tightening thresholds to reach a target count is the recurring failure in gated selection work.
+- End with one block of open decisions, each with the default taken if the user does not answer.
+- When the user asks another agent to implement an analysis, save an actionable handoff rather than merely copying the conversation. Include source evidence, invariants, small work packages, acceptance tests, data/product blockers, and a copy-ready agent prompt.
+- Record approved names, default configurations, supported combinations, and explicitly deferred combinations before defining work packages. Remove superseded proposals from the implementation instructions so the next agent does not implement competing APIs.
+- Assign each non-trivial work package a corresponding independent specialist reviewer and require principal-level review of architectural boundaries. Put reviewer specialties, acceptance evidence, and unresolved-review blockers in the package itself and the copy-ready prompt; a generic final “review code” step is insufficient.
+- Include focused naming/YAGNI cleanup in the migration scope, but separate mechanical moves, redundancy removal, and behavior changes. Preserve legacy imports and wire/fixture identifiers until consumer evidence supports removal.
+- Identify the dirty-tree baseline and pre-existing edits; a commit hash alone does not describe reviewed uncommitted code.
+- Separate immediately actionable correctness fixes from conditional redesign and calibration. A backlog is not authorization to implement every item or remove curated behavior.
+- Label previous test results with their scope and snapshot; do not sum overlapping runs or imply that historical passes verify future edits.
+- Finish with the saved path and a short content summary, not another full inline report.
+
+Use [references/implementation-handoffs.md](references/implementation-handoffs.md) for the report structure and verification recipe.
 
 ## Final Checklist
 - [ ] User actually asked for a saved file (otherwise answer in-chat)

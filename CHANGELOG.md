@@ -5,7 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - (v1.5.0)
+## [2.0.0] - 2026-10-23
+
+### Added
+- `polars-duckdb`: Dedicated tabular data engineering skill with dataset-size engine routing (`<100 MB` Pandas 2.x PyArrow/CoW vs `100 MB–100 GB` Polars lazy API & DuckDB SQL), mandatory join-grain validation (`validate="m:1"`), and `references/pandas-to-polars-migration.md`.
+- `data-science`: Deterministic CLI profiler `scripts/eda_profile.py` for CSV, TSV, JSONL, and Parquet files and `references/ab-testing-and-causal.md` covering Sample Ratio Mismatch (SRM) chi-square gates, CUPED variance reduction, and quasi-experimental causal inference.
+- `code-minimalism`: Extracted `references/generalization-and-export-audits.md` for dialect-copy and vocabulary export consolidation audits.
+- `deprecation-migration`: Extracted `references/dead-code-and-untracking-audits.md` for runtime dead-code probes and `git archive HEAD` untracking verification.
+- `package.sh`: Added `.zip` distribution archive generation (`dist/skills.zip` and `dist/agent-skills.zip`) alongside `.tar.gz` bundles.
+
+### Optimized
+- `data-science`: Upgraded with leakage-free `Pipeline`/`ColumnTransformer` rules, structure-matched cross-validation (`StratifiedKFold`, `GroupKFold`, `TimeSeriesSplit`), baselines-first modeling ladder, probability calibration, and slice evaluation; removed duplicated search-ranking replay prose.
+- `data-visualization`: Added Form-Before-Library gate, Okabe-Ito colorblind-safe categorical palette defaults, semantic color rules (categorical, sequential, diverging, highlight), and cross-chart color consistency invariants.
+- `algorithm-optimization`, `code-minimalism`, `deprecation-migration`, `python-pro`, `python-concurrency`: Enforced strict Progressive Disclosure (`<= 250` lines and `<= 12 KB` per `SKILL.md`), purging session-specific literals while preserving domain playbooks in `references/`.
+- `python-performance` & `python-testing`: Standardized `resources/implementation-playbook.md` into `references/implementation-playbook.md` across all skills.
+- `tests/test_invariants.py` & `tests/test_skills_schema.py`: Fixed hardcoded skill-tuple blind spot in `test_cross_skill_references_exist`, added file-existence verification for all `references/` and `scripts/` paths, and enforced Progressive Disclosure line/byte caps for the 23-skill catalog.
+
+## [1.5.0] - 2026-10-16
 
 ### Optimized
 - `rules/AGENTS.md`: Mandatory targeted test execution (`pytest <file> -k <test>`, `cargo test <test>`), prohibiting full-suite repetition during incremental edits.
@@ -14,8 +30,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `python-pro`: Gated full pre-commit execution (`--all-files`) strictly to one-time repository bootstrapping; switched Makefile `pre-commit-run` to target git diff modified files.
 - `verify-and-stop`: Enabled immediate proof reuse from preceding step, preventing redundant post-review test executions.
 - `python-testing` & `code-simplification`: Confined flaky-test (`PYTHONHASHSEED=random`) and refactoring test passes strictly to modified modules.
+- `rules/AGENTS.md` & `python-testing`: Prioritized 4 parallel workers (`pytest -n 4` via `pytest-xdist`) across global rules and Python skills to accelerate test runs.
 
 ### Added
+- `setup.sh`: Hermes host writes `~/.hermes/SOUL.md` from `rules/hermes-preamble.md` plus `rules/AGENTS.md`. It does not copy skills into `~/.hermes/skills`.
+- `setup.sh`: DeepSeek Harness host integration installing global rules (`$DSH_HOME/AGENTS.md`, default `~/.dsh/AGENTS.md`) and native skills (`~/.dsh/skills`); detects `$DSH_HOME`, the macOS app bundle, or a `dsh` CLI on `PATH`.
 - `setup.sh`: OpenAI Codex Desktop and CLI host integration installing global rules (`~/.codex/AGENTS.md`) and discovering skills (`~/.agents/skills` / `~/.codex/skills`).
 - `code-review`: Automated quality pre-flight gate running targeted `pre-commit` and tests before semantic review.
 - `code-review`: Reviewability budget (diff <= 400 LOC) and blast radius public surface gates.

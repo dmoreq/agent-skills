@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-# Prevent macOS AppleDouble (._*) files from being added to tar archives
+# Prevent macOS AppleDouble (._*) files from being added to archives
 export COPYFILE_DISABLE=1
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -10,7 +10,7 @@ DIST_DIR="$REPO_DIR/dist"
 mkdir -p "$DIST_DIR"
 
 echo "========================================================"
-echo "==> Packaging Agent Skills"
+echo "==> Packaging Agent Skills (tar.gz + zip)"
 echo "========================================================"
 
 BUILD_SKILLS=true
@@ -25,61 +25,41 @@ case "${1:-}" in
         ;;
 esac
 
-# 1. Package skills-only archive (dist/skills.tar.gz)
+# 1. Package skills-only archives (dist/skills.tar.gz & dist/skills.zip)
 if [ "$BUILD_SKILLS" = true ]; then
-    echo "==> Creating skills-only package: dist/skills.tar.gz"
+    echo "==> Creating skills-only packages: dist/skills.tar.gz & dist/skills.zip"
     tar --exclude='.DS_Store' \
         --exclude='__pycache__' \
         --exclude='*.pyc' \
         -czf "$DIST_DIR/skills.tar.gz" \
         -C "$REPO_DIR/skills" .
+    (cd "$REPO_DIR/skills" && zip -rq "$DIST_DIR/skills.zip" . -x "*.DS_Store" "*__pycache__*" "*.pyc")
     SKILLS_SIZE=$(du -h "$DIST_DIR/skills.tar.gz" | cut -f1 | xargs)
-    echo "    ✓ Created: $DIST_DIR/skills.tar.gz ($SKILLS_SIZE)"
+    SKILLS_ZIP_SIZE=$(du -h "$DIST_DIR/skills.zip" | cut -f1 | xargs)
+    echo "    ✓ Created: $DIST_DIR/skills.tar.gz ($SKILLS_SIZE) & $DIST_DIR/skills.zip ($SKILLS_ZIP_SIZE)"
 fi
 
-# 2. Package complete customization suite (dist/agent-skills.tar.gz)
+# 2. Package complete customization suite (dist/agent-skills.tar.gz & dist/agent-skills.zip)
 if [ "$BUILD_BUNDLE" = true ]; then
-    echo "==> Creating full offline bundle: dist/agent-skills.tar.gz"
+    echo "==> Creating full offline bundles: dist/agent-skills.tar.gz & dist/agent-skills.zip"
     tar --exclude='.git' \
         --exclude='.gitignore' \
         --exclude='.DS_Store' \
+        --exclude='.pytest_cache' \
         --exclude='dist' \
         --exclude='__pycache__' \
         --exclude='*.pyc' \
         -czf "$DIST_DIR/agent-skills.tar.gz" \
         -C "$REPO_DIR/.." \
         "$(basename "$REPO_DIR")"
+    (cd "$REPO_DIR/.." && zip -rq "$DIST_DIR/agent-skills.zip" "$(basename "$REPO_DIR")" \
+        -x "*/.git/*" "*/.gitignore" "*.DS_Store" "*/.pytest_cache/*" "*/dist/*" "*__pycache__*" "*.pyc")
     BUNDLE_SIZE=$(du -h "$DIST_DIR/agent-skills.tar.gz" | cut -f1 | xargs)
-    echo "    ✓ Created: $DIST_DIR/agent-skills.tar.gz ($BUNDLE_SIZE)"
+    BUNDLE_ZIP_SIZE=$(du -h "$DIST_DIR/agent-skills.zip" | cut -f1 | xargs)
+    echo "    ✓ Created: $DIST_DIR/agent-skills.tar.gz ($BUNDLE_SIZE) & $DIST_DIR/agent-skills.zip ($BUNDLE_ZIP_SIZE)"
 fi
 
 echo "========================================================"
 echo "==> Summary of Generated Packages in $DIST_DIR:"
-ls -lh "$DIST_DIR"/*.tar.gz
-echo "========================================================"
-echo ""
-echo "Instructions for Target Computer (Offline / No GitHub):"
-echo ""
-echo "[Option 1: Full Suite (Antigravity, Cursor, Pi, Grok, Windsurf, Codex)]"
-echo "  1. Copy 'agent-skills.tar.gz' to target machine"
-echo "  2. Extract and run installer:"
-echo "       tar -xzf agent-skills.tar.gz"
-echo "       cd agent-skills"
-echo "       ./setup.sh              # Default: skips Rust skills"
-echo "       ./setup.sh --with-rust  # Includes Rust skills (rust-pro, rust-async-patterns, pyo3-maturin)"
-echo ""
-echo "[Option 2: Skills Only (portable + Antigravity/Codex)]"
-echo "  1. Copy 'skills.tar.gz' to target machine"
-echo "  2. Extract to the portable Agent Skills root (Cursor/Pi/Grok/AGY 2.0/Codex):"
-echo "       mkdir -p ~/.agents/skills"
-echo "       tar -xzf skills.tar.gz -C ~/.agents/skills"
-echo "  3. Also extract for Antigravity IDE + CLI:"
-echo "       mkdir -p ~/.gemini/config/skills ~/.gemini/antigravity-cli/skills"
-echo "       tar -xzf skills.tar.gz -C ~/.gemini/config/skills"
-echo "       tar -xzf skills.tar.gz -C ~/.gemini/antigravity-cli/skills"
-echo ""
-echo "[Option 3: Skills Only (Project-specific / Workspace)]"
-echo "  1. Extract into your target project repository:"
-echo "       mkdir -p <project-root>/.agents/skills"
-echo "       tar -xzf skills.tar.gz -C <project-root>/.agents/skills"
+ls -lh "$DIST_DIR"/*.tar.gz "$DIST_DIR"/*.zip 2>/dev/null || true
 echo "========================================================"
