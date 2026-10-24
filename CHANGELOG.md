@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-10-24
+
+### Added
+- `setup.sh`: Native Zed Editor integration (`--host zed`) installing global rules to `~/.config/zed/AGENTS.md` and discovering portable skills in `~/.agents/skills`; safely preserves existing user commit message rules.
+- `bots`: Added bounded role templates and shared bot contract for agentic teams.
+- `algorithm-optimization`: Extracted `references/query-suggestion-experiments.md` for pre-submission autocomplete experiments, synthetic prefix cohorts, and independent scorer parity gates.
+- `verify-and-stop`: Added `references/subagent-verification.md` for independent parent-agent verification of delegated multi-stage workflows.
+- `tests/test_setup_script.sh`: Added automated host detection and dry-run target validation for Zed Editor.
+
+### Optimized
+- `code-review`: Extracted declarative skill-bundle review and scan scope verification into `references/repo-snapshot-review.md`.
+- `skills`: Enforced Progressive Disclosure budget constraints (`<= 250` lines and `<= 12 KB`) across all skills including `algorithm-optimization`, `code-review`, and `verify-and-stop`.
+
 ## [2.0.0] - 2026-10-23
 
 ### Added
