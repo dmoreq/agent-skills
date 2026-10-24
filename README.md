@@ -1,6 +1,6 @@
 # Agent Skills
 
-A curated, token-efficient collection of **Global Agent Rules** and **Custom Skills** designed for the **Google Antigravity**, **Cursor**, **Claude Code**, **Pi**, **Grok**, **Windsurf**, **OpenAI Codex**, **Hermes**, and **DeepSeek Harness** coding assistant environments.
+A curated, token-efficient collection of **Global Agent Rules** and **Custom Skills** designed for the **Google Antigravity**, **Cursor**, **Zed**, **Claude Code**, **Pi**, **Grok**, **Windsurf**, **OpenAI Codex**, **Hermes**, and **DeepSeek Harness** coding assistant environments.
 
 ---
 
@@ -244,7 +244,8 @@ Skills are installed into the portable Agent Skills root (`~/.agents/skills`) an
 | Cursor | `~/.cursor/rules/agent-rules.mdc` | `~/.agents/skills` |
 | Pi / Grok | `~/.pi/agent/AGENTS.md`, `~/.grok/AGENTS.md` | `~/.agents/skills` |
 | Windsurf | `~/.windsurf/rules/agent-rules.md` | `~/.agents/skills` |
-| Hermes | `~/.hermes/SOUL.md` (`rules/hermes-preamble.md` + `rules/AGENTS.md`) | repo `skills/` via `skills.external_dirs` (no copy into `~/.hermes/skills`) |
+| Zed | `~/.config/zed/AGENTS.md` | `~/.agents/skills` |
+| Hermes | `~/.hermes/SOUL.md` (`rules/hermes-preamble.md` + `rules/AGENTS.md`) | repo `skills/` via `skills.external_dirs` (or native `~/.hermes/skills` with `--mirror-native`) |
 
 DeepSeek Harness also scans `<project>/.dsh/skills` and `<project>/.agents/skills`, and loads project
 `AGENTS.md` files from the repository root down to the working directory, on top of `~/.dsh/AGENTS.md`.
