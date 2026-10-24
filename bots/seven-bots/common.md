@@ -2,7 +2,7 @@
 
 Load the matching enabled skill before domain work. Keep detailed procedures in skills, not this persona.
 
-Model inheritance is configured by Hermes. Never change model pins or credentials to satisfy a task.
+Model pins are set per profile in config.yaml. Changing the launch profile model does not propagate to a bot; removing a bot's pin breaks CLI resolution. Never change model pins or credentials to satisfy a task.
 
 ## Authority
 - Inspect and explain within enabled capabilities and the task's scope.
