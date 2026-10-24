@@ -51,6 +51,44 @@ Run the probes in one batch, print a compact verdict line per item, and carry th
 
 When the audit surfaces a silent-failure class (a catch-all kwargs tail, a self-comparing test), rank it above the cosmetic dead names. Order the findings by what breaks a caller versus what merely confuses a reader, and say which one you would fix first and why.
 
+## 1d. Audit the shipped artifact, not the source tree
+
+A "what does this package actually need" audit is not finished until you have built the
+artifact and inspected it. Reading `pyproject.toml` and walking the source directory predicts
+neither the contents nor the size, and the prediction is usually wrong in both directions.
+
+1. Build and list the artifact. Do not estimate from `du` on the package directory.
+   ```bash
+   python -m build --wheel --outdir /tmp/dist
+   python -c "import zipfile,glob; z=zipfile.ZipFile(glob.glob('/tmp/dist/*.whl')[0]); \
+     [print(f'{z.getinfo(n).file_size:>10,}  {n}') for n in sorted(z.namelist())]"
+   ```
+   Default build-backend excludes differ from what you assume: hatchling drops `*.tsv`,
+   `*.trie`, `__pycache__` but keeps `*.json`, so a package can ship a metadata sidecar and a
+   multi-hundred-KB JSON while the data those files describe is absent.
+2. Install the artifact alone into a clean directory and exercise the documented entry point.
+   `sys.path.insert` on the unpacked wheel is enough; no venv needed.
+   ```bash
+   unzip -q /tmp/dist/*.whl -d /tmp/installed
+   python -c "import sys; sys.path.insert(0,'/tmp/installed'); from pkg import main_api; main_api()"
+   ```
+   A wheel that imports but raises `FileNotFoundError` from deep inside a parser on first real
+   use is a **Critical** packaging finding, not an environment problem. The failure mode to
+   look for is: artifact ships the *index/metadata* describing data files it does not ship.
+3. Compare shipped bytes against source bytes to find development residue in the distribution.
+   The largest file in a wheel is the cheapest signal for what leaked: an experiment's output
+   JSON, a rejected data variant, a test fixture, a build cache. A file belonging to an
+   approach the project explicitly rejected has no business inside the package tree.
+4. State package-tree size and wheel size as two different numbers. They diverge by orders of
+   magnitude, and quoting the directory figure as the artifact figure is a wrong claim. Measure
+   before asserting either.
+5. Check the facade exists at all. A zero-byte `__init__.py` means every consumer imports a
+   submodule path, so any internal move is a breaking change, and the obvious `import pkg;
+   pkg.Thing` fails. Report an absent facade as a finding when the README documents an API.
+
+For each shipped-but-unnecessary file, verdict it exactly like a dead symbol: delete, move
+outside the package tree, or explicitly include as intentional data with the size stated.
+"
 ## 2. Trace actual consumers
 
 - Resolve relative imports using package context, for example `importlib.util.resolve_name`, and track aliases plus module-attribute references.

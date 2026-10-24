@@ -12,15 +12,15 @@ date_added: "2026-09-11"
 
 Review concrete diffs or an explicitly scoped existing API surface. Review the code, not the author. Zero findings is valid when evidence supports it.
 
-- Load `references/public-api-audits.md` when auditing all exports, contracts, and consumers of an existing package.
-- Load `references/repo-snapshot-review.md` when reviewing an unpacked archive, fresh clone, or colleague handoff with no PR diff.
+- Load `references/public-api-audits.md` when auditing all exports, contracts, and consumers of an existing package — including "what legacy is still here" audits. It covers symbol-level deadness, the shipped-wheel inspection step, and decision-ready verdicts.
+- Load `references/repo-snapshot-review.md` when reviewing an unpacked code archive, fresh clone, or colleague handoff with no PR diff.
 
 ## When to Use
 - Pull requests or local git diffs
 - Quality gate before merging behavior or public-API changes
 - Looking for bugs, security issues, over-engineering, or missing tests
 - Auditing public API exports, contracts, actual consumers, and algorithm suitability
-- Reviewing a repo snapshot against its own README claims
+- Reviewing a repo snapshot or declarative skill bundle against its own README claims
 - Peer-review step for non-trivial subagent code deliverables (diff + contract only)
 
 ## When Not to Use
@@ -29,6 +29,10 @@ Review concrete diffs or an explicitly scoped existing API surface. Review the c
 - Starting a feature from scratch (implement first via `python-pro` / `rust-pro`, then review)
 
 Keep review-only requests read-only. Implement fixes through the language skill only when requested; an audit backlog is not implementation authorization.
+
+## Verifying Claims and Scans
+- Verify scan scopes before reporting "clean" (`git grep` cross-check); classify benign mentions from live references (`references/repo-snapshot-review.md` §6).
+- Prove artifact reachability using the loader's true resolution paths rather than flat directory probes.
 
 ## Related Skills
 - Use **code-simplification** when the main issue is structural complexity or nesting in existing code.
@@ -39,7 +43,7 @@ Keep review-only requests read-only. Implement fixes through the language skill 
 
 ## Review Workflow & Gates
 
-Select the review mode first: diff review (below), package export audit (`references/public-api-audits.md`), or repo snapshot review (`references/repo-snapshot-review.md`).
+Select the review mode first: diff review (below), package export audit (`references/public-api-audits.md`), repo snapshot review (`references/repo-snapshot-review.md`), or declarative skill-bundle review (`references/repo-snapshot-review.md` §5).
 
 For all modes:
 - Capture git revision and dirty-tree scope; recheck before finalizing if concurrent edits occur.
@@ -61,10 +65,13 @@ For diff reviews, execute automated and structural gates before manual semantic 
    - **Public Surface**: Public signature changed without backward compatibility or version bump → **Critical**.
 3. **Omission Checklist (Verify What Is Missing)**:
    - **Error Path Cleanup**: Are open resources (files, sockets, DB transactions) released in failure branches?
-   - **Callers of Deleted Symbols**: Did a repo-wide grep confirm every importer (including sibling scripts) was retargeted in the same commit?
+   - **Callers of Deleted Symbols / References to Deleted Targets**: Did a repo-wide grep confirm every reference — code importer, sibling script, AND non-code routing reference (agent/profile config, SOUL/instruction files, docs, prompts, registry lists) — was retargeted in the same commit? Grep the whole tree (`git grep -nw '<name>' <rev> -- .`), never a hand-written glob: a glob like `profiles/*/SOUL.md` silently excludes a governing file at a different depth (e.g. a root-level SOUL/README that outranks per-profile copies), so the scope of the search becomes the scope of the blind spot. A deleted name still referenced as a routing/escalation target is a **Critical** dangling reference even when the surrounding file is prose, not code.
    - **Observability**: Are new error states logged with contextual parameters?
    - **Negative & Edge Tests**: Are empty collections, `None` inputs, and timeouts tested?
    - **Documentation Sync**: Are `CHANGELOG.md`, `__all__`, or `README.md` updated for public changes?
+   - **Commit-Message Claims vs Artifact**: Verify each concrete claim in the commit message against the tree, not the intent. A message asserting a cleanup ("no longer references X", "removes Y") is a testable statement; if the tree still violates it, that is a finding, and the message itself becomes misleading evidence for downstream reviewers.
+
+When re-reviewing an amended commit: verify the amend delta directly (`git diff <old> <new> --name-only`) and confirm it contains ONLY the change you requested — an amend is the easiest place to smuggle unrelated edits past a reviewer who only re-reads the flagged hunk. Reproduce the original finding's own check against the new revision to confirm it is actually closed, and re-read the commit message to confirm claims that were false before are now true (or were updated).
 4. **Semantic & Architectural Review**:
    - **Correctness**: Does what it claims; edge and error paths; no obvious race conditions.
    - **Safety & Security**: Inputs validated; parameterized queries; no hardcoded or leaked secrets.
@@ -80,6 +87,8 @@ For diff reviews, execute automated and structural gates before manual semantic 
 - **Important** — should fix (complexity violations, missing error handling/tests, diff > 400 LOC)
 - **Suggestion** — cleaner alternative with clear technical trade-off
 - **Nit** — non-blocking style preference (<= 2 per review; never block merge)
+
+Calibrate severity by reachability, not by whether the flaw exists. A real but currently-unreachable gap (a latent hole no present input path can enter) is **Minor** with a follow-up note, not **Important** — state the reachability argument explicitly so the downgrade is auditable rather than looking like leniency. Conversely, escalate a small-looking flaw that IS reachable on an ordinary path. And when a contract clause is prompt-level with no enforcement mechanism (an instruction nothing verifies), report it as a self-documented limitation rather than either a defect or a proven guarantee: name what is verified true, what is merely asserted, and what a real enforcement hook would require. Do not dress an unverifiable clause up as satisfied.
 
 ## Output Format
 1. **Summary** — 1–3 sentences stating diff scope, pre-flight gate status, and overall verdict.

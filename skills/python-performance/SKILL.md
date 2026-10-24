@@ -79,6 +79,40 @@ Use `time.perf_counter` / `timeit`, never `time.time()`. Warm lazy caches, time 
 ### 5. Validate
 Run the exact baseline benchmark on the same inputs, verify bit-for-bit or parity correctness, and confirm the speedup or RSS reduction justifies the added code complexity.
 
+#### 5a. Separate the ratio from the absolute number
+
+A single median on a loaded machine is not a result. Report the A/B ratio as the durable
+claim and the absolute rate as environment-dependent:
+
+1. **Interleave the two configurations inside one process**, alternating runs, so both see
+   the same load. Measure the speedup as a ratio of medians, not as two numbers from two
+   separate invocations.
+   ```python
+   on, off = rate(), rate_with_flag_disabled()   # same process, same inputs
+   speedup = median(on) / median(off)
+   ```
+   A flag or constructor argument that disables the optimisation makes this trivial and
+   doubles as the regression test.
+2. **Run the sweep, not one point.** Throughput on a shared host varies by +/-15% or more.
+   Take 5+ independent runs and report median *and* min-max range. Accuracy should be
+   bit-identical across runs; if it varies, that is a bug, not noise.
+3. **Check host load before blaming the code.** A load average above core count, or a
+   desktop compositor/renderer consuming 30%+ CPU, invalidates absolute throughput
+   comparison. Say so in the report rather than quoting the low number as a regression.
+4. **Do not force timing with scheduling hacks.** Lowering process priority (`taskpolicy -b`,
+   `nice -19`, background QoS) measures the scheduler, not the code — a 4x slowdown under
+   background QoS says nothing about the optimisation. Measure at normal priority and
+   report the variance instead.
+5. **Re-measure after the optimisation changes the shape of the work.** A container swap that
+   deletes 20% of a lookup table changes both time and memory; report throughput delta and
+   RSS delta together, and do not attribute the whole throughput gain to the algorithmic
+   change if part of it came from having less data.
+
+When the measured gain sits below the significance bar you set *before* running (for example
+< 0.05 absolute accuracy, or a speedup inside the noise band), report it as not significant
+and keep the previous default. A change that is real but too small to matter is a finding,
+not a reason to switch.
+
 ## Output Expectations
 - Bottleneck diagnosis backed by profiler output
 - Prioritized changes applied
