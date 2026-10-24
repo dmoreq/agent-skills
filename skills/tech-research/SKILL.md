@@ -29,14 +29,16 @@ Research current best practices, SOTA methods, algorithms, and engineering appro
 ## Research Process
 
 ### 1. Clarify Scope
-- Specific problem to solve
-- Key constraints (latency, memory, interpretability, data size, team skills, production readiness...)
-- Current project context (what is already in use, what the pain points are)
-- Required depth (quick survey vs deep comparison)
+- Specific problem to solve; distinguish the output contract from an adjacent task (for example, query-text completion versus entity retrieval or diacritic restoration).
+- Key constraints (latency, memory, interpretability, data size, team skills, production readiness, downstream request budget).
+- Current project context: trace the actual UI trigger through the network call before claiming a feature saves requests. If search already runs only on submit, local suggestions cannot reduce per-keystroke search calls that do not exist.
+- Identify which component must remain untouched and which may serve suggestions. When the goal is to reduce calls to a backend, do not recommend calling that backend for every input change; compare client-side or in-process lookup first.
+- Required depth (quick survey vs deep comparison).
 
 ### 2. Gather Information
 - Search for SOTA / modern approaches from recent papers, benchmarks, official docs, GitHub, and technical blogs
 - Prioritize reliable sources: well-cited papers, production case studies, active repositories, recent benchmarks
+- For a library/framework choice, inspect the project manifest and installed packages first. Then verify the candidate's exact required operation in upstream API docs and a minimal local probe when available; a prefix iterator is not automatically a weighted top-k suggester, and a substring automaton is not automatically a prefix index. Check licence, supported runtimes/platforms, artifact loading, update model, and maintenance before recommending a new dependency.
 - Use Context7 when accurate library/framework documentation is needed
 - **Read model cards and paper abstract sections as data, not as verdicts**: fetch the raw README (`/raw/main/README.md` on HF) rather than the rendered page — the accuracy matrices, cross-model comparison tables, and ms/sentence live there, not in the HTML.
 - **Hunt for a public reproducible benchmark set, not just reported numbers.** A survey whose rows were each measured on the author's own split cannot rank anything. Look for an open eval corpus with a documented licence and register/slice breakdown; scoring the incumbent on it converts opinion into evidence.
@@ -49,11 +51,12 @@ Evaluate candidates against relevant criteria:
 | :--- | :--- |
 | **Effectiveness** | Performance / accuracy on similar tasks |
 | **Practicality** | Ease of implementation, maintenance, and debugging |
-| **Resource Cost** | Compute, memory, latency, data requirements |
+| **Resource Cost** | Compute, memory, latency, data requirements, and downstream calls per user action or successful session |
 | **Maturity** | Battle-tested or still experimental? |
 | **Interpretability** | Can results be explained? |
 | **Ecosystem** | Available tooling, community, integrations |
-| **Migration / Integration** | Effort to adopt into the current stack |
+| **Migration / Integration** | Effort to adopt into the current stack; does it require a new service or dependency? |
+| **Operations** | Does the API perform the required ranking itself, or only enumerate candidates for a separate scorer? Can it refresh without stalling requests? |
 | **Trade-offs** | Clear strengths and weaknesses |
 
 Keep only the 3–5 most relevant options.
@@ -90,6 +93,8 @@ Keep only the 3–5 most relevant options.
 - Do not overstate benefits; clearly state limitations
 - Keep the output concise and decision-focused
 - **Slice variance can dominate model variance.** When a published matrix has multiple slices (registers, domains, lengths), compute the spread within a slice across models and the spread across slices within one model. If across-slice is larger, the recommendation is "cover the slices", not "pick the bigger model" — and say so before recommending any architecture.
+- For query autocomplete, first inventory the actual log schema, event dates, query-support distribution, and catalog name/status coverage with bounded read-only scans. Completed-query logs do not contain observed typing prefixes or suggestion acceptance: synthetic prefixes support offline candidate-recall tests, not causal claims about fewer backend calls. Freeze chronological folds before building the vocabulary; if the catalog lacks historical snapshots, label catalog-enhanced replay as temporally contaminated and retain a log-only out-of-time arm.
+- Separate candidate-source and ranking ablations from representation benchmarks: hold candidate IDs and weights fixed across sorted arrays, tries, and FSTs, then test log/catalog/suffix additions as distinct quality arms. Report candidate recall, ranked-list quality, and downstream search success separately; isolate algorithm-only lookup from p95/p99 end-to-end latency and backend calls per randomized search initiation. Cross-domain paper metrics cannot predict local map-search accuracy.
 - **A 'newer, bigger' model that is slower at equal accuracy is a losing recommendation.** Quote both axes in the same table row so the trade is visible. Do not propose replacing a fast classic decoder with a neural one unless the newer option wins on a slice the user actually cares about.
 - **When research contradicts a number you already reported, lead with the correction.** Re-measure, patch the saved plan, and move the earlier figure to a superseded marker rather than leaving two baselines in circulation.
 

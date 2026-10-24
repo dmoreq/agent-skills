@@ -103,6 +103,32 @@ Stop when:
 - This is in-flight checking, not a replacement for final review.
 - For research, challenge the decision — not every intermediate survey.
 
+## Reviewing a written plan before execution
+
+A plan that names exact expected outputs is an artifact worth doubting, because every
+prediction in it will be treated as ground truth by whoever executes it. Check each claim
+for whether it was *observed* or *assumed*:
+
+- **Predicted command output** ("expect 2 failed", "expect `All checks passed!`", "this case
+  may already pass") — run the command first if it is cheap, or delete the prediction. A wrong
+  expectation sends the implementer debugging correct code, and a hedged one ("may already
+  pass") is worse than none because it licenses ignoring the result.
+- **Predicted failure reason** — verify the exception type and message actually match. "This
+  will fail because the constructor accepts invalid input" and "this will fail because a
+  validation message is wrong" lead to opposite fixes.
+- **Predicted magnitude** ("recover ~12 tokens", "about 2x faster") — either cite the run that
+  produced the number or label it an estimate that must be replaced by measurement.
+- **Ordering dependencies between steps** — when step N+1 rewrites what step N tested, say
+  explicitly that step N's test is re-run as a regression check, not a formality. Otherwise a
+  later step silently invalidates an earlier green.
+- **Decision tables with pre-committed thresholds** — a plan that states "if the delta is below
+  X, keep the old default" is stronger than one that leaves the call to judgement after seeing
+  results. Prefer the former; flag the latter as a gap.
+
+Everything the plan asserts about current state ("file X is tracked", "function Y has no
+callers", "the tree is clean") is a probe, not a premise. Re-verify with a command and record
+what it returned.
+
 ## Related Skills
 - Use **tech-research** when alternatives/evidence are missing; hand off here only when a decision is being locked.
 - Use **python-testing** (or crate tests) to turn important doubts into regression tests.
