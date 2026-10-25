@@ -35,3 +35,14 @@ Use a fresh review session, not a group discussion containing the author's reaso
 Bind review and test evidence to the same revision. Changed artifacts invalidate stale approvals.
 After two unsuccessful fix-review cycles, escalate; never convert unresolved findings into approval.
 Stop when acceptance checks pass. Do not launch cleanup, schedules, or additional work automatically.
+
+## Provisioning invariants (operator-maintained)
+Profiles under ~/.hermes/profiles/ are provisioned manually; these specs describe behavior only.
+After any profile change, run tests/verify-profiles.sh from the agent-skills repo — it must pass.
+- Every profile's config.yaml must list both external skill dirs under skills.external_dirs:
+  the agent-skills skills dir and $HOME/.hermes/skills (kanban review workers preload sdlc-review;
+  a worker resolves skills only from its profile home plus external_dirs — missing entry crashes dispatch).
+- OpenCode-capable profiles (builder, data-scientist, optimizer, reporer) carry .opencode/opencode.json.
+  The river apiKey field must be the env reference {env:RIVER_API_KEY}; a plaintext rv_ key is forbidden
+  anywhere under a profile home outside .env and auth.json.
+- OpenCode calls go through opencode-host.sh with the profile's HERMES_HOME; never a bare opencode binary.
