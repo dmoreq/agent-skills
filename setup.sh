@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sync Global Agent Rules + Skills to Antigravity, Cursor, Pi, Grok Build, Windsurf, Claude, OpenCode, Codex, and DeepSeek Harness.
+# Sync Global Agent Rules + Skills to Antigravity, Grok Build, OpenCode, Codex, Hermes, Zed, and ZCode.
 # Default: user-global, skips Rust skills. See --help.
 set -euo pipefail
 
@@ -8,14 +8,11 @@ RULES_FILE="$REPO_DIR/rules/AGENTS.md"
 HERMES_PREAMBLE="$REPO_DIR/rules/hermes-preamble.md"
 SKILLS_DIR="$REPO_DIR/skills"
 
-# DeepSeek Harness config root. DSH resolves $DSH_HOME, else ~/.dsh.
-DSH_HOME_DIR="${DSH_HOME:-$HOME/.dsh}"
-
 SCOPE="user"          # user | project
 MODE="copy"           # copy | link
 DRY_RUN=false
 FORCE=false
-MIRROR_NATIVE=false   # also copy skills into ~/.cursor|~/.grok|~/.pi|~/.codex (duplicates ~/.agents)
+MIRROR_NATIVE=false   # also copy skills into native host dirs (duplicates ~/.agents)
 HOSTS_FILTER=""       # empty = auto-detect
 WITH_RUST=false       # skip Rust skills by default
 
@@ -31,8 +28,8 @@ Install this repo's rules (AGENTS.md) and skills to coding agents.
 Options:
   --project          Install into the current directory (.agents/skills, AGENTS.md)
   --user             Install user-global (default)
-  --host LIST        Comma-separated: antigravity,cursor,pi,grok,claude,windsurf,opencode,codex,dsh,hermes,portable
-                     Default: portable + antigravity always; cursor/pi/grok/windsurf/claude/codex/dsh/hermes if detected
+  --host LIST        Comma-separated: antigravity,grok,opencode,codex,hermes,zed,zcode,portable
+                     Default: portable + antigravity always; grok/opencode/codex/hermes/zed/zcode if detected
   --with-rust        Include Rust skills (rust-pro, rust-async-patterns, pyo3-maturin). Default: skipped.
   --all              Enable --with-rust and install to all detected hosts.
   --link             Symlink skill folders from this repo (dev). Default is copy.
@@ -47,8 +44,8 @@ Canonical skill path (all modern hosts scan it):
 Native extras (hosts that do not reliably use ~/.agents/skills):
   Antigravity IDE    ~/.gemini/config/skills
   Antigravity CLI    ~/.gemini/antigravity-cli/skills
-  DeepSeek Harness   ~/.dsh/skills   (rules: ~/.dsh/AGENTS.md; DSH_HOME overrides ~/.dsh)
-  Hermes             ~/.hermes/SOUL.md  (skills via skills.external_dirs, not a copy)
+  Hermes             ~/.hermes/SOUL.md  (+ ~/.hermes/skills with --mirror-native)
+  ZCode Desktop      ~/.zcode/skills (rules: ~/.zcode/AGENTS.md)
 EOF
 }
 
@@ -67,40 +64,28 @@ detected_antigravity() {
     [[ -d "$HOME/.gemini" ]] || have_cmd agy || have_cmd gemini || have_cmd antigravity
 }
 
-detected_cursor() {
-    [[ -d "$HOME/.cursor" ]] || have_cmd cursor || have_cmd cursor-agent
-}
-
-detected_pi() {
-    [[ -d "$HOME/.pi" ]] || have_cmd pi
-}
-
 detected_grok() {
     [[ -d "$HOME/.grok" ]] || have_cmd grok
 }
 
-detected_windsurf() {
-    [[ -d "$HOME/.windsurf" ]] || have_cmd windsurf
-}
-
-detected_claude() {
-    [[ -d "$HOME/.claude" ]] || have_cmd claude
-}
-
 detected_opencode() {
-    [[ -d "$HOME/.opencode" ]] || have_cmd opencode
+    [[ -d "$HOME/.config/opencode" ]] || [[ -d "$HOME/.opencode" ]] || have_cmd opencode
 }
 
 detected_codex() {
     [[ -d "$HOME/.codex" ]] || have_cmd codex || [[ -d "/Applications/ChatGPT.app/Contents/Resources/codex-cli" ]]
 }
 
-detected_dsh() {
-    [[ -d "$DSH_HOME_DIR" ]] || [[ -d "/Applications/DeepSeek Harness.app" ]] || have_cmd dsh
-}
-
 detected_hermes() {
     [[ -d "${HERMES_HOME:-$HOME/.hermes}" ]] || have_cmd hermes
+}
+
+detected_zed() {
+    [[ -d "$HOME/.config/zed" ]] || have_cmd zed || [[ -d "/Applications/Zed.app" ]]
+}
+
+detected_zcode() {
+    [[ -d "$HOME/.zcode" ]] || [[ -d "/Applications/ZCode.app" ]]
 }
 
 is_rust_skill() {
@@ -119,15 +104,12 @@ host_wanted() {
     fi
     case "$name" in
         portable|antigravity) return 0 ;;
-        cursor)   detected_cursor || $FORCE ;;
-        pi)       detected_pi || $FORCE ;;
         grok)     detected_grok || $FORCE ;;
-        windsurf) detected_windsurf || $FORCE ;;
-        claude)   detected_claude || $FORCE ;;
         opencode) detected_opencode || $FORCE ;;
         codex)    detected_codex || $FORCE ;;
-        dsh)      detected_dsh || $FORCE ;;
         hermes)   detected_hermes || $FORCE ;;
+        zed)      detected_zed || $FORCE ;;
+        zcode)    detected_zcode || $FORCE ;;
         *)        return 1 ;;
     esac
 }
@@ -214,21 +196,65 @@ write_hermes_soul() {
     } > "$dest"
 }
 
-write_cursor_mdc() {
-    local dest="$1"
+write_zed_rules() {
+    local dest="$HOME/.config/zed/AGENTS.md"
     if $DRY_RUN; then
-        log "  mdc  -> $dest"
+        log "  file -> $dest"
         return 0
     fi
     mkdir -p "$(dirname "$dest")"
-    {
-        printf '%s\n' '---'
-        printf '%s\n' 'description: Global agent working style, safety, and verification rules.'
-        printf '%s\n' 'alwaysApply: true'
-        printf '%s\n' '---'
-        printf '\n'
-        cat "$RULES_FILE"
-    } > "$dest"
+    if [[ -f "$dest" ]] && ! cmp -s "$dest" "$RULES_FILE"; then
+        if grep -q "^## Commit message" "$dest" && ! grep -q "^## Commit message" "$RULES_FILE"; then
+            log "    preserving existing ## Commit message section in $dest"
+            local custom_part
+            custom_part="$(awk '/^## Commit message/{flag=1} flag' "$dest")"
+            {
+                cat "$RULES_FILE"
+                printf '\n\n'
+                printf '%s\n' "$custom_part"
+            } > "$dest"
+            return 0
+        fi
+    fi
+    cp "$RULES_FILE" "$dest"
+}
+
+write_opencode_rules() {
+    local rules_path="$HOME/.config/opencode/AGENTS.md"
+    local config_file="$HOME/.config/opencode/opencode.json"
+    if $DRY_RUN; then
+        log "  file -> $rules_path"
+        return 0
+    fi
+    mkdir -p "$(dirname "$rules_path")"
+    cp "$RULES_FILE" "$rules_path"
+
+    if [[ -f "$config_file" ]]; then
+        python3 - "$config_file" "$rules_path" <<'PY'
+import json, pathlib, sys
+config_path = pathlib.Path(sys.argv[1])
+rule_str = sys.argv[2]
+try:
+    data = json.loads(config_path.read_text(encoding='utf-8'))
+    instructions = data.get('instructions', [])
+    if rule_str not in instructions:
+        instructions.append(rule_str)
+        data['instructions'] = instructions
+        config_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+except Exception:
+    pass
+PY
+    fi
+}
+
+write_zcode_rules() {
+    local rules_path="$HOME/.zcode/AGENTS.md"
+    if $DRY_RUN; then
+        log "  file -> $rules_path"
+        return 0
+    fi
+    mkdir -p "$(dirname "$rules_path")"
+    cp "$RULES_FILE" "$rules_path"
 }
 
 # Remove a previous copy of this repo's rules if it is a byte-identical leftover.
@@ -342,40 +368,6 @@ else
         log "==> [antigravity] skipped (no ~/.gemini, agy, or gemini; pass --force or --host antigravity)"
     fi
 
-    if host_wanted cursor; then
-        log "==> [cursor] alwaysApply .mdc rule (skills via ~/.agents/skills)"
-        write_cursor_mdc "$HOME/.cursor/rules/agent-rules.mdc"
-        if $DRY_RUN; then
-            log "  remove leftover $HOME/.cursor/rules/GEMINI.md"
-        else
-            rm -f "$HOME/.cursor/rules/GEMINI.md"
-        fi
-        if $MIRROR_NATIVE; then
-            sync_skills "$HOME/.cursor/skills"
-            INSTALLED+=("cursor|$HOME/.cursor/rules/agent-rules.mdc|$HOME/.cursor/skills + ~/.agents/skills")
-        else
-            prune_our_skills "$HOME/.cursor/skills"
-            INSTALLED+=("cursor|$HOME/.cursor/rules/agent-rules.mdc|~/.agents/skills")
-        fi
-    elif [[ -z "$HOSTS_FILTER" ]]; then
-        log "==> [cursor] skipped (Cursor not detected)"
-    fi
-
-    if host_wanted pi; then
-        log "==> [pi] ~/.pi/agent/AGENTS.md (skills via ~/.agents/skills)"
-        write_file "$HOME/.pi/agent/AGENTS.md" "$RULES_FILE"
-        maybe_remove_old_rules "$HOME/.pi/agent/APPEND_SYSTEM.md"
-        if $MIRROR_NATIVE; then
-            sync_skills "$HOME/.pi/agent/skills"
-            INSTALLED+=("pi|$HOME/.pi/agent/AGENTS.md|$HOME/.pi/agent/skills + ~/.agents/skills")
-        else
-            prune_our_skills "$HOME/.pi/agent/skills"
-            INSTALLED+=("pi|$HOME/.pi/agent/AGENTS.md|~/.agents/skills")
-        fi
-    elif [[ -z "$HOSTS_FILTER" ]]; then
-        log "==> [pi] skipped (Pi not detected)"
-    fi
-
     if host_wanted grok; then
         log "==> [grok] ~/.grok/AGENTS.md (skills via ~/.agents/skills)"
         write_file "$HOME/.grok/AGENTS.md" "$RULES_FILE"
@@ -390,20 +382,12 @@ else
         log "==> [grok] skipped (Grok not detected)"
     fi
 
-    if host_wanted windsurf; then
-        log "==> [windsurf] ~/.windsurf/rules/agent-rules.md (skills via ~/.agents/skills)"
-        write_file "$HOME/.windsurf/rules/agent-rules.md" "$RULES_FILE"
-        INSTALLED+=("windsurf|$HOME/.windsurf/rules/agent-rules.md|~/.agents/skills")
-    fi
-
-    if host_wanted claude; then
-        log "==> [claude] rules and skills via ~/.agents/skills"
-        INSTALLED+=("claude|-|~/.agents/skills")
-    fi
-
     if host_wanted opencode; then
-        log "==> [opencode] rules and skills via ~/.agents/skills"
-        INSTALLED+=("opencode|-|~/.agents/skills")
+        log "==> [opencode] ~/.config/opencode/AGENTS.md (skills via ~/.agents/skills)"
+        write_opencode_rules
+        INSTALLED+=("opencode|$HOME/.config/opencode/AGENTS.md|~/.agents/skills")
+    elif [[ -z "$HOSTS_FILTER" ]]; then
+        log "==> [opencode] skipped (OpenCode not detected)"
     fi
 
     if host_wanted codex; then
@@ -420,35 +404,43 @@ else
         log "==> [codex] skipped (Codex not detected)"
     fi
 
-    if host_wanted dsh; then
-        log "==> [dsh] $DSH_HOME_DIR/AGENTS.md + native skills root"
-        if [[ -f "$DSH_HOME_DIR/AGENTS.md" ]] && ! cmp -s "$DSH_HOME_DIR/AGENTS.md" "$RULES_FILE"; then
-            log "    note: replacing existing $DSH_HOME_DIR/AGENTS.md (differs from rules/AGENTS.md)"
-        fi
-        write_file "$DSH_HOME_DIR/AGENTS.md" "$RULES_FILE"
-        if $MIRROR_NATIVE; then
-            sync_skills "$DSH_HOME_DIR/skills"
-            INSTALLED+=("dsh|$DSH_HOME_DIR/AGENTS.md|$DSH_HOME_DIR/skills + ~/.agents/skills")
-        else
-            prune_our_skills "$DSH_HOME_DIR/skills"
-            INSTALLED+=("dsh|$DSH_HOME_DIR/AGENTS.md|~/.agents/skills")
-        fi
-    elif [[ -z "$HOSTS_FILTER" ]]; then
-        log "==> [dsh] skipped (DeepSeek Harness not detected; pass --force or --host dsh)"
-    fi
-
     if host_wanted hermes; then
-        log "==> [hermes] \$HERMES_HOME/SOUL.md (skills stay in the repo via skills.external_dirs)"
-        write_hermes_soul
-        INSTALLED+=("hermes|${HERMES_HOME:-$HOME/.hermes}/SOUL.md|skills.external_dirs")
+        hermes_dir="${HERMES_HOME:-$HOME/.hermes}"
+        if $MIRROR_NATIVE; then
+            log "==> [hermes] \$HERMES_HOME/SOUL.md + native skills root"
+            write_hermes_soul
+            sync_skills "$hermes_dir/skills"
+            INSTALLED+=("hermes|$hermes_dir/SOUL.md|$hermes_dir/skills")
+        else
+            log "==> [hermes] \$HERMES_HOME/SOUL.md (skills stay in the repo via skills.external_dirs)"
+            write_hermes_soul
+            INSTALLED+=("hermes|$hermes_dir/SOUL.md|skills.external_dirs")
+        fi
     elif [[ -z "$HOSTS_FILTER" ]]; then
         log "==> [hermes] skipped (Hermes not detected; pass --force or --host hermes)"
+    fi
+
+    if host_wanted zed; then
+        log "==> [zed] ~/.config/zed/AGENTS.md (skills via ~/.agents/skills)"
+        write_zed_rules
+        INSTALLED+=("zed|$HOME/.config/zed/AGENTS.md|~/.agents/skills")
+    elif [[ -z "$HOSTS_FILTER" ]]; then
+        log "==> [zed] skipped (Zed not detected; pass --force or --host zed)"
+    fi
+
+    if host_wanted zcode; then
+        log "==> [zcode] ~/.zcode/AGENTS.md + native skills root"
+        write_zcode_rules
+        sync_skills "$HOME/.zcode/skills"
+        INSTALLED+=("zcode|$HOME/.zcode/AGENTS.md|$HOME/.zcode/skills")
+    elif [[ -z "$HOSTS_FILTER" ]]; then
+        log "==> [zcode] skipped (ZCode not detected; pass --force or --host zcode)"
     fi
 fi
 
 log "========================================================"
 if [[ ${#INSTALLED[@]} -eq 0 ]]; then
-    log "Nothing installed. Use --force or --host antigravity,cursor,pi,grok,codex,dsh,hermes,portable"
+    log "Nothing installed. Use --force or --host antigravity,grok,opencode,codex,hermes,zed,zcode,portable"
     exit 1
 fi
 log "Done. Restart each agent session so it re-scans skills."
@@ -462,9 +454,9 @@ log "========================================================"
 log "Verify:"
 log "  Antigravity: ask which skills are available, or /skills"
 log "  Codex:       ask which skills are available, /skills, or codex exec 'What skills are installed?'"
-log "  DSH:         ask which skills are available, or /skills"
 log "  Grok Build:  grok inspect"
-log "  Cursor:      Settings → Skills"
-log "  Pi:          /skill:python-pro  (after restart)"
 log "  Hermes:      hermes skills list  (after restart)"
+log "  Zed:         ask which skills are available in the Agent Panel, or /skills"
+log "  OpenCode:    opencode debug config"
+log "  ZCode:       Settings → Skills, or ask which skills are available"
 log "========================================================"

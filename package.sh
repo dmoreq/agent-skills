@@ -8,6 +8,7 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST_DIR="$REPO_DIR/dist"
 
 mkdir -p "$DIST_DIR"
+rm -f "$DIST_DIR"/*.tar.gz "$DIST_DIR"/*.zip
 
 echo "========================================================"
 echo "==> Packaging Agent Skills (tar.gz + zip)"
@@ -46,6 +47,9 @@ if [ "$BUILD_BUNDLE" = true ]; then
         --exclude='.gitignore' \
         --exclude='.DS_Store' \
         --exclude='.pytest_cache' \
+        --exclude='.ruff_cache' \
+        --exclude='.tmp' \
+        --exclude='.scratch' \
         --exclude='dist' \
         --exclude='__pycache__' \
         --exclude='*.pyc' \
@@ -53,7 +57,7 @@ if [ "$BUILD_BUNDLE" = true ]; then
         -C "$REPO_DIR/.." \
         "$(basename "$REPO_DIR")"
     (cd "$REPO_DIR/.." && zip -rq "$DIST_DIR/agent-skills.zip" "$(basename "$REPO_DIR")" \
-        -x "*/.git/*" "*/.gitignore" "*.DS_Store" "*/.pytest_cache/*" "*/dist/*" "*__pycache__*" "*.pyc")
+        -x "*/.git/*" "*/.gitignore" "*.DS_Store" "*/.pytest_cache/*" "*/.ruff_cache/*" "*/.tmp/*" "*/.scratch/*" "*/dist/*" "*__pycache__*" "*.pyc")
     BUNDLE_SIZE=$(du -h "$DIST_DIR/agent-skills.tar.gz" | cut -f1 | xargs)
     BUNDLE_ZIP_SIZE=$(du -h "$DIST_DIR/agent-skills.zip" | cut -f1 | xargs)
     echo "    ✓ Created: $DIST_DIR/agent-skills.tar.gz ($BUNDLE_SIZE) & $DIST_DIR/agent-skills.zip ($BUNDLE_ZIP_SIZE)"

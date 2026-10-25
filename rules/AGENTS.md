@@ -77,6 +77,12 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
 - **Git Safety**: Do not run destructive git commands (`reset --hard`, force-push) unless explicitly requested.
 - **High-Risk Operations**: Treat production data stores, live Elasticsearch, and large dataset jobs as high-risk: confirm before running, keep limits/workers conservative, and prefer dry-runs/samples.
 - **Tool Isolation**: Prefer the repository's virtualenv / `uv` / package manager over global tool installations.
+- **Subprocess & Memory Safety**:
+  - Guard external calls (Python scripts, batch jobs, CLI commands) against out-of-memory (OOM) host freezes.
+  - Verify logic on small samples (100–1,000 rows or dry-runs) before executing full-volume processing.
+  - Stream or chunk datasets line-by-line; never load unbounded files entirely into memory at once.
+  - Bound worker processes conservatively (target <= 4 workers); avoid unconstrained process pools.
+  - Set explicit command timeouts; terminate runaway processes immediately if memory escalates.
 - **Temporary File Strategy**:
   - Use a dedicated, gitignored temporary directory (e.g., `.tmp/` or conversation scratch directory) for intermediate files, downloads, extracts, and scratch builds.
   - Ensure the temporary directory is listed in `.gitignore` before creating transient files.

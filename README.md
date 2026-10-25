@@ -1,6 +1,6 @@
 # Agent Skills
 
-A curated, token-efficient collection of **Global Agent Rules** and **Custom Skills** designed for the **Google Antigravity**, **Cursor**, **Claude Code**, **Pi**, **Grok**, **Windsurf**, **OpenAI Codex**, **Hermes**, and **DeepSeek Harness** coding assistant environments.
+A curated, token-efficient collection of **Global Agent Rules** and **Custom Skills** designed for the **Google Antigravity**, **Zed**, **Grok**, **OpenAI Codex**, **Hermes**, **OpenCode**, and **ZCode Desktop** coding assistant environments.
 
 ---
 
@@ -79,14 +79,14 @@ agent-skills/
 - **Micro-Kernel Architecture**: `rules/AGENTS.md` holds global negative constraints, invariants, token hygiene, and the YAGNI code generation ladder.
 - **Zero Restatement**: Skills never duplicate global rules (tone, emoji, LaTeX minimization). Each skill inherits them cleanly.
 - **Optional Handoffs**: Most relationships are conditional pointers (`Use X when <condition>`).
-- **Four Hard Invariants**: Core gates that cannot be bypassed.
+- **Five Hard Invariants**: Core gates that cannot be bypassed.
 - **No Long Chains**: Avoid default multi-hop chains to protect context and token budgets.
 
 ### 0. Ownership (Single Source of Truth)
 
 | Fact | Home | Not here |
 | :--- | :--- | :--- |
-| Tone, no emoji, LaTeX minimization, ASD-STE100, git/secrets, temp files | `rules/AGENTS.md` §1 | Skills |
+| Tone, no emoji, LaTeX minimization, ASD-STE100, git/secrets, memory safety, temp files | `rules/AGENTS.md` §1 & §4 | Skills |
 | YAGNI Code Generation Ladder (stdlib/native first) | `rules/AGENTS.md` §2 | Skills (kernel-wide) |
 | Verify-and-Stop Invariant (runaway prevention) | `rules/AGENTS.md` §3 + `verify-and-stop` | Ongoing loops |
 | Subagent delegation, parallel planning & peer-review | `rules/AGENTS.md` §1 | Skills |
@@ -238,16 +238,13 @@ Skills are installed into the portable Agent Skills root (`~/.agents/skills`) an
 
 | Host | Rules file | Skill roots scanned (priority order) |
 |---|---|---|
-| DeepSeek Harness | `~/.dsh/AGENTS.md` (`$DSH_HOME`) | `~/.dsh/skills`, `~/.agents/skills` |
 | Codex | `~/.codex/AGENTS.md` | `~/.codex/skills`, `~/.agents/skills` |
 | Antigravity | `~/.gemini/GEMINI.md` | `~/.gemini/config/skills`, `~/.gemini/antigravity-cli/skills` |
-| Cursor | `~/.cursor/rules/agent-rules.mdc` | `~/.agents/skills` |
-| Pi / Grok | `~/.pi/agent/AGENTS.md`, `~/.grok/AGENTS.md` | `~/.agents/skills` |
-| Windsurf | `~/.windsurf/rules/agent-rules.md` | `~/.agents/skills` |
-| Hermes | `~/.hermes/SOUL.md` (`rules/hermes-preamble.md` + `rules/AGENTS.md`) | repo `skills/` via `skills.external_dirs` (no copy into `~/.hermes/skills`) |
-
-DeepSeek Harness also scans `<project>/.dsh/skills` and `<project>/.agents/skills`, and loads project
-`AGENTS.md` files from the repository root down to the working directory, on top of `~/.dsh/AGENTS.md`.
+| Grok | `~/.grok/AGENTS.md` | `~/.agents/skills` |
+| Zed | `~/.config/zed/AGENTS.md` | `~/.agents/skills` |
+| OpenCode | `~/.config/opencode/AGENTS.md` | `~/.agents/skills`, `<project>/.opencode/skills` |
+| ZCode Desktop | `~/.zcode/AGENTS.md` | `~/.zcode/skills`, `~/.agents/skills`, `<repo>/.zcode/skills` |
+| Hermes | `~/.hermes/SOUL.md` (`rules/hermes-preamble.md` + `rules/AGENTS.md`) | repo `skills/` via `skills.external_dirs` (or native `~/.hermes/skills` with `--mirror-native`) |
 
 ### Automated Setup Script
 
@@ -263,12 +260,11 @@ Useful flags:
 ./setup.sh --with-rust              # include Rust skills
 ./setup.sh --all                    # enable --with-rust and install to all detected hosts
 ./setup.sh --dry-run                # print destinations only
-./setup.sh --host cursor,codex       # subset of hosts
-./setup.sh --host hermes             # compose ~/.hermes/SOUL.md; do not copy skills
-./setup.sh --host dsh --link        # DeepSeek Harness: symlink ~/.dsh/skills from this clone (dev)
+./setup.sh --host zed,codex         # subset of hosts
+./setup.sh --host hermes            # compose ~/.hermes/SOUL.md; do not copy skills
 ./setup.sh --project                # current repo: .agents/skills + AGENTS.md
 ./setup.sh --link                   # symlink skills from this clone (dev)
-./setup.sh --mirror-native          # also copy into ~/.cursor|~/.grok|~/.pi|~/.codex|~/.dsh skills dirs
+./setup.sh --mirror-native          # also copy into native host skills dirs
 ./setup.sh --force                  # create host dirs even if the app is not detected
 ```
 
