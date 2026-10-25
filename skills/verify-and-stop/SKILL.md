@@ -59,24 +59,24 @@ When a task includes branch creation, rebasing, conflict resolution, or a commit
 Keep existing untracked files untouched and out of the commit unless the user explicitly includes them.
 
 ## Anti-Patterns
-- ❌ Reporting a number, then discovering the harness was wrong, then reporting a fresh number, then discovering the metric definition was wrong — across successive turns. Two mid-series corrections on the same claim means the measurement protocol is unvalidated, not that the third number is the good one. Stop publishing deltas; validate the harness against a known-good figure and fix the metric definition first, then report once.
-- ❌ Reusing an assumption that a prior turn already falsified. If `prod_ids` was shown to mix two id sources, do not later reason "ids in `prod_ids` are children". Carry the correction forward explicitly, or the next measurement inherits the same defect and produces the same retracted result.
-- ❌ Continuing to edit unrelated files after the requested test passes.
-- ❌ Running multiple redundant test commands that check the same thing.
-- ❌ Re-running tests or pre-commit when the previous step already verified the exact same code with passing output.
-- ❌ Running full repository test suites or `pre-commit run --all-files` when targeted checks suffice.
-- ❌ Asking the user "Would you like me to also refactor X, Y, and Z?" when not requested.
-- ❌ Treating a delayed background test result as proof of the current tree. Launch a background suite only for work you will not edit while it runs; otherwise run it in the foreground.
-- ❌ Re-answering a replayed background job completion that was already processed.
-- ❌ Re-running a long measurement because a delayed notification showed an older configuration's numbers.
-- ❌ Reporting a suite as green from the working copy when changed code was not yet committed (`git archive HEAD` probe).
-- ❌ Running `pytest` with a shell whose `PYTHONPATH`/`PYTHONHOME` leaked from an external toolchain.
-- ❌ Writing heredocs to filesystem root paths (`cat > /probe.py`). Anchor scratch scripts under `.scratch/` or conversation scratch dirs.
-- ❌ Accepting a subagent's self-reported acceptance table as proof without independently re-running cheap invariant checks.
-- ❌ Publishing metrics from a derived artifact whose regeneration has not been proven reproducible. Hash the artifact, regenerate from the same inputs in the same process, and require an identical digest before quoting any accuracy number. A miner reading a `defaultdict` or a persisted file can yield a different key population on the next run, which silently redefines every denominator downstream.
-- ❌ Looping on an operation that is structurally blocked by the state it is running in, and retrying variations hoping the guard stops firing. A restart issued from inside the process being restarted will never complete — the drain waits on the turn that issued it. Two refusals with the SAME reason is a wall, not a flaky check: stop, name the deadlock in one sentence, and hand the command to the user to run in their own shell. Changing `restart` → `restart --yes` → `launchctl` → a detached wrapper is a loop wearing different commands.
-- ❌ Reporting a background run as a failure because your `terminal` call hit its own timeout. The child process keeps working after the wait expires; read its session store (`sqlite3 <profile>/state.db "SELECT message_count, tool_call_count ..."`) or its output file before concluding anything. The correct finding may be "still running, 12 tool calls in, behaving correctly" — which is a result, not a retry prompt.
-- ❌ Leaving the shell in a directory you then delete. Every later `cd` in that session fails with `getcwd: cannot access parent directories`. Run scratch work under a directory you keep, and if the shell is already wedged, recover by passing an explicit `workdir` rather than chaining `cd`.
+- Reporting a number, then discovering the harness was wrong, then reporting a fresh number, then discovering the metric definition was wrong — across successive turns. Two mid-series corrections on the same claim means the measurement protocol is unvalidated, not that the third number is the good one. Stop publishing deltas; validate the harness against a known-good figure and fix the metric definition first, then report once.
+- Reusing an assumption that a prior turn already falsified. If `prod_ids` was shown to mix two id sources, do not later reason "ids in `prod_ids` are children". Carry the correction forward explicitly, or the next measurement inherits the same defect and produces the same retracted result.
+- Continuing to edit unrelated files after the requested test passes.
+- Running multiple redundant test commands that check the same thing.
+- Re-running tests or pre-commit when the previous step already verified the exact same code with passing output.
+- Running full repository test suites or `pre-commit run --all-files` when targeted checks suffice.
+- Asking the user "Would you like me to also refactor X, Y, and Z?" when not requested.
+- Treating a delayed background test result as proof of the current tree. Launch a background suite only for work you will not edit while it runs; otherwise run it in the foreground.
+- Re-answering a replayed background job completion that was already processed.
+- Re-running a long measurement because a delayed notification showed an older configuration's numbers.
+- Reporting a suite as green from the working copy when changed code was not yet committed (`git archive HEAD` probe).
+- Running `pytest` with a shell whose `PYTHONPATH`/`PYTHONHOME` leaked from an external toolchain.
+- Writing heredocs to filesystem root paths (`cat > /probe.py`). Anchor scratch scripts under `.scratch/` or conversation scratch dirs.
+- Accepting a subagent's self-reported acceptance table as proof without independently re-running cheap invariant checks.
+- Publishing metrics from a derived artifact whose regeneration has not been proven reproducible. Hash the artifact, regenerate from the same inputs in the same process, and require an identical digest before quoting any accuracy number. A miner reading a `defaultdict` or a persisted file can yield a different key population on the next run, which silently redefines every denominator downstream.
+- Looping on an operation that is structurally blocked by the state it is running in, and retrying variations hoping the guard stops firing. A restart issued from inside the process being restarted will never complete — the drain waits on the turn that issued it. Two refusals with the SAME reason is a wall, not a flaky check: stop, name the deadlock in one sentence, and hand the command to the user to run in their own shell. Changing `restart` → `restart --yes` → `launchctl` → a detached wrapper is a loop wearing different commands.
+- Reporting a background run as a failure because your `terminal` call hit its own timeout. The child process keeps working after the wait expires; read its session store (`sqlite3 <profile>/state.db "SELECT message_count, tool_call_count ..."`) or its output file before concluding anything. The correct finding may be "still running, 12 tool calls in, behaving correctly" — which is a result, not a retry prompt.
+- Leaving the shell in a directory you then delete. Every later `cd` in that session fails with `getcwd: cannot access parent directories`. Run scratch work under a directory you keep, and if the shell is already wedged, recover by passing an explicit `workdir` rather than chaining `cd`.
 
 ## Verifying Subagent Chains
 - When a task runs across implement → review → fix cycles, the parent agent owns the official record and must run acceptance checks independently (`references/subagent-verification.md`).

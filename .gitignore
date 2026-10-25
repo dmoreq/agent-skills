@@ -1,13 +1,24 @@
 # Packaging output
 dist/
 *.tar.gz
+*.zip
 
 # System files
 .DS_Store
 Thumbs.db
 
-# Python caches
+# Secrets
+.env
+*.env
+!.env.example
+
+# Python caches and tooling
 __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
+.ruff_cache/
+
+# Transient scratch and temporary files
+.tmp/
+.scratch/

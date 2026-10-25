@@ -10,7 +10,7 @@ Use when the code under review arrives as an archive, a fresh clone, or a collea
    - **committed** — what upstream actually ships,
    - **dirty edits** — uncommitted source changes that carry real work,
    - **untracked artifacts** — data files, `.idea/`, build outputs.
-4. A large `git status` of `D</code>` deletions plus `AM` additions on a recently touched tree means somebody rewrote the project and never committed it. That changes the review: you now have two candidate products and must evaluate both.
+4. A large `git status` of `D` deletions plus `AM` additions on a recently touched tree means somebody rewrote the project and never committed it. That changes the review: you now have two candidate products and must evaluate both.
 5. Check `git reflog` and `git stash list` when files look deleted. A single `clone:` entry and an empty stash list means the deletions exist only in the working tree and are easy to recover.
 
 Report the last-commit date honestly. A repo whose only source commits are years old, with 2022-era working-tree edits, is a research snapshot, not a maintained library — say so in the summary rather than implying currency.
@@ -64,7 +64,7 @@ For a ZIP of instruction-only skills:
 - When a sweep reports hits, classify each before escalating: names in regex literals, comments explaining removals, or substrings (`optional`, `optimus`) are not live references. Report accurate findings ("0 dangling live references; N benign mentions").
 - When a contract states "every named X must be reachable/loadable", prove reachability with the loader's real resolution path, never a flat probe. Enumerate discovery roots from the loader/config, search recursively, and invoke the loader on a sample.
 
-## 5. Boundary probes for text/DSP-style pipelines
+## 7. Boundary probes for text/DSP-style pipelines
 
 For anything that maps strings to strings, a handful of adversarial inputs separate working code from plausible code:
 
@@ -78,7 +78,7 @@ For anything that maps strings to strings, a handful of adversarial inputs separ
 
 Compare every probe across both builds. A case the old code gets right and the new code gets wrong is the regression's root cause; quote the exact input and both outputs.
 
-## 6. Read for defects the compiler accepts
+## 8. Read for defects the compiler accepts
 
 Java- and Go-style codebases silently no-op where Python would raise. Look for:
 
@@ -89,7 +89,7 @@ Java- and Go-style codebases silently no-op where Python would raise. Look for:
 - Dead utility classes referenced by nothing — confirm with a repo-wide grep before listing them.
 - Deprecated API use (`BigDecimal.ROUND_HALF_UP`, `new Date().getTime()`), stray `;;`, unused imports.
 
-## 7. Report shape
+## 9. Report shape
 
 - Lead with what the thing is (language, size, data, last real commit, upstream URL) in a compact table.
 - Follow with one measurement table comparing every build you actually ran: correct/all, accuracy, speed.

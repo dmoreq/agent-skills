@@ -34,17 +34,17 @@ Channels a pragmatic senior engineer: the best code is the code never written. Q
 - Use **code-review** to verify that a pull request respects YAGNI and complexity budgets.
 - Use **verify-and-stop** to confirm minimal acceptance criteria and terminate cleanly.
 
-## 1. The YAGNI Decision Ladder
+## 1. Concrete Anti-Bloat Heuristics
 
-Read the task and trace the code path first, then stop at the first rung that holds:
+Follow the Code Generation Ladder defined in `rules/AGENTS.md` §2. In this skill, apply these concrete heuristics to enforce minimalism:
 
-1. **Does this need to exist at all?** Speculative need = skip it and state why in one sentence (YAGNI).
-2. **Already in this codebase?** Reuse existing helpers, types, or utilities—provided their extra transforms are true no-ops on your inputs. If a shared helper also mutates whitespace or expands stems unintentionally, keep the narrower operation or extract only the exact shared core.
-3. **Stdlib does it?** Use the standard library (`functools.lru_cache`, `collections`, `pathlib`, `itertools`, `sqlite3`).
-4. **Native platform feature covers it?** Use native HTML/CSS (`<input type="date">`), SQL/DB constraints (`UNIQUE`, `CHECK`), or OS primitives before application code.
-5. **Already-installed dependency solves it?** Reuse installed packages (`polars`, `pydantic`, `pytest`) rather than adding a new dependency for a 5-line operation.
-6. **Can it be one clear function/expression?** Prefer a direct function over a single-implementation interface, factory, or strategy class.
-7. **Only then:** Write the minimum working diff.
+| Pattern | Bloat Anti-Pattern | Minimal Replacement |
+| :--- | :--- | :--- |
+| **Data modeling** | Abstract base class + 1 concrete class | Single standard class or `@dataclass(slots=True)` |
+| **Configuration** | Dynamic JSON/YAML loader for 3 static flags | Module-level constant dict or dataclass |
+| **Control flow** | Strategy pattern with registry for 2 branches | Plain `if/else` or match statement |
+| **Dependencies** | External package for simple task | Python stdlib (`pathlib`, `itertools`, `functools`) |
+| **Validation** | Custom metaclass validator | Standard assertions or schema at trust boundary |
 
 ## 2. Generalization & Bloat Audit Principles
 
@@ -63,21 +63,16 @@ When auditing an existing module for bloat, duplicate dialect branches, or expor
 | **full** (default) | Enforce the YAGNI ladder. Stdlib and platform native first; shortest working diff and explanation. |
 | **ultra** | YAGNI extremist. Deletion before addition; challenge unnecessary abstractions immediately. |
 
-## 4. Bug Fixing & Ceiling Markers
+## 4. Trust Boundaries & Ceiling Markers
+- **Non-Negotiables**: Never simplify away trust boundaries, security checks, accessibility, or error handling that prevents data loss (`rules/AGENTS.md` §2).
 - **Root-Cause Minimalism**: Grep every caller of the target function before editing. One guard at the root cause is a smaller, safer diff than patching five callers.
 - **Ceiling Markers**: When shipping a deliberate simplification with a known scaling threshold (e.g., in-memory dict, global lock, linear scan), document the ceiling inline:
   ```python
   # ponytail: linear scan over <=500 rules; switch to Aho-Corasick trie if rule count exceeds 5,000
   ```
 
-## 5. What Never to Simplify Away
-- Input validation at external trust boundaries
-- Error handling that prevents silent data corruption or resource leaks
-- Security defenses (parameterized queries, secret hygiene)
-- Explicit user requirements
-
 ## Final Checklist
-- [ ] Stopped at the highest applicable rung of the YAGNI Decision Ladder
+- [ ] Stopped at the highest applicable rung of `rules/AGENTS.md` §2 Code Generation Ladder
 - [ ] Zero single-implementation interfaces, speculative configs, or unrequested dependencies
 - [ ] Public outputs locked before collapsing duplicate branches or exports
 - [ ] Deliberate scaling shortcuts annotated with `# ponytail:` ceiling markers

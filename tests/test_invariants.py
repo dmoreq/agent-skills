@@ -1,4 +1,5 @@
 """Tests for repository invariants, cross-skill references, and progressive disclosure links."""
+import ast
 from pathlib import Path
 import re
 
@@ -14,20 +15,22 @@ def test_rules_file_exists():
 
 
 def test_no_forbidden_rule_duplicates_in_skills():
-    """Ensure kernel invariants (sparklines, character bars) do not leak into skills."""
+    """Ensure kernel invariants (sparklines, character bars, emojis, broken HTML) do not leak into skills."""
     forbidden_snippets = [
         "Unicode sparklines",
         "character bars",
+        "❌",
+        "✅",
+        "⚠️",
+        "🚀",
+        "</code>",
     ]
-    for skill_dir in SKILLS_DIR.iterdir():
-        if not skill_dir.is_dir():
-            continue
-        skill_file = skill_dir / "SKILL.md"
+    for skill_file in SKILLS_DIR.rglob("*.md"):
         content = skill_file.read_text(encoding="utf-8")
         for snippet in forbidden_snippets:
             assert snippet not in content, (
-                f"Forbidden global rule snippet '{snippet}' found in {skill_file}. "
-                "Global rules must live solely in rules/AGENTS.md."
+                f"Forbidden snippet '{snippet}' found in {skill_file}. "
+                "Global rules and markdown hygiene must be respected."
             )
 
 
@@ -53,18 +56,54 @@ def test_cross_skill_references_exist():
 
 
 def test_skill_internal_file_references_exist():
-    """Verify that any references/*.md or scripts/*.py path mentioned in SKILL.md exists."""
-    rel_path_pattern = re.compile(r"\b(?:references/[a-z0-9-]+\.md|scripts/[a-z0-9_]+\.py)\b")
+    """Verify that any references/*.md or scripts/*.py path mentioned in skills exists."""
+    ref_pattern = re.compile(r"\breferences/[a-z0-9-]+\.md\b")
+    script_pattern = re.compile(r"\bscripts/[a-z0-9_]+\.py\b")
+
     for skill_dir in SKILLS_DIR.iterdir():
         if not skill_dir.is_dir():
             continue
         assert not (skill_dir / "resources").exists(), (
             f"Legacy 'resources/' folder found in {skill_dir.name}; use 'references/' instead."
         )
+
         skill_file = skill_dir / "SKILL.md"
         content = skill_file.read_text(encoding="utf-8")
-        for rel_match in set(rel_path_pattern.findall(content)):
-            target_path = skill_dir / rel_match
+        for match in set(ref_pattern.findall(content) + script_pattern.findall(content)):
+            target_path = skill_dir / match
             assert target_path.exists(), (
-                f"Missing referenced file '{rel_match}' in {skill_file} (expected {target_path})"
+                f"Missing referenced file '{match}' in {skill_file} (expected {target_path})"
             )
+
+        for ref_file in (skill_dir / "references").glob("*.md"):
+            ref_content = ref_file.read_text(encoding="utf-8")
+            for match in set(ref_pattern.findall(ref_content)):
+                target_path = skill_dir / match
+                assert target_path.exists(), (
+                    f"Missing referenced file '{match}' in {ref_file} (expected {target_path})"
+                )
+
+
+def test_python_scripts_complexity_and_safety():
+    """Assert all executable Python scripts in skills adhere to indentation and structural budgets."""
+    def get_max_depth(node: ast.AST, current: int = 0) -> int:
+        depths = [current]
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, (ast.If, ast.For, ast.While, ast.With, ast.Try)):
+                depths.append(get_max_depth(child, current + 1))
+            else:
+                depths.append(get_max_depth(child, current))
+        return max(depths)
+
+    script_files = list(SKILLS_DIR.glob("*/scripts/*.py"))
+    assert len(script_files) > 0, "Expected at least one skill python script"
+    for script_file in script_files:
+        tree = ast.parse(script_file.read_text(encoding="utf-8"), filename=str(script_file))
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                depth = get_max_depth(node)
+                assert depth <= 3, (
+                    f"Function '{node.name}' in {script_file} has indentation depth {depth} > 3 "
+                    f"(violates rules/AGENTS.md structural complexity threshold)"
+                )
+

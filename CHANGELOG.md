@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-10-25
+
+### Added
+- `rules/AGENTS.md`: Added mandatory **Subprocess & Memory Safety** rules under §4 Safety & Workspace Hygiene. Guards against out-of-memory (OOM) and machine freeze conditions via fail-fast small sampling (100–1,000 rows), line-by-line streaming/chunking, conservative concurrency bounds (`workers <= 4`), and strict execution timeouts.
+- `setup.sh`: Added native ZCode Desktop support (`--host zcode`, `~/.zcode/AGENTS.md`, `~/.zcode/skills`).
+- `tests/test_invariants.py`: Added automated AST complexity budget checks (`depth <= 3`) for all skill scripts, forbidden emoji/HTML tag detection across skills, and recursive internal reference validation.
+
+### Changed & Hardened
+- `skills/data-science/scripts/eda_profile.py`: Hardened bounded reading (stops scanning immediately once `--max-rows` is reached), flattened AST indentation nesting to `<= 2`, handled ragged CSV extra columns without crashing, and escaped pipe/newline characters in Markdown summary tables.
+- `skills/verify-and-stop`: Replaced emoji bullets with standard Markdown formatting to enforce `rules/AGENTS.md` §1 (`Zero emojis`).
+- `skills/code-minimalism`: Refactored to reference `rules/AGENTS.md` §2 directly and added concrete Anti-Bloat Heuristics table, eliminating micro-kernel rule restatement.
+- `skills/code-review`: Fixed corrupted HTML tag and renumbered duplicate section numbers in `references/repo-snapshot-review.md`.
+- `package.sh` & `.gitignore`: Cleaned stale zip archives before building, excluded `.ruff_cache/`, `.tmp/`, and `.scratch/` from distribution bundles, and added missing patterns to `.gitignore`.
+- `setup.sh`: Extended OpenCode detection to check `~/.config/opencode` (XDG standard) and passed config paths to Python via `sys.argv` instead of inline string interpolation.
+
+### Removed
+- `setup.sh` & `README.md`: Safely deprecated and pruned discontinued coding agent host configurations and installation logic: Cursor, Windsurf, Claude Code, Pi Agent, DeepSeek Harness, and Eigent Desktop.
+
 ## [2.1.0] - 2026-10-24
 
 ### Added

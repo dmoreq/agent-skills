@@ -30,69 +30,97 @@ def _quantile(sorted_vals: list[float], q: float) -> float:
     return sorted_vals[lo] + (sorted_vals[hi] - sorted_vals[lo]) * (pos - lo)
 
 
-def load_rows_stdlib(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int]:
-    """Load up to max_rows using Python stdlib for CSV/TSV/JSONL."""
-    suffix = path.suffix.lower()
+def _sanitize_md(val: str) -> str:
+    """Escape pipes, newlines, and backticks for safe Markdown table cells."""
+    return val.replace("\r", " ").replace("\n", " ").replace("|", "\\|").replace("`", "'").strip()
+
+
+def _read_jsonl_sample(handle: Any, max_rows: int) -> tuple[list[str], list[dict[str, str]], int]:
     rows: list[dict[str, str]] = []
-    total_rows = 0
+    cols_seen: dict[str, None] = {}
+    for line in handle:
+        line = line.strip()
+        if not line:
+            continue
+        if len(rows) >= max_rows:
+            break
+        obj = json.loads(line)
+        for k in obj:
+            cols_seen[str(k)] = None
+        rows.append({str(k): ("" if v is None else str(v)) for k, v in obj.items()})
+    return list(cols_seen.keys()), rows, len(rows)
+
+
+def _read_delimited_sample(
+    handle: Any, delimiter: str, max_rows: int
+) -> tuple[list[str], list[dict[str, str]], int]:
+    rows: list[dict[str, str]] = []
+    reader = csv.DictReader(handle, delimiter=delimiter)
+    cols = [c for c in (reader.fieldnames or []) if c is not None]
+    for row in reader:
+        if len(rows) >= max_rows:
+            break
+        rows.append({k: ("" if v is None else str(v)) for k, v in row.items() if k is not None})
+    return cols, rows, len(rows)
+
+
+def load_rows_stdlib(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int]:
+    """Load up to max_rows bounded sample using Python stdlib for CSV/TSV/JSONL."""
+    suffix = path.suffix.lower()
     if suffix in (".jsonl", ".ndjson"):
-        cols_set: list[str] = []
         with path.open("r", encoding="utf-8", errors="replace") as f:
-            for line in f:
-                if not line.strip():
-                    continue
-                total_rows += 1
-                if len(rows) < max_rows:
-                    obj = json.loads(line)
-                    for k in obj:
-                        if k not in cols_set:
-                            cols_set.append(k)
-                    rows.append({k: "" if v is None else str(v) for k, v in obj.items()})
-        return cols_set, rows, total_rows
+            return _read_jsonl_sample(f, max_rows)
 
     delim = "\t" if suffix == ".tsv" else ","
     with path.open("r", encoding="utf-8", errors="replace", newline="") as f:
-        reader = csv.DictReader(f, delimiter=delim)
-        cols = list(reader.fieldnames or [])
-        for row in reader:
-            total_rows += 1
-            if len(rows) < max_rows:
-                rows.append({k: ("" if v is None else str(v)) for k, v in row.items()})
+        return _read_delimited_sample(f, delim, max_rows)
+
+
+def _extract_batch_rows(
+    batch_dict: dict[str, list[Any]], cols: list[str], limit: int
+) -> list[dict[str, str]]:
+    n = len(next(iter(batch_dict.values()))) if batch_dict else 0
+    return [
+        {c: ("" if batch_dict[c][i] is None else str(batch_dict[c][i])) for c in cols}
+        for i in range(min(n, limit))
+    ]
+
+
+def _load_parquet_pyarrow(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int]:
+    import pyarrow.parquet as pq
+
+    pf = pq.ParquetFile(path)
+    total_rows = pf.metadata.num_rows
+    cols = pf.schema_arrow.names
+    rows: list[dict[str, str]] = []
+    for batch in pf.iter_batches(batch_size=min(max_rows, 65536)):
+        remaining = max_rows - len(rows)
+        if remaining <= 0:
+            break
+        rows.extend(_extract_batch_rows(batch.to_pydict(), cols, remaining))
+    return cols, rows, total_rows
+
+
+def _load_parquet_duckdb(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int]:
+    import duckdb
+
+    total_rows = duckdb.execute("SELECT count(*) FROM read_parquet(?)", [str(path)]).fetchone()[0]
+    cur = duckdb.execute("SELECT * FROM read_parquet(?) LIMIT ?", [str(path), max_rows])
+    cols = [col[0] for col in cur.description]
+    fetched = cur.fetchall()
+    rows = [{c: ("" if v is None else str(v)) for c, v in zip(cols, r)} for r in fetched]
     return cols, rows, total_rows
 
 
 def _load_parquet(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int]:
     """Load up to max_rows from a Parquet file using pyarrow or duckdb fallback."""
     try:
-        import pyarrow.parquet as pq
-
-        pf = pq.ParquetFile(path)
-        total_rows = pf.metadata.num_rows
-        cols = pf.schema_arrow.names
-        rows: list[dict[str, str]] = []
-        for batch in pf.iter_batches(batch_size=min(max_rows, 65536)):
-            d = batch.to_pydict()
-            n_batch = len(next(iter(d.values()))) if d else 0
-            for i in range(n_batch):
-                if len(rows) >= max_rows:
-                    break
-                row = {c: ("" if d[c][i] is None else str(d[c][i])) for c in cols}
-                rows.append(row)
-            if len(rows) >= max_rows:
-                break
-        return cols, rows, total_rows
+        return _load_parquet_pyarrow(path, max_rows)
     except ImportError:
         pass
 
     try:
-        import duckdb
-
-        total_rows = duckdb.execute("SELECT count(*) FROM read_parquet(?)", [str(path)]).fetchone()[0]
-        cur = duckdb.execute("SELECT * FROM read_parquet(?) LIMIT ?", [str(path), max_rows])
-        cols = [col[0] for col in cur.description]
-        fetched = cur.fetchall()
-        rows = [{c: ("" if v is None else str(v)) for c, v in zip(cols, r)} for r in fetched]
-        return cols, rows, total_rows
+        return _load_parquet_duckdb(path, max_rows)
     except ImportError:
         pass
 
@@ -160,7 +188,8 @@ def profile_table(path: Path, max_rows: int = 100_000) -> None:
         else:
             col_type = "categorical/text"
             top_val, top_cnt = Counter(non_null).most_common(1)[0] if non_null else ("<all null>", 0)
-            summary = f"`{top_val[:24]}` ({top_cnt:,})"
+            safe_top = _sanitize_md(top_val[:24])
+            summary = f"`{safe_top}` ({top_cnt:,})"
             out_str = "-"
 
         print(
