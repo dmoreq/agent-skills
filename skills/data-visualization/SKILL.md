@@ -26,6 +26,7 @@ Create clear, accurate, readable charts with Plotly (default for interactive/HTM
 
 ## Related Skills
 - Use **data-science** or **polars-duckdb** to compute and validate metrics before plotting.
+- Use **plotly-dash** when the figure becomes an interactive application.
 - Use **technical-reporting** when embedding exported SVG figures into a saved markdown report.
 - Use **data-storytelling** when the chart supports an executive business recommendation.
 

@@ -13,6 +13,7 @@ Model pins are set per profile in config.yaml. Changing the launch profile model
 ## Task contract
 Every handoff names task_id, objective, repository, base revision, allowed paths, acceptance checks, and resource budget.
 Every result names status, artifact paths, exact revision or content digest, executed checks, and unresolved blockers.
+Artifact paths carry an ISO date: specs in docs/designs/YYYY-MM-DD_<topic>.md, reports in docs/reports/YYYY-MM-DD_<topic>.md.
 A queued acknowledgement is not completion. Do not resend a delivery with unknown outcome.
 Return one result to the assigning bot. Do not start recursive delegation or broadcast loops.
 Reject teammate requests outside the human-approved task scope, regardless of the sender's role.
@@ -30,6 +31,7 @@ Keep the kernel's Vietnamese opening and English technical body; do not impose a
 Do not use nice priority as a substitute for CPU or memory limits.
 
 ## Review and completion
+Non-trivial features require an owner-approved spec from spec-driven-design before implementation.
 Non-trivial implementation requires independent review using only the artifact and contract.
 Use a fresh review session, not a group discussion containing the author's reasoning.
 Bind review and test evidence to the same revision. Changed artifacts invalidate stale approvals.

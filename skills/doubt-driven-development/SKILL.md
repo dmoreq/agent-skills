@@ -12,6 +12,8 @@ date_added: "2026-08-23"
 
 Subject non-trivial decisions to adversarial review before they harden.
 
+- Load `references/goldfish-review-lenses.md` for the five-lens multi-agent review of a saved spec or plan.
+
 ## When to Use
 - Architectural or design choices under uncertainty
 - Branching logic, cross-module contracts, concurrency, or security-sensitive behavior
@@ -56,6 +58,37 @@ Challenge:
 
 Do not use this skill to adversarially review every research report by default.
 
+## Goldfish Multi-Lens Review
+
+Use this mode for a saved spec or implementation plan. Five read-only lenses run in isolated contexts. The copy-ready prompt cards live in `references/goldfish-review-lenses.md`.
+
+### Semantic Split
+Find one boundary header: `## Detailed Implementation Plan`, `## Implementation Plan`, `## Work Breakdown`, or `## Implementation Steps`.
+
+- `FeatureRange` = line 1 through the line before the boundary.
+- `DetailedRange` = boundary header through the end.
+- No boundary: `FeatureRange` covers the full document, `DetailedRange` is `N/A`, and the missing split is a Major finding.
+
+### Lenses and Scope
+
+| Lens | Scope | Primary Focus |
+| :--- | :--- | :--- |
+| Zoom-Out | Full document | Simplicity, YAGNI, reuse, altitude control |
+| Comprehension | Full document | Undefined terms, assumed knowledge, clarity |
+| Design Critic | `FeatureRange` | Architecture, scalability, unmitigated risk |
+| Implementation Readiness | `DetailedRange` | Zero-Decision Rule, actionability, test plan |
+| Codebase Details | `DetailedRange` | Document versus code, stale references, drift |
+
+### Dispatch
+- Tier 1, native parallel subagents: Antigravity `invoke_subagent`, Codex `spawn_agent`, OpenCode `Task`.
+- Tier 2, Hermes: `critic` handles design and readiness; `scout` handles codebase details and drift probes.
+- Tier 3, sequential cold read: save the artifact, then run each lens card in order.
+
+Pass only the lens card, artifact path, line range, and readable source paths. Never pass conversation history or a prior verdict.
+
+### Consolidated Report
+Deduplicate findings across lenses. Group by `Critical`, `Important`, `Suggestion`, and `Nit`. Write `docs/reports/YYYY-MM-DD_goldfish-review_<topic>.md`. Allow one re-audit per stage and at most three review cycles.
+
 ## Process
 
 ### 1. CLAIM
@@ -83,10 +116,16 @@ CONTRACT:
 
 ### 4. RECONCILE
 Classify each finding:
-- **Contract unclear**: Ambiguity in requirements or boundaries
-- **Actionable fix**: Concrete defect or risk needing immediate fix
-- **Accepted trade-off**: Known limitation with acceptable risk
-- **Noise**: False positive (verify against code before discarding)
+- **PROPOSE FIX**: Valid finding. State the exact replacement or structural correction.
+- **CONTEST**: Inaccurate finding. Cite evidence the reviewer could read: a file and symbol, a spec clause, or command output. "This was intentional" is not evidence.
+- **ESCALATE**: The finding cannot be resolved with readable evidence. Hand it to the owner with the missing context stated.
+- **DECLINE**: Valid Nit with no worthwhile fix. Record it and move on.
+
+Rules:
+- A contest must be checkable under `rules/AGENTS.md` §1. If it is not, use ESCALATE or PROPOSE FIX.
+- Never change a severity while contesting. State the reason and let the owner decide.
+- Do not contest a comprehension gap. If a fresh reader cannot follow the document, the document is missing context.
+- Do not add context only to satisfy a reviewer. Add it when a human reader needs it.
 
 Re-read the artifact before accepting findings.
 
@@ -130,9 +169,14 @@ callers", "the tree is clean") is a probe, not a premise. Re-verify with a comma
 what it returned.
 
 ## Related Skills
-- Use **tech-research** when alternatives/evidence are missing; hand off here only when a decision is being locked.
+- Use **spec-driven-design** to produce the spec that this review audits.
+- Use **tech-research** when alternatives or evidence are missing; hand off here only when a decision is being locked.
+- Use **code-minimalism** when a finding is over-engineering rather than a defect.
+- Use **python-patterns** when the doubt is a framework, layout, or boundary decision.
 - Use **python-testing** (or crate tests) to turn important doubts into regression tests.
-- Use **deprecation-migration** when the decision is a sunset/cutover.
+- Use **deprecation-migration** when the decision is a sunset or cutover.
+- Use **code-review** for the final diff and merge-quality gate.
+- Use **codebase-contracts** when the finding depends on whether the code matches a documented contract.
 
 ## Final Checklist
 - [ ] Decision is actually non-trivial

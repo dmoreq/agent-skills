@@ -14,8 +14,9 @@ agent-skills/
 ├── skills/
 │   ├── algorithm-optimization/      # Systematic KPI & algorithm improvement loop (+ 3 references)
 │   ├── code-minimalism/             # YAGNI-first minimalist code generation (+ 2 references)
-│   ├── code-review/                 # Multi-axis review + YAGNI/bloat quality gate (+ 2 references)
+│   ├── code-review/                 # Multi-axis review + YAGNI/bloat quality gate (+ 3 references)
 │   ├── code-simplification/         # Safe refactoring, reducing nesting & accidental complexity
+│   ├── codebase-contracts/          # Peanuts/Hay README contracts + spec/code drift audit (+ 1 reference)
 │   ├── context7-mcp/                # Live documentation lookup for libraries/frameworks
 │   ├── data-science/                # EDA, modeling, statistics, causal inference & A/B (+ script & reference)
 │   ├── data-storytelling/           # Decision-ready narratives for business stakeholders
@@ -32,6 +33,7 @@ agent-skills/
 │   ├── python-testing/              # Testing strategies with pytest, fixtures & TDD (+ 2 references)
 │   ├── rust-async-patterns/         # Production async Rust patterns with Tokio, channels & cancellation
 │   ├── rust-pro/                    # Modern Rust 2024+ engineering, memory safety & performance
+│   ├── spec-driven-design/          # 6-lens brainstorm + Zero-Decision spec drafting (+ 1 reference)
 │   ├── tech-research/               # SOTA survey, benchmark comparison & technical trade-offs
 │   ├── technical-reporting/         # Saved technical reports, benchmarks, Mermaid, asset paths (+ reference)
 │   └── verify-and-stop/             # Termination discipline, decisive checks & runaway prevention
@@ -51,6 +53,7 @@ agent-skills/
 | **`code-minimalism`** | Forces simplest, shortest, most minimal code (YAGNI). Reaches for stdlib before custom code, platform features before dependencies, 1-liner before 50. |
 | **`code-review`** | Systematic multi-axis review for Python & Rust (correctness, safety, performance, YAGNI/bloat, style). Mandatory quality gate. |
 | **`code-simplification`** | Safe refactoring to improve readability and reduce nesting in existing code without changing behavior. |
+| **`codebase-contracts`** | Generate Peanuts/Hay directory README contracts from code, then audit spec and README drift across six vectors. |
 | **`context7-mcp`** | Fetching up-to-date documentation and code references via Context7 MCP. |
 | **`data-science`** | Statistical modeling, machine learning, A/B testing, exploratory analysis, and causal inference. |
 | **`data-storytelling`** | Decision narrative from **already-validated** metrics. Does not analyze or invent numbers. |
@@ -67,6 +70,7 @@ agent-skills/
 | **`python-testing`** | Pytest strategies, focused fixtures, mocking, and robust test suites. |
 | **`rust-async-patterns`** | Production async Rust patterns with Tokio: structured concurrency, channels, cancellation, and backpressure. *(Rust skill)* |
 | **`rust-pro`** | Production-grade Rust (Edition 2024 / rustc 1.85+): ownership, types, errors, unsafe. Tokio lives in `rust-async-patterns`. *(Rust skill)* |
+| **`spec-driven-design`** | Turn a concept into an owner-approved spec with six-lens brainstorm, Gate 1/Gate 2, and Zero-Decision drafting. |
 | **`tech-research`** | SOTA methods, benchmark evaluation, and conditional recommendations before implementation. |
 | **`technical-reporting`** | Saved formal markdown: benchmarks, ADRs, Mermaid, asset paths. Not Plotly charts or QBR narrative. |
 | **`verify-and-stop`** | Disciplined execution and termination protocol. Verifies minimal acceptance criteria with a single decisive check, presents proof, and stops immediately without runaway loops. |
@@ -91,7 +95,7 @@ agent-skills/
 | Verify-and-Stop Invariant (runaway prevention) | `rules/AGENTS.md` §3 + `verify-and-stop` | Ongoing loops |
 | Subagent delegation, parallel planning & peer-review | `rules/AGENTS.md` §1 | Skills |
 | Skip formal reports; tables first; date-prefixed files | `AGENTS.md` §5 stub | Full viz encyclopedias |
-| Aggressive YAGNI intensity tiers (`lite|full|ultra`) | `code-minimalism` | `AGENTS.md` |
+| Aggressive YAGNI intensity tiers (`lite` / `full` / `ultra`) | `code-minimalism` | `AGENTS.md` |
 | Over-engineering & bloat review checklist | `code-review` | `AGENTS.md` |
 | Saved markdown, Mermaid allowlist, asset paths | `technical-reporting` | Plotly, QBR narrative |
 | Plotly chart type, anti-overlap, SVG/Kaleido | `data-visualization` | Reporting, Dash figure restatement |
@@ -113,6 +117,9 @@ agent-skills/
 | Behavior-preserving cleanup of existing code | `code-simplification` | Redesign / generation |
 | Sunset / strangler | `deprecation-migration` | Local dead-code only |
 | Adversarial lock-in of a decision | `doubt-driven-development` | Every research note |
+| Five-lens Goldfish review dispatch and reconciliation | `doubt-driven-development` + `references/goldfish-review-lenses.md` | Ad-hoc code review |
+| Spec drafting, brainstorm lenses, Gate 1 and Gate 2 | `spec-driven-design` | Implementation, review verdicts |
+| Directory README contracts, Peanuts/Hay, drift audit | `codebase-contracts` | Feature specs, diff review |
 | Live library docs | `context7-mcp` | SOTA comparison |
 
 ---
@@ -121,9 +128,11 @@ agent-skills/
 
 | Domain | Skill | Input | Output / Handoff | Mode |
 | :--- | :--- | :--- | :--- | :--- |
-| **Discovery** | **`context7-mcp`** | Need version-sensitive docs/API | `python-pro`, `python-concurrency`, `tech-research`, `data-science` | Optional |
-| **Discovery** | **`tech-research`** | Need SOTA, alternatives, trade-offs | `doubt-driven-development` (to lock); `deprecation-migration` (replace legacy); `technical-reporting` (formal report) | Optional |
-| **Decision** | **`doubt-driven-development`** | Non-trivial choice from research/architecture | `python-testing` (lock risks into tests); `code-review` (via implementation) | Optional, conditional |
+| **Discovery** | **`context7-mcp`** | Need version-sensitive docs/API | `python-pro`, `python-concurrency`, `polars-duckdb`, `plotly-dash`, `tech-research` | Optional |
+| **Discovery** | **`codebase-contracts`** | Unknown codebase state or stale docs | `spec-driven-design` (ground the spec); `code-review` (contract drift); `verify-and-stop` | Optional |
+| **Discovery** | **`tech-research`** | Need SOTA, alternatives, trade-offs | `spec-driven-design` (turn evidence into a spec); `doubt-driven-development` (to lock); `deprecation-migration` (replace legacy); `technical-reporting` (formal report) | Optional |
+| **Decision** | **`spec-driven-design`** | Vague feature or open architecture | `doubt-driven-development` (five-lens review); `python-patterns`; `code-minimalism` | **Required before non-trivial implementation** |
+| **Decision** | **`doubt-driven-development`** | Non-trivial choice from research/architecture | `spec-driven-design` (audited spec); `python-testing` (lock risks into tests); `code-review` (via implementation) | Optional, conditional |
 | **Design** | **`code-minimalism`** | Code creation or bloat reduction (/minimal, /ponytail) | `verify-and-stop` (verify completion); `code-review` (merge gate) | Optional |
 | **Execution** | **`verify-and-stop`** | Implementation complete | Emits proof and stops; prevents runaway loops | Mandatory on task finish |
 | **Migration** | **`deprecation-migration`** | Zombie/legacy code from review | `python-testing` (verify compatibility); `code-simplification` (clean shims) | Optional |
@@ -143,17 +152,18 @@ agent-skills/
 | **Optimization** | **`algorithm-optimization`** | KPI/quality degradation on real data | `data-visualization` (charts); `technical-reporting` | Optional |
 | **Testing** | **`python-testing`** | Logic change from `python-pro` or cleanup | Pre-merge verification safety net | **Required for logic changes** |
 | **Cleanup** | **`code-simplification`** | Deep nesting, Cyclomatic/Cognitive complexity flagged | Verified by tests; returned to `code-review` | Optional |
-| **QA Gate** | **`code-review`** | PR/diff from implementation or refactoring | Merged when passing 6 review axes & complexity gates | **Required on merge path** |
+| **QA Gate** | **`code-review`** | PR/diff from implementation or refactoring | Merged when passing six review axes and complexity gates; `codebase-contracts` for drift | **Required on merge path** |
 
 ---
 
-### 2. Five Hard Invariants
+### 2. Six Hard Invariants
 
-1. **`data-storytelling`** must strictly use validated metrics from **`data-science`** (zero invented numbers).
-2. **Behavior or public-API diffs** must pass **`code-review`** before merge.
-3. **Behavior modifications** require tests: Python → **`python-testing`**; Rust → crate tests; Dash → integration tests.
-4. **Subagent Delegation**: Only delegate non-trivial, modular tasks (< ~100 lines stays in main thread); subagent deliverables require independent **peer-review** (<= 2 rounds) before acceptance.
-5. **Structural Complexity Limits**: Functions must maintain Cyclomatic Complexity <= 10, Cognitive Complexity <= 15, and Nesting Depth <= 3.
+1. **Non-trivial features** require an owner-approved spec from **`spec-driven-design`** (Gate 1 and Gate 2) before implementation. Mechanical changes are exempt.
+2. **`data-storytelling`** must strictly use validated metrics from **`data-science`** (zero invented numbers).
+3. **Behavior or public-API diffs** must pass **`code-review`** before merge. If a spec or directory README documents the change, run **`codebase-contracts`** drift detection.
+4. **Behavior modifications** require tests: Python → **`python-testing`**; Rust → crate tests; Dash → integration tests.
+5. **Subagent Delegation**: Only delegate non-trivial, modular tasks (< ~100 lines stays in main thread); subagent deliverables require independent **peer-review** (<= 2 rounds) before acceptance.
+6. **Structural Complexity Limits**: Functions must maintain Cyclomatic Complexity <= 10, Cognitive Complexity <= 15, and Nesting Depth <= 3.
 
 ---
 
@@ -161,16 +171,30 @@ agent-skills/
 
 ```text
 context7-mcp
-    └─ docs on demand ─► python-pro / python-concurrency / tech-research / data-science
+    └─ docs on demand ─► python-pro / python-concurrency / polars-duckdb / plotly-dash / tech-research
+
+codebase-contracts
+    ├─ current contracts ─► spec-driven-design
+    ├─ drift report ─► code-review
+    └─ verified contracts ─► verify-and-stop
+
+spec-driven-design
+    ├─ approved spec ─► doubt-driven-development (five-lens review)
+    ├─ architecture ─► python-patterns
+    ├─ scope trim ─► code-minimalism
+    └─ alternatives evidence ─► tech-research
 
 tech-research
+    ├─ chosen direction ─► spec-driven-design
     ├─ options/evidence ─► algorithm-optimization
     ├─ decision to lock ─► doubt-driven-development
     ├─ replace legacy ─► deprecation-migration
     └─ formal write-up ─► technical-reporting
 
 doubt-driven-development
+    ├─ spec to audit ─► spec-driven-design
     ├─ missing alternatives ─► tech-research
+    ├─ bloat finding ─► code-minimalism
     ├─ actionable risks ─► python-testing
     └─ stable decision ─► implementation ─► code-review
 
@@ -196,6 +220,7 @@ code-review
     ├─ fix code ─► python-pro
     ├─ reduce complexity ─► code-simplification
     ├─ trim bloat ─► code-minimalism
+    ├─ check documented contracts ─► codebase-contracts
     └─ sunset legacy ─► deprecation-migration
 ```
 
@@ -205,6 +230,9 @@ code-review
 
 | Situation | Recommended Skill |
 | :--- | :--- |
+| Turn a vague idea into an owner-approved design spec | **`spec-driven-design`** |
+| Generate or audit directory README contracts (Peanuts/Hay) | **`codebase-contracts`** |
+| Run a five-lens Goldfish review on a spec or plan | **`doubt-driven-development`** |
 | Generate minimal code / avoid over-engineering / YAGNI | **`code-minimalism`** |
 | Verify acceptance criteria and terminate cleanly (prevent loop) | **`verify-and-stop`** |
 | Explore SOTA methods, evaluate technical alternatives | **`tech-research`** |

@@ -182,6 +182,7 @@ def test_dashboard_flow(dash_duo, app):
 - Use **data-visualization** for all Plotly figure layout and overlap QA.
 - Use **context7-mcp** when Dash / Dash AG Grid APIs are version-sensitive.
 - Use **python-testing** (unit) and `dash_duo` (UI) when behavior changes.
+- Before merge: **code-review**.
 
 ---
 

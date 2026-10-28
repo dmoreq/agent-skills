@@ -107,3 +107,109 @@ def test_python_scripts_complexity_and_safety():
                     f"(violates rules/AGENTS.md structural complexity threshold)"
                 )
 
+
+def test_progress_visibility_rule_invariants():
+    """Verify AGENTS.md and python-pro enforce progress visibility for long tasks."""
+    rules_text = RULES_FILE.read_text(encoding="utf-8")
+    assert "Progress Visibility for Long Tasks" in rules_text
+    assert "tqdm" in rules_text
+
+    python_pro_skill = SKILLS_DIR / "python-pro" / "SKILL.md"
+    assert python_pro_skill.exists()
+    skill_text = python_pro_skill.read_text(encoding="utf-8")
+    assert "Progress Visibility" in skill_text
+    assert "tqdm" in skill_text
+
+
+def test_related_skills_graph_degrees():
+    """Verify every skill has at least two outgoing and two incoming handoffs."""
+    all_skills = {d.name for d in SKILLS_DIR.iterdir() if d.is_dir()}
+    ref_pattern = re.compile(r"\*\*([a-z0-9]+-[a-z0-9-]+)\*\*")
+    outgoing: dict[str, set[str]] = {}
+
+    for name in all_skills:
+        content = (SKILLS_DIR / name / "SKILL.md").read_text(encoding="utf-8")
+        assert "## Related Skills" in content, f"{name} has no '## Related Skills' section"
+        section = content.split("## Related Skills", 1)[1].split("\n## ", 1)[0]
+        outgoing[name] = set(ref_pattern.findall(section))
+
+    incoming: dict[str, set[str]] = {name: set() for name in all_skills}
+    for source, targets in outgoing.items():
+        for target in targets:
+            assert target in all_skills, f"{source} links to unknown skill '{target}'"
+            assert target != source, f"{source} links to itself"
+            incoming[target].add(source)
+
+    for name in sorted(all_skills):
+        assert len(outgoing[name]) >= 2, (
+            f"{name} has out_degree {len(outgoing[name])} (<2); add '## Related Skills' handoffs."
+        )
+        assert len(incoming[name]) >= 2, (
+            f"{name} has in_degree {len(incoming[name])} (<2); another skill must hand off to it."
+        )
+
+
+def test_readme_covers_every_skill():
+    """Verify every skill appears in the README catalog."""
+    readme = (REPO_DIR / "README.md").read_text(encoding="utf-8")
+    skill_names = {d.name for d in SKILLS_DIR.iterdir() if d.is_dir()}
+    for name in sorted(skill_names):
+        assert f"**`{name}`**" in readme, f"Skill '{name}' is missing from the README catalog."
+
+
+def test_artifact_paths_use_iso_dates():
+    """Verify design, contract, and review artifacts enforce ISO-dated paths."""
+    for skill_name in ("spec-driven-design", "codebase-contracts", "doubt-driven-development", "technical-reporting"):
+        content = (SKILLS_DIR / skill_name / "SKILL.md").read_text(encoding="utf-8")
+        assert "YYYY-MM-DD_" in content, f"{skill_name} does not mandate ISO-dated artifact paths"
+
+    spec = (SKILLS_DIR / "spec-driven-design" / "SKILL.md").read_text(encoding="utf-8")
+    assert "docs/designs/YYYY-MM-DD_" in spec, "spec-driven-design must write under docs/designs/"
+    contracts = (SKILLS_DIR / "codebase-contracts" / "SKILL.md").read_text(encoding="utf-8")
+    assert "docs/reports/YYYY-MM-DD_drift-report_" in contracts
+    review = (SKILLS_DIR / "doubt-driven-development" / "SKILL.md").read_text(encoding="utf-8")
+    assert "docs/reports/YYYY-MM-DD_goldfish-review_" in review
+
+
+def test_no_claude_or_plugin_escape_hatches():
+    """Verify the consolidated suite has no Claude-specific or legacy plugin escape hatches."""
+    forbidden = ["CLAUDE_PLUGIN_ROOT", "~/.claude", "$HOME/.claude", "Claude Code", "claude.md"]
+    targets = list(SKILLS_DIR.rglob("*.md")) + [
+        RULES_FILE,
+        REPO_DIR / "README.md",
+        *(REPO_DIR / "bots").rglob("*.md"),
+    ]
+    for path in targets:
+        content = path.read_text(encoding="utf-8")
+        for snippet in forbidden:
+            assert snippet not in content, f"Legacy host escape hatch '{snippet}' found in {path}"
+
+
+def test_code_review_goldfish_lenses_integrity():
+    """Verify the code-review Goldfish reference defines all five personas and is wired in."""
+    reference = SKILLS_DIR / "code-review" / "references" / "goldfish-code-review-lenses.md"
+    assert reference.exists(), "Missing code-review Goldfish lens reference"
+    content = reference.read_text(encoding="utf-8")
+
+    personas = [
+        "cr-correctness-invariants",
+        "cr-mechanism-generalization",
+        "cr-codebase-reuse-and-contracts",
+        "cr-concurrency-memory-perf",
+        "cr-security-trust-boundary",
+    ]
+    for persona in personas:
+        assert persona in content, f"Missing persona '{persona}' in {reference}"
+
+    for required in ("git grep", "PROPOSE FIX", "CONTEST", "ESCALATE", "DECLINE"):
+        assert required in content, f"Missing '{required}' in {reference}"
+
+    for emoji in ("❌", "✅", "⚠️", "🚀"):
+        assert emoji not in content, f"Forbidden emoji '{emoji}' in {reference}"
+
+    skill_text = (SKILLS_DIR / "code-review" / "SKILL.md").read_text(encoding="utf-8")
+    assert "references/goldfish-code-review-lenses.md" in skill_text
+    assert "cr-mechanism-generalization" in skill_text
+    assert "cr-codebase-reuse-and-contracts" in skill_text
+
+

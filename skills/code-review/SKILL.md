@@ -14,6 +14,7 @@ Review concrete diffs or an explicitly scoped existing API surface. Review the c
 
 - Load `references/public-api-audits.md` when auditing all exports, contracts, and consumers of an existing package — including "what legacy is still here" audits. It covers symbol-level deadness, the shipped-wheel inspection step, and decision-ready verdicts.
 - Load `references/repo-snapshot-review.md` when reviewing an unpacked code archive, fresh clone, or colleague handoff with no PR diff.
+- Load `references/goldfish-code-review-lenses.md` for non-trivial diffs (>= 100 LOC, new helpers/rules, multi-module, concurrency/security/public-API) or parallel Goldfish dispatch.
 
 ## When to Use
 - Pull requests or local git diffs
@@ -35,10 +36,13 @@ Keep review-only requests read-only. Implement fixes through the language skill 
 - Prove artifact reachability using the loader's true resolution paths rather than flat directory probes.
 
 ## Related Skills
+- Use **python-pro** to apply the requested fix in the language idiomatic to the codebase.
 - Use **code-simplification** when the main issue is structural complexity or nesting in existing code.
 - Use **code-minimalism** when the diff contains bloat, unrequested abstractions, or premature dependencies.
 - Use **deprecation-migration** when the diff or review surfaces a legacy API that should be sunset.
+- Use **codebase-contracts** when a directory README or spec documents the changed behavior.
 - Use **python-testing** or crate tests when behavior changed without tests.
+- Use **rust-async-patterns** when reviewing async Rust task, channel, or cancellation code.
 - Use **technical-reporting** when saving a formal audit handoff document.
 
 ## Review Workflow & Gates
@@ -59,20 +63,27 @@ For diff reviews, execute automated and structural gates before manual semantic 
    - **Targeted Pre-commit Only**: Run only against modified files: `pre-commit run --files <changed_files>` or fast direct checks (`ruff check <files>`, `pyright <files>`). Never run `--all-files` during routine diff reviews.
    - **Targeted Tests**: Run only tests relevant to the modified modules (`pytest -n 4 path/to/changed_test.py` or `cargo test <module>`).
    - If pre-commit or tests fail: halt deep review immediately and report failures as a **Critical** blocker.
-2. **Reviewability & Blast Radius Gate**:
+2. **Risk-Based Multi-Lens Goldfish Dispatch (3-Tier)**:
+   - **Fast path** (< 100 effective LOC, one module, no new helper, no async/security/public-API change): run the checklist in-thread. Spawn no subagent.
+   - **Core 3-lens swarm** (>= 100 LOC, new helpers/rules, multi-module): `cr-correctness-invariants`, `cr-mechanism-generalization`, `cr-codebase-reuse-and-contracts`.
+   - **Full 5-lens swarm** (also I/O, async/threads, large data, auth, SQL, or paths): add `cr-concurrency-memory-perf` and `cr-security-trust-boundary`.
+   - Keep lens 2 inside the diff (ad-hoc hardcoding, symptom band-aids, YAGNI, complexity) and lens 3 outside it (`git grep` reuse, stdlib, callers, contract drift). Never merge them.
+   - Tier 1 native parallel: Antigravity `invoke_subagent`, Codex `spawn_agent`, OpenCode `Task`. Tier 2 Hermes `critic` + `scout`. Tier 3 sequential cold read.
+   - Pass only the persona card, diff paths, contract path, and pre-flight confirmation. Never pass author reasoning.
+3. **Reviewability & Blast Radius Gate**:
    - **Reviewability Budget**: Diff exceeds 400 effective LOC (excluding lockfiles/fixtures) → **Important** (request splitting into stacked PRs).
    - **Separation of Concerns**: Diff mixes mechanical refactoring with behavioral logic → **Important** (request isolating refactors).
    - **Public Surface**: Public signature changed without backward compatibility or version bump → **Critical**.
-3. **Omission Checklist (Verify What Is Missing)**:
+4. **Omission Checklist (Verify What Is Missing)**:
    - **Error Path Cleanup**: Are open resources (files, sockets, DB transactions) released in failure branches?
    - **Callers of Deleted Symbols / References to Deleted Targets**: Did a repo-wide grep confirm every reference — code importer, sibling script, AND non-code routing reference (agent/profile config, SOUL/instruction files, docs, prompts, registry lists) — was retargeted in the same commit? Grep the whole tree (`git grep -nw '<name>' <rev> -- .`), never a hand-written glob: a glob like `profiles/*/SOUL.md` silently excludes a governing file at a different depth (e.g. a root-level SOUL/README that outranks per-profile copies), so the scope of the search becomes the scope of the blind spot. A deleted name still referenced as a routing/escalation target is a **Critical** dangling reference even when the surrounding file is prose, not code.
    - **Observability**: Are new error states logged with contextual parameters?
    - **Negative & Edge Tests**: Are empty collections, `None` inputs, and timeouts tested?
-   - **Documentation Sync**: Are `CHANGELOG.md`, `__all__`, or `README.md` updated for public changes?
+   - **Documentation Sync**: Are `CHANGELOG.md`, `__all__`, or `README.md` updated for public changes? If a directory README or spec documents the changed behavior, run a **codebase-contracts** drift check instead of guessing.
    - **Commit-Message Claims vs Artifact**: Verify each concrete claim in the commit message against the tree, not the intent. A message asserting a cleanup ("no longer references X", "removes Y") is a testable statement; if the tree still violates it, that is a finding, and the message itself becomes misleading evidence for downstream reviewers.
 
 When re-reviewing an amended commit: verify the amend delta directly (`git diff <old> <new> --name-only`) and confirm it contains ONLY the change you requested — an amend is the easiest place to smuggle unrelated edits past a reviewer who only re-reads the flagged hunk. Reproduce the original finding's own check against the new revision to confirm it is actually closed, and re-read the commit message to confirm claims that were false before are now true (or were updated).
-4. **Semantic & Architectural Review**:
+5. **Semantic & Architectural Review**:
    - **Correctness**: Does what it claims; edge and error paths; no obvious race conditions.
    - **Safety & Security**: Inputs validated; parameterized queries; no hardcoded or leaked secrets.
    - **Performance & Concurrency**: No extra work on hot paths; no shared mutable state across async tasks/threads without locks.
@@ -99,3 +110,4 @@ Calibrate severity by reachability, not by whether the flaw exists. A real but c
    - **Rationale**: Operational, security, or data integrity impact.
 3. **Positive Notes** — Highlight clean patterns or effective tests (if any).
 4. **Questions** — Clarify ambiguous architectural assumptions (if any).
+5. **Reconciliation Verdict** (multi-agent review only) — Record `PROPOSE FIX`, `CONTEST`, `ESCALATE`, or `DECLINE` per finding. `CONTEST` requires a file and symbol, spec clause, or command output. Never change severity while contesting. `ESCALATE` when the proof is outside every readable artifact.

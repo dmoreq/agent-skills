@@ -28,6 +28,7 @@ Python modules backed by Rust, only after a measured CPU hotspot.
 - Use **python-performance** first to confirm a CPU-bound hotspot.
 - Use **python-testing** for parity and regression tests.
 - Use **doubt-driven-development** when this is the first native module in a pure-Python repo. Rust API/unsafe: **rust-pro**.
+- Before merge: **code-review**.
 
 ## Decision Gate
 All must be true:

@@ -30,6 +30,7 @@ Channels a pragmatic senior engineer: the best code is the code never written. Q
 - When the user explicitly requests full enterprise scaffolding
 
 ## Related Skills
+- Use **python-pro** to implement the minimal design in typed, tested Python.
 - Use **code-simplification** to clean up messy control flow in existing code without changing behavior.
 - Use **code-review** to verify that a pull request respects YAGNI and complexity budgets.
 - Use **verify-and-stop** to confirm minimal acceptance criteria and terminate cleanly.
@@ -65,11 +66,19 @@ When auditing an existing module for bloat, duplicate dialect branches, or expor
 
 ## 4. Trust Boundaries & Ceiling Markers
 - **Non-Negotiables**: Never simplify away trust boundaries, security checks, accessibility, or error handling that prevents data loss (`rules/AGENTS.md` §2).
-- **Root-Cause Minimalism**: Grep every caller of the target function before editing. One guard at the root cause is a smaller, safer diff than patching five callers.
+- **Root Cause vs. Local Band-Aid**: Grep every caller of the target function before editing. One guard at the root cause is a smaller, safer diff than patching five callers. If the root fix is blocked, record the blocker and keep the workaround confined to one layer.
 - **Ceiling Markers**: When shipping a deliberate simplification with a known scaling threshold (e.g., in-memory dict, global lock, linear scan), document the ceiling inline:
   ```python
   # ponytail: linear scan over <=500 rules; switch to Aho-Corasick trie if rule count exceeds 5,000
   ```
+
+## 5. Anti-Weeds (Altitude Control)
+When the artifact is a design or plan rather than code:
+- Keep high-level sections at architecture, interfaces, and data flow.
+- Flag helper functions, loop variables, and pseudocode that belong in the implementation range.
+- Prefer a structural fix in the owning component over a local workaround.
+- Give each behavior one home. Duplicating it across layers is a coupling smell, not reuse.
+- A proposed abstraction with one caller is a weed. Delete it or name the second caller.
 
 ## Final Checklist
 - [ ] Stopped at the highest applicable rung of `rules/AGENTS.md` §2 Code Generation Ladder

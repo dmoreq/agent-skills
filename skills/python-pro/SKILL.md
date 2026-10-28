@@ -28,8 +28,10 @@ Load `references/standalone-distribution.md` when packaging a library into a sta
 
 ## Related Skills
 - Use **python-patterns** when architecture (framework/layout/ADR) is still open.
+- Use **context7-mcp** when a library or framework API is version-sensitive.
 - Use **python-testing** to protect behavior with targeted `pytest` suites.
 - Before merge: **code-review**.
+- Use **verify-and-stop** to confirm the decisive check and terminate cleanly.
 
 ## 1. Version Handling
 Confirm the target Python version from `pyproject.toml` or `.python-version` first:
@@ -47,6 +49,7 @@ Confirm the target Python version from `pyproject.toml` or `.python-version` fir
   - Re-export `Final` constants with `from module import NAME` (never `NAME as NAME`, which Pyright flags as a `Final` reassignment).
   - Prefer `typing.Protocol` (structural subtyping) over deep `abc.ABC` inheritance hierarchies.
 - **Zero Import-Time Side Effects**: Never execute network I/O, database connections, or heavy file loads at module import time.
+- **Long-Running Iterations & Progress Visibility**: Add `tqdm` or structured logging with elapsed time, processed counts, and rates for loops and batch jobs exceeding 5 seconds (or >100 iterations). Throttle update intervals to avoid stdout flooding.
 - **Standalone Packaging Hygiene**: Never read checkout-relative paths (`Path(__file__).parents[N] / "data"`) at runtime in a distributable package; restrict `package-data` to explicit extensions and verify built wheels in a clean venv (`references/standalone-distribution.md`).
 
 ## 3. Recommended Tooling & Quality Thresholds

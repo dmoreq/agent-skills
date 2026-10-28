@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- `rules/AGENTS.md`: Added mandatory **Progress Visibility for Long Tasks** under §4 Safety & Workspace Hygiene. Requires scripts running >5 seconds or >100 iterations to output progress indicators (`tqdm` or structured interval logging with rate and completion estimates).
+- `skills/python-pro`: Documented progress visibility and throttling standards for batch iterations and CLI scripts.
+- `tests/test_invariants.py`: Added invariant test `test_progress_visibility_rule_invariants` asserting the presence of progress visibility clauses in `rules/AGENTS.md` and `skills/python-pro/SKILL.md`.
+- `skills/spec-driven-design` (new): Two-gate spec workflow with multi-turn clarification, six parallel Goldfish brainstorm lenses, `FeatureRange`/`DetailedRange` drafting, and the Zero-Decision Rule.
+- `skills/spec-driven-design/references/spec-templates-and-standards.md`: Six brainstorm lens prompt cards, host dispatch tiers, Heilmeier and feature-spec standards, implementation-readiness rules, CUJ format, and the ISO-dated spec template.
+- `skills/codebase-contracts` (new): Peanuts/Hay directory README bootstrap with bounded read-only scouts, plus top-down spec and README drift audit.
+- `skills/codebase-contracts/references/peanuts-and-hay-templates.md`: Contract templates, link rules, Re-Implementation Zero-Assumption standard, worker JSON schema, and six-vector drift report format.
+- `skills/doubt-driven-development/references/goldfish-review-lenses.md`: Five self-contained review lens cards (Zoom-Out, Comprehension, Design Critic, Implementation Readiness, Codebase Details) with dispatch and reconciliation rules.
+- `rules/AGENTS.md`: Added the **Checkable Contest Invariant** under §1 and **Architecture Ownership** plus **Contradiction Halt** under §2.
+- `tests/test_invariants.py`: Added a 25-skill graph gate (`in_degree >= 2`, `out_degree >= 2`), README catalog coverage, ISO-dated artifact path checks, and a zero Claude/plugin escape-hatch assertion.
+- `skills/code-review/references/goldfish-code-review-lenses.md`: Five orthogonal read-only code review personas (`cr-correctness-invariants`, `cr-mechanism-generalization`, `cr-codebase-reuse-and-contracts`, `cr-concurrency-memory-perf`, `cr-security-trust-boundary`) with risk routing, deterministic `git grep`/AST probes, and the checkable reconciliation template.
+- `tests/test_invariants.py`: Added `test_code_review_goldfish_lenses_integrity` to lock the five persona IDs, required probe terms, and zero-emoji rule.
+
+### Changed
+- `skills/doubt-driven-development`: Upgraded from a single-artifact prompt to the five-lens Goldfish review with semantic split, isolated dispatch, consolidated report, and `PROPOSE FIX` / `CONTEST` / `ESCALATE` / `DECLINE` reconciliation.
+- `skills/code-minimalism`: Added Anti-Weeds (Altitude Control) and an explicit Root Cause versus Local Band-Aid rule.
+- `skills/tech-research`: Added the handoff boundary to `spec-driven-design` and `technical-reporting`.
+- `skills/technical-reporting`: Added spec, drift-report, and decision-lock handoffs; related skills raised to six.
+- `skills/code-review`: Added the `codebase-contracts` drift check for documented behavior, explicit async-Rust review handoff, risk-based 3-tier Goldfish dispatch, and the multi-agent reconciliation verdict.
+- `bots/seven-bots/critic.md` and `scout.md`: Critic runs correctness plus mechanism lenses; scout runs the repo-wide reuse and caller-impact lens.
+- All 25 skills: Completed the bidirectional `## Related Skills` graph with at least two inbound and two outbound handoffs per skill.
+- `README.md`: Added both new skills to the structure tree and catalog, extended the ownership map and relationship table, added the six-invariant spec gate, and raised the `code-review` reference count to three.
+- `bots/seven-bots/`: Conductor requires spec approval, critic runs the five-lens review, scout owns contract bootstrap and drift, and the shared contract mandates ISO-dated artifact paths.
+- `tests/test_skills_schema.py`: Raised the expected skill count from 23 to 25.
+
 ## [2.2.0] - 2026-10-25
 
 ### Added
