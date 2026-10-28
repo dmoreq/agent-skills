@@ -725,8 +725,9 @@ grep -q 'data-label' <report>.html
 grep -q 'data-chart-point' <report>.html
 grep -q 'fonts.googleapis.com' <report>.html
 grep -q 'display=swap' <report>.html
-grep -q 'Fraunces' <report>.html
-grep -q 'Cormorant+Garamond' <report>.html
+# Check the font families for the chosen preset:
+grep -q 'Fraunces' <report>.html          # dossier
+# grep -q 'Cormorant+Garamond' <report>.html  # zen-garden / chronicle
 grep -q 'prefers-color-scheme' <report>.html
 grep -q '@media print' <report>.html
 grep -q 'tabular-nums' <report>.html
