@@ -88,6 +88,7 @@ Default cadence is the two gates above. Pause section by section only when the o
 
 ## Related Skills
 - Hand off the approved spec to **doubt-driven-development** for the consolidated five-lens review.
+- Use **ux-product-shaper** when the approved spec needs information architecture, Surface Mode, and the 8-state contract.
 - Use **python-patterns** for framework, layout, and ADR decisions inside the spec.
 - Apply **code-minimalism** when the concept can be reduced to a smaller scope.
 - Use **tech-research** when the alternatives require external evidence.

@@ -21,6 +21,7 @@ agent-skills/
 │   ├── data-storytelling/           # Decision-ready narratives for business stakeholders
 │   ├── data-visualization/          # Plotly-first charts, layout optimization & anti-overlap QA
 │   ├── deprecation-migration/       # Safe removal, replacement & sunsetting of legacy APIs (+ 2 references)
+│   ├── design-system/               # 3-tier DTCG tokens, component specs, responsive rules (+ 1 reference)
 │   ├── doubt-driven-development/    # Adversarial stress-testing of non-trivial architectural choices
 │   ├── html-report/                 # Single-file interactive HTML reports, print-ready PDF (+ 1 reference)
 │   ├── plotly-dash/                 # Interactive Python data apps with Plotly Dash & clean callbacks
@@ -36,6 +37,9 @@ agent-skills/
 │   ├── spec-driven-design/          # 6-lens brainstorm + Zero-Decision spec drafting (+ 1 reference)
 │   ├── tech-research/               # SOTA survey, benchmark comparison & technical trade-offs
 │   ├── technical-reporting/         # Saved technical reports, benchmarks, Mermaid, asset paths (+ reference)
+│   ├── ui-accessibility/            # WCAG 2.2 audits, keyboard/focus, ARIA (+ 1 reference)
+│   ├── ux-critic/                   # Heuristic and visual critique, steering vocabulary (+ 1 reference)
+│   ├── ux-product-shaper/           # Surface Mode, IA, 8-state product briefs (+ 1 reference)
 │   └── verify-and-stop/             # Termination discipline, decisive checks & runaway prevention
 ├── tests/                           # Automated schema validation & invariant verification
 ├── setup.sh                         # Unified setup (default skips Rust; --with-rust to enable)
@@ -59,6 +63,7 @@ agent-skills/
 | **`data-storytelling`** | Decision narrative from **already-validated** metrics. Does not analyze or invent numbers. |
 | **`data-visualization`** | Plotly-first clean visual creation, SVG export, text density hygiene, and anti-overlap QA. |
 | **`deprecation-migration`** | Safely sunset, replace, and migrate legacy APIs/systems using Strangler, Adapter, and Feature Flags. |
+| **`design-system`** | Build minimalist 3-tier W3C DTCG tokens, dual light/dark themes, component specs, and responsive layout with a YAGNI token diet. |
 | **`doubt-driven-development`** | Adversarial review to stress-test high-risk decisions and uncover unstated assumptions. |
 | **`html-report`** | Single-file, self-contained HTML reports with dual-theme tokens, client-side filtering, and print/PDF fidelity. |
 | **`plotly-dash`** | Production-grade Plotly Dash apps with modular layouts, disciplined callbacks, state hygiene & performance. |
@@ -74,6 +79,9 @@ agent-skills/
 | **`spec-driven-design`** | Turn a concept into an owner-approved spec with six-lens brainstorm, Gate 1/Gate 2, and Zero-Decision drafting. |
 | **`tech-research`** | SOTA methods, benchmark evaluation, and conditional recommendations before implementation. |
 | **`technical-reporting`** | Saved formal markdown: benchmarks, ADRs, Mermaid, asset paths. Not Plotly charts or QBR narrative. |
+| **`ui-accessibility`** | Audit WCAG 2.2 AA, keyboard and focus models, ARIA, contrast, target size, and false minimalism. |
+| **`ux-critic`** | Red-team rendered UI with Dieter Rams, heuristic critique, a subtraction pass, and one required deletion. |
+| **`ux-product-shaper`** | Shape Surface Mode, IA, user flows, YAGNI scope, and the 8-state contract before UI work. |
 | **`verify-and-stop`** | Disciplined execution and termination protocol. Verifies minimal acceptance criteria with a single decisive check, presents proof, and stops immediately without runaway loops. |
 
 ---
@@ -100,6 +108,11 @@ agent-skills/
 | Over-engineering & bloat review checklist | `code-review` | `AGENTS.md` |
 | Saved Markdown, Mermaid allowlist, asset paths | `technical-reporting` | HTML reports, Plotly, QBR narrative |
 | Single-file HTML layout, dual-theme and print CSS, client-side filtering | `html-report` | Markdown reports, chart design, server apps |
+| Product UI visual design, 3-tier tokens, component specs, responsive layout | `design-system` | Markdown reports, chart design, UX research |
+| UX research, Surface Mode, IA, 8-state contract | `ux-product-shaper` | Visual design, implementation |
+| WCAG 2.2, keyboard/focus, accessibility audit | `ui-accessibility` | Visual style, token generation |
+| Adversarial UI critique, heuristic evaluation, steering vocabulary | `ux-critic` | Implementation, code review |
+| Minimalism Art Style and YAGNI doctrine for UI | `design-system` + `ux-product-shaper` | Accessibility invariants, backend architecture |
 | Plotly chart type, anti-overlap, SVG/Kaleido | `data-visualization` | Reporting, Dash figure restatement |
 | Stakeholder Hook → Ask | `data-storytelling` | Analysis |
 | High-volume CSV/Parquet ETL, Polars/DuckDB query mechanics | `polars-duckdb` | `data-science`, `python-performance` |
@@ -133,18 +146,22 @@ agent-skills/
 | **Discovery** | **`context7-mcp`** | Need version-sensitive docs/API | `python-pro`, `python-concurrency`, `polars-duckdb`, `plotly-dash`, `tech-research` | Optional |
 | **Discovery** | **`codebase-contracts`** | Unknown codebase state or stale docs | `spec-driven-design` (ground the spec); `code-review` (contract drift); `verify-and-stop` | Optional |
 | **Discovery** | **`tech-research`** | Need SOTA, alternatives, trade-offs | `spec-driven-design` (turn evidence into a spec); `doubt-driven-development` (to lock); `deprecation-migration` (replace legacy); `technical-reporting` (formal report) | Optional |
-| **Decision** | **`spec-driven-design`** | Vague feature or open architecture | `doubt-driven-development` (five-lens review); `python-patterns`; `code-minimalism` | **Required before non-trivial implementation** |
-| **Decision** | **`doubt-driven-development`** | Non-trivial choice from research/architecture | `spec-driven-design` (audited spec); `python-testing` (lock risks into tests); `code-review` (via implementation) | Optional, conditional |
+| **Decision** | **`spec-driven-design`** | Vague feature or open architecture | `doubt-driven-development` (five-lens review); `ux-product-shaper` (product shaping); `python-patterns`; `code-minimalism` | **Required before non-trivial implementation** |
+| **Decision** | **`doubt-driven-development`** | Non-trivial choice from research/architecture | `spec-driven-design` (audited spec); `ux-critic` (rendered-UI critique); `python-testing` (lock risks into tests); `code-review` (via implementation) | Optional, conditional |
 | **Design** | **`code-minimalism`** | Code creation or bloat reduction (/minimal, /ponytail) | `verify-and-stop` (verify completion); `code-review` (merge gate) | Optional |
 | **Execution** | **`verify-and-stop`** | Implementation complete | Emits proof and stops; prevents runaway loops | Mandatory on task finish |
-| **Migration** | **`deprecation-migration`** | Zombie/legacy code from review | `python-testing` (verify compatibility); `code-simplification` (clean shims) | Optional |
+| **Migration** | **`deprecation-migration`** | Zombie/legacy code from review | `python-testing` (verify compatibility); `code-simplification` (clean shims); `design-system` (retire tokens/components) | Optional |
 | **ETL & Data** | **`polars-duckdb`** | Tabular datasets (CSV, Parquet, Arrow, SQL) | `data-science` (analysis & ML); `python-performance` | Optional |
 | **Analysis** | **`data-science`** | Raw data, EDA, modeling, statistics, A/B | `data-visualization` (charts); `data-storytelling` (narrative); `technical-reporting` | Optional / Required* |
-| **Visualization** | **`data-visualization`** | Metrics/insights from `data-science` | `plotly-dash`, `html-report`, `technical-reporting`, `data-storytelling` | Optional |
-| **Dashboard** | **`plotly-dash`** | Figures from `data-visualization`; pipeline from `data-science` | `python-testing` (callback test); `code-review` (merge gate); `html-report` (static single file) | Optional |
+| **Visualization** | **`data-visualization`** | Metrics/insights from `data-science` | `plotly-dash`, `html-report`, `technical-reporting`, `data-storytelling`, `ui-accessibility` (audit) | Optional |
+| **Dashboard** | **`plotly-dash`** | Figures from `data-visualization`; pipeline from `data-science` | `python-testing` (callback test); `code-review` (merge gate); `html-report` (static single file); `design-system` (tokens) | Optional |
 | **Narrative** | **`data-storytelling`** | Validated insights from `data-science` | Embedded in `technical-reporting` or `html-report` with `data-visualization` charts | **Required input from `data-science`** |
 | **Reporting** | **`technical-reporting`** | Formal Markdown results from research, data science, optimization | Complete Markdown report with Mermaid/SVG assets; `html-report` for single-file HTML | Optional presentation |
-| **HTML Output** | **`html-report`** | Validated content and exported figures | Single-file HTML with inline CSS/JS/SVG and print CSS | Optional presentation |
+| **HTML Output** | **`html-report`** | Validated content and exported figures | Single-file HTML with inline CSS/JS/SVG and print CSS; consumes `design-system` tokens; shared/print reports pass `ui-accessibility`; executive reports pass `ux-critic` | Optional presentation |
+| **UX Shaping** | **`ux-product-shaper`** | Feature spec, audience, and constraints | `PRODUCT.md` with Surface Mode, IA, and 8-state contract; `design-system` | **Required before UI design** |
+| **Design System** | **`design-system`** | Product brief and brand constraints | `DESIGN.md`, `tokens.css/json`, component specs; `html-report`/`plotly-dash` implementation; `ui-accessibility` audit | Optional |
+| **Accessibility** | **`ui-accessibility`** | Implemented UI, design tokens, and shared HTML reports | WCAG 2.2 audit report; `code-review` merge gate; `verify-and-stop` | **Required for UI delivery** |
+| **UX Critique** | **`ux-critic`** | Rendered screenshots, HTML reports, and design system | Heuristic critique report and steering commands; `verify-and-stop` | Optional |
 | **Architecture** | **`python-patterns`** | Framework choice, layout, ADR | `python-pro` (implement); `python-concurrency` (executor choice) | Optional |
 | **Implementation** | **`python-pro`** | Design from patterns or feature request | `python-testing` (test suite); `code-review` (merge gate) | **Required on merge path** |
 | **Concurrency** | **`python-concurrency`** | Concurrency model choice | `python-performance` (measured profiling); `python-testing` | Optional |
@@ -155,7 +172,7 @@ agent-skills/
 | **Optimization** | **`algorithm-optimization`** | KPI/quality degradation on real data | `data-visualization` (charts); `technical-reporting` or `html-report` (saved deliverable) | Optional |
 | **Testing** | **`python-testing`** | Logic change from `python-pro` or cleanup | Pre-merge verification safety net | **Required for logic changes** |
 | **Cleanup** | **`code-simplification`** | Deep nesting, Cyclomatic/Cognitive complexity flagged | Verified by tests; returned to `code-review` | Optional |
-| **QA Gate** | **`code-review`** | PR/diff from implementation or refactoring | Merged when passing six review axes and complexity gates; `codebase-contracts` for drift; `html-report` for an HTML audit page | **Required on merge path** |
+| **QA Gate** | **`code-review`** | PR/diff from implementation or refactoring | Merged when passing six review axes and complexity gates; `codebase-contracts` for drift; `ui-accessibility` for UI review; `html-report` for an HTML audit page | **Required on merge path** |
 
 ---
 
@@ -163,7 +180,7 @@ agent-skills/
 
 1. **Non-trivial features** require an owner-approved spec from **`spec-driven-design`** (Gate 1 and Gate 2) before implementation. Mechanical changes are exempt.
 2. **`data-storytelling`** must strictly use validated metrics from **`data-science`** (zero invented numbers).
-3. **Behavior or public-API diffs** must pass **`code-review`** before merge. If a spec or directory README documents the change, run **`codebase-contracts`** drift detection.
+3. **Behavior, public-API, or UI diffs** must pass **`code-review`** before merge. UI diffs also pass **`ui-accessibility`**. Shared or print HTML reports pass **`ui-accessibility`**; executive reports also pass **`ux-critic`**. If a spec or directory README documents the change, run **`codebase-contracts`** drift detection.
 4. **Behavior modifications** require tests: Python → **`python-testing`**; Rust → crate tests; Dash → integration tests.
 5. **Subagent Delegation**: Only delegate non-trivial, modular tasks (< ~100 lines stays in main thread); subagent deliverables require independent **peer-review** (<= 2 rounds) before acceptance.
 6. **Structural Complexity Limits**: Functions must maintain Cyclomatic Complexity <= 10, Cognitive Complexity <= 15, and Nesting Depth <= 3.
@@ -183,6 +200,7 @@ codebase-contracts
 
 spec-driven-design
     ├─ approved spec ─► doubt-driven-development (five-lens review)
+    ├─ product shaping ─► ux-product-shaper
     ├─ architecture ─► python-patterns
     ├─ scope trim ─► code-minimalism
     └─ alternatives evidence ─► tech-research
@@ -202,12 +220,38 @@ doubt-driven-development
     └─ stable decision ─► implementation ─► code-review
 
 html-report
-    ├─ input from ─► technical-reporting / data-visualization / plotly-dash / data-storytelling / algorithm-optimization / code-review
+    ├─ input from ─► technical-reporting / data-visualization / plotly-dash / data-storytelling / algorithm-optimization / code-review / design-system
     ├─ Markdown alternative ─► technical-reporting
     ├─ chart design and export ─► data-visualization
     ├─ server-backed app ─► plotly-dash
+    ├─ design tokens ─► design-system
+    ├─ shared/print review ─► ui-accessibility
+    ├─ executive critique ─► ux-critic
     ├─ decision narrative ─► data-storytelling
     └─ final artifact check ─► verify-and-stop
+
+ux-product-shaper
+    ├─ product brief ─► design-system
+    ├─ requirements evidence ─► spec-driven-design
+    └─ rendered critique ─► ux-critic
+
+design-system
+    ├─ tokens and specs ─► html-report / plotly-dash / python-pro
+    ├─ legacy retirement ─► deprecation-migration
+    ├─ accessibility audit ─► ui-accessibility
+    └─ component findings ─► ux-critic
+
+ui-accessibility
+    ├─ findings ─► code-review
+    ├─ contrast and focus fixes ─► design-system
+    └─ final gate ─► verify-and-stop
+
+ux-critic
+    ├─ product mode check ─► ux-product-shaper
+    ├─ design findings ─► design-system
+    ├─ accessibility blocker ─► ui-accessibility
+    ├─ decision challenge ─► doubt-driven-development
+    └─ final gate ─► verify-and-stop
 
 code-minimalism (YAGNI ladder)
     ├─ create minimum diff ─► verify-and-stop
@@ -232,6 +276,7 @@ code-review
     ├─ reduce complexity ─► code-simplification
     ├─ trim bloat ─► code-minimalism
     ├─ check documented contracts ─► codebase-contracts
+    ├─ UI and WCAG review ─► ui-accessibility
     ├─ HTML audit page ─► html-report
     └─ sunset legacy ─► deprecation-migration
 ```
@@ -255,6 +300,14 @@ code-review
 | Build a server-backed multi-page dashboard / data app | **`plotly-dash`** |
 | Present data insights to business stakeholders | **`data-storytelling`** |
 | Produce a single-file, interactive or print-ready HTML report | **`html-report`** |
+| Shape product context, IA, user flows, and the 8-state contract | **`ux-product-shaper`** |
+| Build or update design tokens, themes, and component specs | **`design-system`** |
+| Apply Minimalism/YAGNI to a UI (tokens, typography, chrome) | **`design-system`** |
+| Audit WCAG 2.2, keyboard, focus, contrast, and target size | **`ui-accessibility`** |
+| Audit a shared or print-ready HTML report for WCAG | **`ui-accessibility`** |
+| Critique a rendered UI and prescribe design steering | **`ux-critic`** |
+| Audit UI for unrequested chrome or premature abstraction | **`ux-critic`** |
+| Critique an executive or decision HTML report | **`ux-critic`** |
 | Write durable Markdown report / ADR / Mermaid diagram | **`technical-reporting`** |
 | Choose Python framework, project layout, ADR | **`python-patterns`** |
 | Implement Python 3.12+ features (uv, ruff, pyright) | **`python-pro`** |
@@ -290,7 +343,7 @@ Skills are installed into the portable Agent Skills root (`~/.agents/skills`) an
 
 ```bash
 chmod +x setup.sh
-./setup.sh              # Installs 23 of 26 skills (skips the three Rust skills)
+./setup.sh              # Installs 27 of 30 skills (skips the three Rust skills)
 ./setup.sh --with-rust  # Includes Rust skills (rust-pro, rust-async-patterns, pyo3-maturin)
 ```
 

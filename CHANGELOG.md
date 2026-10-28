@@ -23,6 +23,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `skills/html-report` (new): Single-file, self-contained HTML report skill with dual-theme tokens, print/PDF rules, client-side filtering, and a controlled Chart.js CDN exception.
 - `skills/html-report/references/html-report-scaffold.md`: HTML skeleton, light/dark/manual CSS tokens, print styles, JS interaction patterns, and the offline self-check.
 - `tests/test_invariants.py`: Added `test_html_report_skill_integrity` and extended ISO-date path checks to `html-report`.
+- `skills/ux-product-shaper` (new): Surface Mode, information architecture, user flows, and the 8-state product brief.
+- `skills/ux-product-shaper/references/product-and-state-contracts.md`: Surface Mode table, IA rules, 8-state matrix, and the `PRODUCT.md` template.
+- `skills/design-system` (new): Three-tier W3C DTCG tokens, light/dark parity, component specs, responsive layout, and implementation handoff.
+- `skills/design-system/references/token-and-component-specs.md`: Token tiers, naming, type/spacing/motion scales, component spec template, and handoff checklist.
+- `skills/ui-accessibility` (new): WCAG 2.2 AA audit procedure, keyboard/focus model, ARIA failure patterns, and the audit report template.
+- `skills/ui-accessibility/references/wcag-2-2-audit.md`: Checklist, optional Playwright/axe-core commands, severity, and gate rules.
+- `skills/ux-critic` (new): Five-dimension heuristic critique, squint test, Nielsen's ten heuristics, and steering vocabulary.
+- `skills/ux-critic/references/heuristic-critique.md`: Critique dimensions, severity, steering commands, and the report template.
+- `tests/test_invariants.py`: Added `test_ui_ux_family_integrity` and extended ISO-date checks to the UI/UX family.
 
 ### Changed
 - `skills/doubt-driven-development`: Upgraded from a single-artifact prompt to the five-lens Goldfish review with semantic split, isolated dispatch, consolidated report, and `PROPOSE FIX` / `CONTEST` / `ESCALATE` / `DECLINE` reconciliation.
@@ -35,7 +44,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All 26 skills: Completed the bidirectional `## Related Skills` graph with at least two inbound and two outbound handoffs per skill.
 - `README.md`: Added both new skills to the structure tree and catalog, extended the ownership map and relationship table, added the six-invariant spec gate, and raised the `code-review` reference count to three.
 - `tests/test_skills_schema.py`: Removed the hardcoded skill count; the README catalog now defines the expected skill set.
-- `setup.sh` and `README.md`: Made the 23-of-26 default explicit; the three Rust skills remain opt-in.
+- `setup.sh` and `README.md`: Made the 27-of-30 default explicit; the three Rust skills remain opt-in.
+- `rules/AGENTS.md` and `README.md`: Added UI/UX ownership, relationship rows, flowchart nodes, and quick-router entries.
+- `skills/spec-driven-design`, `html-report`, `plotly-dash`, `deprecation-migration`, `data-visualization`, `code-review`, and `doubt-driven-development`: Added reciprocal UI/UX handoffs.
+- `skills/html-report`: Added a risk-based review gate; shared or print reports require `ui-accessibility`, and executive reports require `ux-critic` before `verify-and-stop`.
+- `skills/ui-accessibility` and `skills/ux-critic`: Added reciprocal HTML report handoffs and explicit triggers for report review.
+- `tests/test_invariants.py`: Extended `test_html_report_skill_integrity` to assert both report-review handoffs and the three review profiles.
+- `skills/ux-product-shaper`, `design-system`, `ui-accessibility`, and `ux-critic`: Added Minimalism Art Style and YAGNI doctrine: Monochrome + 1 Accent, typography caps, token/prop diet, Rule of Three, subtraction pass, THE ONE DELETION, and the Lazy, Not Negligent boundary.
+- `skills/html-report`: Consumes the minimalism/YAGNI doctrine from `design-system` and forbids unrequested navigation, search, filter, export, or account chrome.
+- `rules/AGENTS.md` and `README.md`: Documented the UI minimalism/YAGNI ownership, catalog wording, and quick-router entries.
+- `tests/test_invariants.py`: Extended the UI/UX family integrity test with minimalism/YAGNI markers.
+- `tests/test_setup_script.sh`: Default install now asserts `ux-product-shaper` and `design-system`.
 - `.github/workflows/ci.yml`: Added a CI workflow for pytest and the setup script tests.
 - `.gitignore`: Ignored `.zcode/` session state.
 

@@ -111,4 +111,9 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
 - Skip formal reports for one-off answers; prefer text + tables in the direct response.
 - All persistent Markdown report standards (ISO dates, Mermaid allowlist, asset paths) live strictly in **`technical-reporting`**.
 - Single-file HTML report layout, dual-theme tokens, and print CSS live strictly in **`html-report`**.
-- Visual design, Plotly layout, and SVG export QA live strictly in **`data-visualization`**.
+- Product UI visual design, design tokens, component specs, and responsive layout live in **`design-system`**.
+- UX research, Surface Mode, information architecture, and the 8-state contract live in **`ux-product-shaper`**.
+- WCAG 2.2 conformance, keyboard and focus models, and accessibility audits live in **`ui-accessibility`**.
+- Adversarial UI critique and heuristic evaluation live in **`ux-critic`**.
+- Minimalism and YAGNI doctrine for UI lives in **`design-system`** and **`ux-product-shaper`**; accessibility invariants remain non-negotiable in **`ui-accessibility`**.
+- Plotly chart design, anti-overlap, and SVG export live in **`data-visualization`**.

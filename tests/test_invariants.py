@@ -163,7 +163,17 @@ def test_readme_covers_every_skill():
 
 def test_artifact_paths_use_iso_dates():
     """Verify design, contract, and review artifacts enforce ISO-dated paths."""
-    for skill_name in ("spec-driven-design", "codebase-contracts", "doubt-driven-development", "technical-reporting", "html-report"):
+    for skill_name in (
+        "spec-driven-design",
+        "codebase-contracts",
+        "doubt-driven-development",
+        "technical-reporting",
+        "html-report",
+        "ux-product-shaper",
+        "design-system",
+        "ui-accessibility",
+        "ux-critic",
+    ):
         content = (SKILLS_DIR / skill_name / "SKILL.md").read_text(encoding="utf-8")
         assert "YYYY-MM-DD_" in content, f"{skill_name} does not mandate ISO-dated artifact paths"
 
@@ -176,6 +186,15 @@ def test_artifact_paths_use_iso_dates():
     html_report = (SKILLS_DIR / "html-report" / "SKILL.md").read_text(encoding="utf-8")
     assert "docs/reports/YYYY-MM-DD_" in html_report
     assert ".html" in html_report
+    ux_shape = (SKILLS_DIR / "ux-product-shaper" / "SKILL.md").read_text(encoding="utf-8")
+    assert "docs/designs/YYYY-MM-DD_product-brief_" in ux_shape
+    design_system = (SKILLS_DIR / "design-system" / "SKILL.md").read_text(encoding="utf-8")
+    assert "docs/designs/YYYY-MM-DD_design-system_" in design_system
+    assert "docs/designs/YYYY-MM-DD_tokens_" in design_system
+    a11y = (SKILLS_DIR / "ui-accessibility" / "SKILL.md").read_text(encoding="utf-8")
+    assert "docs/reports/YYYY-MM-DD_a11y-audit_" in a11y
+    critic = (SKILLS_DIR / "ux-critic" / "SKILL.md").read_text(encoding="utf-8")
+    assert "docs/reports/YYYY-MM-DD_ux-critique_" in critic
 
 
 def test_no_claude_or_plugin_escape_hatches():
@@ -242,6 +261,17 @@ def test_html_report_skill_integrity():
     assert "references/html-report-scaffold.md" in skill_text
     assert "**technical-reporting**" in skill_text
     assert "**data-visualization**" in skill_text
+    assert "**ui-accessibility**" in skill_text
+    assert "**ux-critic**" in skill_text
+    assert "review gate" in skill_text.lower()
+
+    for gate in ("Internal", "Shared", "Executive"):
+        assert gate in skill_text, f"Missing report review profile '{gate}'"
+
+    a11y = (SKILLS_DIR / "ui-accessibility" / "SKILL.md").read_text(encoding="utf-8")
+    critic = (SKILLS_DIR / "ux-critic" / "SKILL.md").read_text(encoding="utf-8")
+    assert "**html-report**" in a11y, "ui-accessibility must hand off HTML report review"
+    assert "**html-report**" in critic, "ux-critic must hand off HTML report critique"
 
     for marker in ("<!DOCTYPE html>", "prefers-color-scheme", "@media print", "tabular-nums", "Copy Summary"):
         assert marker in scaffold, f"Missing scaffold marker '{marker}'"
@@ -252,5 +282,44 @@ def test_html_report_skill_integrity():
     for emoji in ("❌", "✅", "⚠️", "🚀"):
         assert emoji not in skill_text, f"Forbidden emoji '{emoji}' in {skill_file}"
         assert emoji not in scaffold, f"Forbidden emoji '{emoji}' in {reference}"
+
+
+def test_ui_ux_family_integrity():
+    """Verify the UI/UX family, its references, and its ownership boundaries."""
+    family = {
+        "ux-product-shaper": (
+            "product-and-state-contracts.md",
+            ("Surface Mode", "8-State", "PRODUCT.md", "docs/designs/", "YAGNI", "Minimalist Register", "NOT Building"),
+        ),
+        "design-system": (
+            "token-and-component-specs.md",
+            ("W3C DTCG", "tokens.css", "html-report", "plotly-dash", "Monochrome", "1 Accent", "Rule of Three", "20-25"),
+        ),
+        "ui-accessibility": (
+            "wcag-2-2-audit.md",
+            ("WCAG 2.2", "keyboard", "code-review", "verify-and-stop", "False Minimalism", "Clickability"),
+        ),
+        "ux-critic": (
+            "heuristic-critique.md",
+            ("Nielsen", "squint", "doubt-driven-development", "docs/reports/", "Dieter Rams", "Subtraction", "THE ONE DELETION", "YAGNI"),
+        ),
+    }
+
+    for name, (ref_name, markers) in family.items():
+        skill_file = SKILLS_DIR / name / "SKILL.md"
+        reference = SKILLS_DIR / name / "references" / ref_name
+        assert skill_file.exists(), f"Missing {name}/SKILL.md"
+        assert reference.exists(), f"Missing {name}/references/{ref_name}"
+
+        skill_text = skill_file.read_text(encoding="utf-8")
+        ref_text = reference.read_text(encoding="utf-8")
+        assert f"references/{ref_name}" in skill_text, f"{name} does not link its reference"
+
+        for marker in markers:
+            assert marker in skill_text or marker in ref_text, f"Missing '{marker}' in {name}"
+
+        for emoji in ("❌", "✅", "⚠️", "🚀"):
+            assert emoji not in skill_text, f"Forbidden emoji '{emoji}' in {skill_file}"
+            assert emoji not in ref_text, f"Forbidden emoji '{emoji}' in {reference}"
 
 

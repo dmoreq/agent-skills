@@ -29,8 +29,16 @@ if ! echo "$OUT_DEFAULT" | grep -q "skill verify-and-stop ->"; then
     echo "FAIL: verify-and-stop was not synced!"
     exit 1
 fi
+if ! echo "$OUT_DEFAULT" | grep -q "skill ux-product-shaper ->"; then
+    echo "FAIL: ux-product-shaper was not synced by default!"
+    exit 1
+fi
+if ! echo "$OUT_DEFAULT" | grep -q "skill design-system ->"; then
+    echo "FAIL: design-system was not synced by default!"
+    exit 1
+fi
 
-echo "  ✓ Default setup skips Rust skills and includes new core skills"
+echo "  ✓ Default setup skips Rust skills and includes new core and UI/UX skills"
 
 # Test 2: Dry-run with --with-rust must sync Rust skills
 OUT_RUST="$("$REPO_DIR/setup.sh" --dry-run --with-rust)"
