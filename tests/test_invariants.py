@@ -423,3 +423,38 @@ def test_typography_contract_consistency():
     assert "--accent: #4A6B53" in zen_block, "Zen Garden must keep moss for UI chrome"
 
 
+def test_html_report_chart_interaction_contract():
+    """Verify the native SVG interaction and data-label contract."""
+    skill = (SKILLS_DIR / "html-report" / "SKILL.md").read_text(encoding="utf-8")
+    scaffold = (
+        SKILLS_DIR / "html-report" / "references" / "html-report-scaffold.md"
+    ).read_text(encoding="utf-8")
+
+    for marker in ("Chart Interaction Contract", "cross-highlight", "two decimals", 'role="group"'):
+        assert marker in skill, f"html-report SKILL is missing '{marker}'"
+
+    for marker in (
+        "chart-tooltip",
+        "data-chart-point",
+        "data-label",
+        'aria-hidden="true"',
+        'pointer-events="none"',
+        "prefers-reduced-motion",
+    ):
+        assert marker in scaffold, f"Scaffold is missing chart interaction marker '{marker}'"
+
+    dv = (SKILLS_DIR / "data-visualization" / "SKILL.md").read_text(encoding="utf-8")
+    assert "two decimals" in dv, "data-visualization must require two-decimal percent labels"
+    assert "counts use `k`/`M`" in dv, "data-visualization must require abbreviated counts"
+
+    a11y = (SKILLS_DIR / "ui-accessibility" / "SKILL.md").read_text(encoding="utf-8")
+    assert "Chart marks are keyboard reachable" in a11y, (
+        "ui-accessibility must gate chart keyboard access"
+    )
+
+    critic = (SKILLS_DIR / "ux-critic" / "SKILL.md").read_text(encoding="utf-8")
+    assert "Chart interaction was checked" in critic, (
+        "ux-critic must check chart interaction and labels"
+    )
+
+

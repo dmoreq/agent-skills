@@ -537,7 +537,164 @@ function attachTableTools(table) {
 document.querySelectorAll("table").forEach(attachTableTools);
 ```
 
-## 7. Controlled Chart.js Opt-In
+## 7. Native SVG Chart Interaction & Data Labels
+
+Use this pattern when the report contains bars, points, or segments. The table remains the accessible source of truth. Do not add a chart library for hover or labels.
+
+### Markup
+
+```html
+<svg class="chart" role="group" aria-labelledby="chart-title chart-desc">
+  <title id="chart-title">...</title>
+  <desc id="chart-desc">...</desc>
+  <rect x="72" y="69.2" width="26" height="150.8" fill="var(--chart-ps)"
+        role="img" tabindex="0" data-series="Upgraded"
+        data-tip="Upgraded Hit@1 · 78.52%" aria-label="Upgraded Hit@1 78.52%">
+    <title>Upgraded Hit@1 78.52%</title>
+  </rect>
+  <text class="data-label above" aria-hidden="true" pointer-events="none"
+        x="85" y="63.2" text-anchor="middle">78.52</text>
+  <circle class="chart-point" role="img" tabindex="0" cx="46" cy="82.6" r="3"
+          fill="var(--chart-ps)" data-series="Upgraded" data-day="2026-10-05"
+          data-tip="2026-10-05 · Upgraded · 78.80%"
+          aria-label="2026-10-05, Upgraded, 78.80%" data-chart-point="true"></circle>
+  <text class="data-label point-upgraded" aria-hidden="true" pointer-events="none"
+        x="51" y="76.6" text-anchor="start">78.80</text>
+</svg>
+<div class="chart-tooltip" id="chart-tooltip" role="status" aria-live="polite"></div>
+```
+
+Add `data-day` to the matching table row: `<tr data-day="2026-10-05" tabindex="0">`.
+
+### CSS
+
+```css
+.chart [data-tip] { cursor: pointer; transition: opacity 0.15s ease, filter 0.15s ease; }
+.chart [data-tip]:hover, .chart [data-tip]:focus-visible { filter: brightness(1.08); outline: 2px solid var(--accent); outline-offset: 2px; }
+.chart .chart-point { stroke: var(--bg-card); stroke-width: 1; }
+.chart .chart-point.is-active { stroke: var(--text-primary); stroke-width: 2; }
+.chart.is-dimmed [data-series] { opacity: 0.28; }
+.chart.is-dimmed [data-series].is-active { opacity: 1; }
+.chart-tooltip { position: fixed; z-index: 30; max-width: 18rem; padding: 0.5rem 0.75rem; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-size: var(--text-sm); line-height: 1.4; pointer-events: none; visibility: hidden; opacity: 0; transition: opacity 0.12s ease, transform 0.12s ease; }
+.chart-tooltip[data-open="true"] { visibility: visible; opacity: 1; }
+.chart-tooltip strong { display: block; font-weight: 600; }
+.chart-tooltip span { color: var(--text-secondary); }
+.data-label { font-family: var(--font-mono); font-size: 12px; font-weight: 500; pointer-events: none; }
+.data-label.above { fill: var(--text-secondary); }
+.data-label.inside { fill: var(--bg-card); }
+.data-label.point-upgraded { fill: var(--chart-ps); }
+.data-label.point-captured { fill: var(--chart-old); }
+.data-label.point-production { fill: var(--chart-prod); }
+tr.is-highlighted { background: var(--accent-subtle) !important; }
+tr[data-day]:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media (prefers-reduced-motion: reduce) { .chart [data-tip], .chart-tooltip { transition: none; } }
+@media print { .chart-tooltip { display: none !important; } }
+```
+
+### Interaction JS
+
+```js
+const tooltip = document.getElementById("chart-tooltip");
+
+function place(event) {
+  const pad = 12;
+  const box = tooltip.getBoundingClientRect();
+  let x = event.clientX + pad;
+  let y = event.clientY + pad;
+  if (x + box.width > window.innerWidth - pad) x = event.clientX - box.width - pad;
+  if (y + box.height > window.innerHeight - pad) y = event.clientY - box.height - pad;
+  tooltip.style.left = `${Math.max(pad, x)}px`;
+  tooltip.style.top = `${Math.max(pad, y)}px`;
+}
+
+function placeAt(target) {
+  const rect = target.getBoundingClientRect();
+  const box = tooltip.getBoundingClientRect();
+  let x = rect.left + rect.width / 2 - box.width / 2;
+  let y = rect.top - box.height - 8;
+  if (y < 12) y = rect.bottom + 8;
+  x = Math.min(Math.max(12, x), window.innerWidth - box.width - 12);
+  tooltip.style.left = `${x}px`;
+  tooltip.style.top = `${y}px`;
+}
+
+function show(target, event) {
+  const text = target.dataset.tip;
+  if (!text) return;
+  const [head, ...rest] = text.split(" · ");
+  tooltip.replaceChildren();
+  const strong = document.createElement("strong");
+  strong.textContent = head;
+  tooltip.append(strong);
+  if (rest.length) {
+    const span = document.createElement("span");
+    span.textContent = rest.join(" · ");
+    tooltip.append(span);
+  }
+  tooltip.dataset.open = "true";
+  if (event) place(event); else placeAt(target);
+}
+
+const hide = () => { tooltip.dataset.open = "false"; };
+
+document.querySelectorAll(".chart [data-tip]").forEach((mark) => {
+  mark.addEventListener("pointerenter", (event) => show(mark, event));
+  mark.addEventListener("pointermove", place);
+  mark.addEventListener("pointerleave", hide);
+  mark.addEventListener("focus", () => show(mark));
+  mark.addEventListener("blur", hide);
+});
+
+document.querySelectorAll(".legend [data-series]").forEach((item) => {
+  const figure = item.parentElement.querySelector("figure");
+  const chart = figure?.querySelector(".chart");
+  if (!chart) return;
+  const activate = () => {
+    chart.classList.add("is-dimmed");
+    chart.querySelectorAll("[data-series]").forEach((mark) => {
+      mark.classList.toggle("is-active", mark.dataset.series === item.dataset.series);
+    });
+  };
+  const deactivate = () => {
+    chart.classList.remove("is-dimmed");
+    chart.querySelectorAll("[data-series]").forEach((mark) => mark.classList.remove("is-active"));
+  };
+  item.addEventListener("pointerenter", activate);
+  item.addEventListener("pointerleave", deactivate);
+  item.addEventListener("focus", activate);
+  item.addEventListener("blur", deactivate);
+});
+
+document.querySelectorAll("[data-chart-point]").forEach((point) => {
+  const row = document.querySelector(`tr[data-day="${point.dataset.day}"]`);
+  const on = () => row?.classList.add("is-highlighted");
+  const off = () => row?.classList.remove("is-highlighted");
+  point.addEventListener("pointerenter", on);
+  point.addEventListener("pointerleave", off);
+  point.addEventListener("focus", on);
+  point.addEventListener("blur", off);
+});
+document.querySelectorAll("tr[data-day]").forEach((row) => {
+  const points = document.querySelectorAll(`[data-chart-point][data-day="${row.dataset.day}"]`);
+  const on = () => points.forEach((point) => point.classList.add("is-active"));
+  const off = () => points.forEach((point) => point.classList.remove("is-active"));
+  row.addEventListener("pointerenter", on);
+  row.addEventListener("pointerleave", off);
+  row.addEventListener("focusin", on);
+  row.addEventListener("focusout", off);
+});
+```
+
+### Label rules
+
+- Percentages use two decimals (`78.52`); counts use `k`/`M` (`501k`). Exact values stay in the tooltip and table.
+- Keep labels at least `12px`. Place them horizontally above or below marks; widen bar centres to at least `44px` when five-character labels would collide.
+- Inside a colored bar, use `fill="var(--bg-card)"` and verify contrast in both themes.
+- Every data label is `aria-hidden="true"` and `pointer-events="none"`; the mark's `aria-label` carries the exact value.
+- Never label every point on a dense series; label extrema or the focal series and leave the rest to the tooltip.
+- Verify no overlap at 320px and 1440px, in light and dark themes, and in print.
+
+## 8. Controlled Chart.js Opt-In
 
 Use this block only when complex interactive charting is required, the user explicitly approves the CDN, the page shows an offline warning, and the tag carries a verified SHA-384 SRI hash:
 
@@ -549,7 +706,7 @@ Use this block only when complex interactive charting is required, the user expl
   crossorigin="anonymous"></script>
 ```
 
-## 8. Self-Check
+## 9. Self-Check
 
 Run these against the generated file before delivery:
 
@@ -562,6 +719,10 @@ test "$(grep -o 'data-preset="[^"]*"' <report>.html | sort -u | wc -l | tr -d ' 
 ! grep -q 'collapse-' <report>.html
 ! grep -q 'copy-sum' <report>.html
 grep -q 'id="theme-toggle"' <report>.html
+# If the report has charts:
+grep -q 'chart-tooltip' <report>.html
+grep -q 'data-label' <report>.html
+grep -q 'data-chart-point' <report>.html
 grep -q 'fonts.googleapis.com' <report>.html
 grep -q 'display=swap' <report>.html
 grep -q 'Fraunces' <report>.html

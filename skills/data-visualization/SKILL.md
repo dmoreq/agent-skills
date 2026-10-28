@@ -69,6 +69,7 @@ Every color in a chart must perform exactly one of four jobs:
   ```
 - **Kanso & Ma Chart Hygiene (Anti-Overlap Protocol)**:
   - Use `font-family: var(--font-mono)`, `font-variant-numeric: tabular-nums`, and at least `0.75rem` for axes, ticks, legends, and direct labels.
+  - Direct labels: percentages use two decimals, counts use `k`/`M`, and labels stay `aria-hidden` with `pointer-events="none"`. Widen bar centres to at least `44px` when five-character labels would collide; exact values stay in the table and tooltip.
   - Strip heavy outer chart borders, background fills, and vertical gridlines when direct bar labels are present.
   - Never label every point on dense series; annotate only top-N, extrema, or threshold crossings.
   - Place legends outside the plot canvas (`orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1`) or label lines directly at their right endpoint.
@@ -81,5 +82,6 @@ Every color in a chart must perform exactly one of four jobs:
 - [ ] Chart text uses mono + tabular numerals at >= 0.75rem
 - [ ] Category colors stay identical across all figures in the same report
 - [ ] Zero overlapping or clipped titles, axis ticks, data labels, or legends
+- [ ] Direct labels use two decimals for percentages, abbreviate counts, and leave exact values in the table
 - [ ] Units (`%`, `pp`, `USD`, `ms`, `N=...`) explicitly stated in title/subtitle or axis labels
 - [ ] Exported `.svg`/`.png` verified at target display dimensions

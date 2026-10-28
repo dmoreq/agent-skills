@@ -122,6 +122,7 @@ The report contains:
 - [ ] The five Rams principles are checked.
 - [ ] All ten heuristics are marked Pass, Fail, or Not applicable.
 - [ ] The subtraction pass ran before polish.
+- [ ] Chart interaction was checked: focusable marks, readable non-overlapping labels, and chart-to-table cross-highlight.
 - [ ] Every finding names a steering command.
 - [ ] `**THE ONE DELETION**` is named.
 - [ ] The report uses an ISO-dated path under `docs/reports/`.

@@ -63,6 +63,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `skills/html-report` and `skills/design-system`: Reconciled the typography contract: 2 primary families plus 1 monospace data face, 5 product or 9 editorial sizes, role-based weights, `60ch-70ch` measure, and minimum body/label/code sizes.
 - `skills/html-report`: The Google Fonts stylesheet is the only permitted network request; the report must render offline with local fallbacks.
 - `skills/data-visualization` and `skills/html-report`: Zen Garden charts now use Dossier's warm data palette while moss remains the UI-only accent.
+- `skills/html-report`: Added the native SVG chart interaction contract: hover/focus tooltip, legend dimming, chart-to-table cross-highlight, and always-visible data labels with two-decimal percentages and abbreviated counts.
+- `skills/data-visualization`, `ui-accessibility`, and `ux-critic`: Added direct-label formatting, chart keyboard/ARIA checks, and chart-interaction critique rules.
+- `tests/test_invariants.py`: Added chart-interaction contract guards.
 - `skills/ux-product-shaper/references/product-and-state-contracts.md`: Canonicalized Mode A/Mode B names and added the wording budget.
 - `skills/ux-critic/references/heuristic-critique.md`: Documented all six critique dimensions, including YAGNI and signifier honesty.
 - `skills/design-system/references/token-and-component-specs.md`: Replaced the cool slate primitive example with a warm stone ramp and declared `--bg-subtle`.

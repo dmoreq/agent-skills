@@ -107,6 +107,7 @@ Write the audit report with:
 | Motion | Reduced-motion preference respected | Media query and manual test |
 | Names and roles | Accessible name for every control | Accessibility tree |
 | Status messages | Announced without stealing focus | `aria-live` test |
+| Charts | Table is the text alternative; marks are focusable with `aria-label`; data labels are `aria-hidden` | Accessibility tree and keyboard test |
 
 The full audit procedure and report template are in `references/wcag-2-2-audit.md`.
 
@@ -143,6 +144,7 @@ Minimalism removes decoration, never access. Fail the audit when any of these ar
 - [ ] Clickability signifiers are visible without hover discovery.
 - [ ] Focus ring is visible in both themes.
 - [ ] No state is signaled by color alone.
+- [ ] Chart marks are keyboard reachable, carry an `aria-label`, and the table provides the text alternative.
 - [ ] Dead controls: 0; focus loop works.
 - [ ] The minimalism change did not remove any accessibility invariant.
 - [ ] The report names tested and untested criteria.

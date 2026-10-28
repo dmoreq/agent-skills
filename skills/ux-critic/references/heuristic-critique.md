@@ -61,6 +61,7 @@ Pass conditions:
 - Display weights stay at 300-400; UI labels use 500; emphasis uses 600; 700 is absent.
 - Body prose is at least 0.9375rem, labels at least 0.75rem, and code at least 0.82rem.
 - Numeric columns, deltas, and axes use tabular numerals.
+- Chart labels are readable and non-overlapping: percentages use two decimals, counts are abbreviated, and exact values remain in the table.
 
 Failure signals:
 - "Something went wrong" with no recovery.
@@ -68,6 +69,7 @@ Failure signals:
 - A destructive action labeled like a safe one.
 - A wall-of-text paragraph, or the same idea repeated across paragraphs.
 - A 700-weight display heading, 0.7rem labels, or proportional numeric columns.
+- Integer-only percent labels, overlapping chart labels, or a chart that hides exact values from keyboard users.
 
 ### 1.5 Mode Fit
 

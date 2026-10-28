@@ -55,6 +55,12 @@ Preset routing: **`dossier`** for audits, engineering reports, and decision memo
 5. **Numeric precision**: Numeric cells, KPI deltas, and SVG axes use `var(--font-mono)`, `tabular-nums`, and `-0.01em`.
 6. **Labels**: Uppercase eyebrows, KPI labels, and table headers use `var(--font-mono)`, `0.75rem`, weight `500`, and `+0.08em` to `+0.1em`; no tabular numerals.
 
+## Chart Interaction Contract
+- Use native SVG, not a library: hover/focus tooltip, legend dimming, and chart/table cross-highlight.
+- Always show data labels: percentages two decimals (`78.52`), counts `k`/`M` (`501k`). Labels `>=12px`, `aria-hidden`, `pointer-events="none"`, never overlapping. Exact values stay in the tooltip and table.
+- Chart SVG uses `role="group"`; each mark uses `role="img"`, `tabindex="0"`, `aria-label`; tooltip uses `role="status"` and `visibility`. Respect reduced motion and print.
+- The table is the accessible source; see the scaffold pattern.
+
 ## Zen Minimalism Wording & Paragraphing Rules
 1. **Kanso (Essentialist Prose)**: Strip ornamental adjectives, hype superlatives, and throat-clearing intros. Open every section with a single declarative thesis sentence containing the primary number and direction.
 2. **Ma (Paragraph Breathing Room)**: Keep paragraphs at 2-3 sentences, <= 60 words (60ch-70ch measure; target 66ch). Never emit dense wall-of-text paragraphs; let whitespace separate distinct ideas.
