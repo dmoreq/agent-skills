@@ -19,6 +19,7 @@ Verify that an interface works for keyboard, screen-reader, low-vision, and redu
 - When a review requests WCAG 2.2 AA conformance.
 - When a design system changes contrast, focus, or motion tokens.
 - When a bug report mentions keyboard traps, missing labels, or unreadable text.
+- A shared, interactive, or print-ready HTML report.
 
 ## When Not to Use
 - Visual hierarchy, typography, or token generation (`design-system`).
@@ -127,6 +128,7 @@ The full audit procedure and report template are in `references/wcag-2-2-audit.m
 - [ ] The gate verdict is explicit.
 
 ## Related Skills
+- Use **html-report** when the audited artifact is a single-file report; check contrast, keyboard path, `<details>` disclosure, table headers, and print layout.
 - Use **design-system** for token changes that affect contrast, focus, or motion.
 - Use **ux-critic** for heuristic and visual critique after accessibility passes.
 - Use **data-visualization** for chart form and palette; audit the accessible alternative here.

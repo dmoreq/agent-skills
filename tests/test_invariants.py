@@ -261,6 +261,17 @@ def test_html_report_skill_integrity():
     assert "references/html-report-scaffold.md" in skill_text
     assert "**technical-reporting**" in skill_text
     assert "**data-visualization**" in skill_text
+    assert "**ui-accessibility**" in skill_text
+    assert "**ux-critic**" in skill_text
+    assert "review gate" in skill_text.lower()
+
+    for gate in ("Internal", "Shared", "Executive"):
+        assert gate in skill_text, f"Missing report review profile '{gate}'"
+
+    a11y = (SKILLS_DIR / "ui-accessibility" / "SKILL.md").read_text(encoding="utf-8")
+    critic = (SKILLS_DIR / "ux-critic" / "SKILL.md").read_text(encoding="utf-8")
+    assert "**html-report**" in a11y, "ui-accessibility must hand off HTML report review"
+    assert "**html-report**" in critic, "ux-critic must hand off HTML report critique"
 
     for marker in ("<!DOCTYPE html>", "prefers-color-scheme", "@media print", "tabular-nums", "Copy Summary"):
         assert marker in scaffold, f"Missing scaffold marker '{marker}'"

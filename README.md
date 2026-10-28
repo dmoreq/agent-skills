@@ -156,11 +156,11 @@ agent-skills/
 | **Dashboard** | **`plotly-dash`** | Figures from `data-visualization`; pipeline from `data-science` | `python-testing` (callback test); `code-review` (merge gate); `html-report` (static single file); `design-system` (tokens) | Optional |
 | **Narrative** | **`data-storytelling`** | Validated insights from `data-science` | Embedded in `technical-reporting` or `html-report` with `data-visualization` charts | **Required input from `data-science`** |
 | **Reporting** | **`technical-reporting`** | Formal Markdown results from research, data science, optimization | Complete Markdown report with Mermaid/SVG assets; `html-report` for single-file HTML | Optional presentation |
-| **HTML Output** | **`html-report`** | Validated content and exported figures | Single-file HTML with inline CSS/JS/SVG and print CSS; consumes `design-system` tokens | Optional presentation |
+| **HTML Output** | **`html-report`** | Validated content and exported figures | Single-file HTML with inline CSS/JS/SVG and print CSS; consumes `design-system` tokens; shared/print reports pass `ui-accessibility`; executive reports pass `ux-critic` | Optional presentation |
 | **UX Shaping** | **`ux-product-shaper`** | Feature spec, audience, and constraints | `PRODUCT.md` with Surface Mode, IA, and 8-state contract; `design-system` | **Required before UI design** |
 | **Design System** | **`design-system`** | Product brief and brand constraints | `DESIGN.md`, `tokens.css/json`, component specs; `html-report`/`plotly-dash` implementation; `ui-accessibility` audit | Optional |
-| **Accessibility** | **`ui-accessibility`** | Implemented UI and design tokens | WCAG 2.2 audit report; `code-review` merge gate; `verify-and-stop` | **Required for UI delivery** |
-| **UX Critique** | **`ux-critic`** | Rendered screenshots and design system | Heuristic critique report and steering commands; `verify-and-stop` | Optional |
+| **Accessibility** | **`ui-accessibility`** | Implemented UI, design tokens, and shared HTML reports | WCAG 2.2 audit report; `code-review` merge gate; `verify-and-stop` | **Required for UI delivery** |
+| **UX Critique** | **`ux-critic`** | Rendered screenshots, HTML reports, and design system | Heuristic critique report and steering commands; `verify-and-stop` | Optional |
 | **Architecture** | **`python-patterns`** | Framework choice, layout, ADR | `python-pro` (implement); `python-concurrency` (executor choice) | Optional |
 | **Implementation** | **`python-pro`** | Design from patterns or feature request | `python-testing` (test suite); `code-review` (merge gate) | **Required on merge path** |
 | **Concurrency** | **`python-concurrency`** | Concurrency model choice | `python-performance` (measured profiling); `python-testing` | Optional |
@@ -179,7 +179,7 @@ agent-skills/
 
 1. **Non-trivial features** require an owner-approved spec from **`spec-driven-design`** (Gate 1 and Gate 2) before implementation. Mechanical changes are exempt.
 2. **`data-storytelling`** must strictly use validated metrics from **`data-science`** (zero invented numbers).
-3. **Behavior, public-API, or UI diffs** must pass **`code-review`** before merge. UI diffs also pass **`ui-accessibility`**. If a spec or directory README documents the change, run **`codebase-contracts`** drift detection.
+3. **Behavior, public-API, or UI diffs** must pass **`code-review`** before merge. UI diffs also pass **`ui-accessibility`**. Shared or print HTML reports pass **`ui-accessibility`**; executive reports also pass **`ux-critic`**. If a spec or directory README documents the change, run **`codebase-contracts`** drift detection.
 4. **Behavior modifications** require tests: Python → **`python-testing`**; Rust → crate tests; Dash → integration tests.
 5. **Subagent Delegation**: Only delegate non-trivial, modular tasks (< ~100 lines stays in main thread); subagent deliverables require independent **peer-review** (<= 2 rounds) before acceptance.
 6. **Structural Complexity Limits**: Functions must maintain Cyclomatic Complexity <= 10, Cognitive Complexity <= 15, and Nesting Depth <= 3.
@@ -224,6 +224,8 @@ html-report
     ├─ chart design and export ─► data-visualization
     ├─ server-backed app ─► plotly-dash
     ├─ design tokens ─► design-system
+    ├─ shared/print review ─► ui-accessibility
+    ├─ executive critique ─► ux-critic
     ├─ decision narrative ─► data-storytelling
     └─ final artifact check ─► verify-and-stop
 
@@ -300,7 +302,9 @@ code-review
 | Shape product context, IA, user flows, and the 8-state contract | **`ux-product-shaper`** |
 | Build or update design tokens, themes, and component specs | **`design-system`** |
 | Audit WCAG 2.2, keyboard, focus, contrast, and target size | **`ui-accessibility`** |
+| Audit a shared or print-ready HTML report for WCAG | **`ui-accessibility`** |
 | Critique a rendered UI and prescribe design steering | **`ux-critic`** |
+| Critique an executive or decision HTML report | **`ux-critic`** |
 | Write durable Markdown report / ADR / Mermaid diagram | **`technical-reporting`** |
 | Choose Python framework, project layout, ADR | **`python-patterns`** |
 | Implement Python 3.12+ features (uv, ruff, pyright) | **`python-pro`** |

@@ -19,6 +19,7 @@ Review the rendered interface as a hostile design director. Find what is weak, m
 - When asked to critique, review, or elevate an existing interface.
 - When a screen feels cluttered, flat, confusing, or off-brand.
 - Before a stakeholder demo or a release candidate review.
+- An executive or decision report rendered as a single-file HTML page.
 
 ## When Not to Use
 - Implementation or code changes (`html-report`, `plotly-dash`, `python-pro`).
@@ -104,6 +105,7 @@ The report contains:
 - [ ] The ship recommendation is explicit.
 
 ## Related Skills
+- Use **html-report** when the critique targets a single-file report; review desktop, mobile, and print screenshots.
 - Use **ux-product-shaper** for the Surface Mode and 8-state contract the critique must respect.
 - Use **design-system** for token, component, and responsive rules behind the findings.
 - Use **ui-accessibility** before this critique; accessibility failures block visual polish.

@@ -78,10 +78,20 @@ Include the `@media print` block from the scaffold reference. It must:
 - Set `@page` margins to 16mm by 14mm.
 - Disable animations and transitions.
 
-### Step 6: Deliver
+### Step 6: Review and Deliver
+Select the review gate from the report profile before delivery:
+
+| Report profile | Required gate |
+| :--- | :--- |
+| Internal, one-off, non-interactive | `verify-and-stop` artifact check |
+| Shared, interactive, or print/PDF | `ui-accessibility` -> `verify-and-stop` |
+| Executive or decision report | `ux-critic` -> `ui-accessibility` -> `verify-and-stop` |
+
+- For the shared/print gate, run `ui-accessibility` against the final file: contrast, keyboard path, focus, `<details>` disclosure, table headers, target size, and print layout.
+- For the executive gate, run `ux-critic` on desktop, mobile, and print screenshots: squint test, hierarchy, state honesty, and microcopy.
 - Never publish or upload the file to an external service without explicit confirmation.
 - Save the `.html` file, give the path, and return a concise executive summary in chat. Do not dump raw HTML.
-- Run the decisive artifact check from `verify-and-stop`: one file, no external requests, both themes render, print preview expands details.
+- The decisive `verify-and-stop` check remains: one file, no external requests, both themes render, print preview expands details.
 
 ## Verification Checklist
 - [ ] The request genuinely benefits from HTML spatial layout or interactivity.
@@ -91,9 +101,14 @@ Include the `@media print` block from the scaffold reference. It must:
 - [ ] Light and dark themes work through tokens.
 - [ ] Print CSS expands details and hides chrome.
 - [ ] Headline conclusion and KPIs are visible without a click.
+- [ ] The selected review gate matches the report profile.
+- [ ] Shared or print reports passed `ui-accessibility`.
+- [ ] Executive reports passed `ux-critic`.
 
 ## Related Skills
 - Use **design-system** for project tokens, component specs, and theme parity; this skill consumes them.
+- Use **ui-accessibility** for shared, interactive, or print reports; audit contrast, keyboard, focus, and table semantics.
+- Use **ux-critic** for executive or decision reports; critique hierarchy, state honesty, and microcopy.
 - Use **technical-reporting** for editable Markdown reports, ADRs, Mermaid, and `docs/reports/YYYY-MM-DD_*.md` conventions.
 - Use **data-visualization** for chart selection, palettes, anti-overlap QA, and SVG export; this skill embeds charts, it does not design them.
 - Use **plotly-dash** when the deliverable needs server callbacks, routing, `dcc.Store`, or background jobs.

@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `setup.sh` and `README.md`: Made the 27-of-30 default explicit; the three Rust skills remain opt-in.
 - `rules/AGENTS.md` and `README.md`: Added UI/UX ownership, relationship rows, flowchart nodes, and quick-router entries.
 - `skills/spec-driven-design`, `html-report`, `plotly-dash`, `deprecation-migration`, `data-visualization`, `code-review`, and `doubt-driven-development`: Added reciprocal UI/UX handoffs.
+- `skills/html-report`: Added a risk-based review gate; shared or print reports require `ui-accessibility`, and executive reports require `ux-critic` before `verify-and-stop`.
+- `skills/ui-accessibility` and `skills/ux-critic`: Added reciprocal HTML report handoffs and explicit triggers for report review.
+- `tests/test_invariants.py`: Extended `test_html_report_skill_integrity` to assert both report-review handoffs and the three review profiles.
 - `tests/test_setup_script.sh`: Default install now asserts `ux-product-shaper` and `design-system`.
 - `.github/workflows/ci.yml`: Added a CI workflow for pytest and the setup script tests.
 - `.gitignore`: Ignored `.zcode/` session state.
