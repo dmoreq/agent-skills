@@ -27,6 +27,7 @@ Transform validated analysis into a decision-ready narrative for stakeholders.
 - **Required:** base the story on validated findings from **data-science**. Do not invent numbers.
 - Use **data-visualization** for supporting charts (layout/overlap live there).
 - Use **technical-reporting** only when the user asked to save a formal technical file.
+- Use **html-report** when the validated narrative must become a stakeholder-facing HTML brief.
 
 ## Core Structure
 1. **Hook** — Surprising or high-impact finding (with specific numbers).

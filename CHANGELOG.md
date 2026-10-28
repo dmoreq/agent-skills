@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `tests/test_invariants.py`: Added a 25-skill graph gate (`in_degree >= 2`, `out_degree >= 2`), README catalog coverage, ISO-dated artifact path checks, and a zero Claude/plugin escape-hatch assertion.
 - `skills/code-review/references/goldfish-code-review-lenses.md`: Five orthogonal read-only code review personas (`cr-correctness-invariants`, `cr-mechanism-generalization`, `cr-codebase-reuse-and-contracts`, `cr-concurrency-memory-perf`, `cr-security-trust-boundary`) with risk routing, deterministic `git grep`/AST probes, and the checkable reconciliation template.
 - `tests/test_invariants.py`: Added `test_code_review_goldfish_lenses_integrity` to lock the five persona IDs, required probe terms, and zero-emoji rule.
+- `skills/html-report` (new): Single-file, self-contained HTML report skill with dual-theme tokens, print/PDF rules, client-side filtering, and a controlled Chart.js CDN exception.
+- `skills/html-report/references/html-report-scaffold.md`: HTML skeleton, light/dark/manual CSS tokens, print styles, JS interaction patterns, and the offline self-check.
+- `tests/test_invariants.py`: Added `test_html_report_skill_integrity` and extended ISO-date path checks to `html-report`.
 
 ### Changed
 - `skills/doubt-driven-development`: Upgraded from a single-artifact prompt to the five-lens Goldfish review with semantic split, isolated dispatch, consolidated report, and `PROPOSE FIX` / `CONTEST` / `ESCALATE` / `DECLINE` reconciliation.
@@ -28,10 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `skills/technical-reporting`: Added spec, drift-report, and decision-lock handoffs; related skills raised to six.
 - `skills/code-review`: Added the `codebase-contracts` drift check for documented behavior, explicit async-Rust review handoff, risk-based 3-tier Goldfish dispatch, and the multi-agent reconciliation verdict.
 - `bots/seven-bots/critic.md` and `scout.md`: Critic runs correctness plus mechanism lenses; scout runs the repo-wide reuse and caller-impact lens.
+- `skills/technical-reporting`, `data-visualization`, `plotly-dash`, `data-storytelling`, `algorithm-optimization`, and `code-review`: Added `html-report` handoffs and resolved the Markdown/HTML, static/server, and chart/report boundaries.
+- `rules/AGENTS.md`, `README.md`, and `bots/seven-bots/`: Documented single-file HTML report ownership and routing.
 - All 25 skills: Completed the bidirectional `## Related Skills` graph with at least two inbound and two outbound handoffs per skill.
 - `README.md`: Added both new skills to the structure tree and catalog, extended the ownership map and relationship table, added the six-invariant spec gate, and raised the `code-review` reference count to three.
 - `bots/seven-bots/`: Conductor requires spec approval, critic runs the five-lens review, scout owns contract bootstrap and drift, and the shared contract mandates ISO-dated artifact paths.
-- `tests/test_skills_schema.py`: Raised the expected skill count from 23 to 25.
+- `tests/test_skills_schema.py`: Raised the expected skill count from 23 to 25, then to 26 with the `html-report` addition.
 
 ## [2.2.0] - 2026-10-25
 

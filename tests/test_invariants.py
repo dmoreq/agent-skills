@@ -159,7 +159,7 @@ def test_readme_covers_every_skill():
 
 def test_artifact_paths_use_iso_dates():
     """Verify design, contract, and review artifacts enforce ISO-dated paths."""
-    for skill_name in ("spec-driven-design", "codebase-contracts", "doubt-driven-development", "technical-reporting"):
+    for skill_name in ("spec-driven-design", "codebase-contracts", "doubt-driven-development", "technical-reporting", "html-report"):
         content = (SKILLS_DIR / skill_name / "SKILL.md").read_text(encoding="utf-8")
         assert "YYYY-MM-DD_" in content, f"{skill_name} does not mandate ISO-dated artifact paths"
 
@@ -169,6 +169,9 @@ def test_artifact_paths_use_iso_dates():
     assert "docs/reports/YYYY-MM-DD_drift-report_" in contracts
     review = (SKILLS_DIR / "doubt-driven-development" / "SKILL.md").read_text(encoding="utf-8")
     assert "docs/reports/YYYY-MM-DD_goldfish-review_" in review
+    html_report = (SKILLS_DIR / "html-report" / "SKILL.md").read_text(encoding="utf-8")
+    assert "docs/reports/YYYY-MM-DD_" in html_report
+    assert ".html" in html_report
 
 
 def test_no_claude_or_plugin_escape_hatches():
@@ -211,5 +214,30 @@ def test_code_review_goldfish_lenses_integrity():
     assert "references/goldfish-code-review-lenses.md" in skill_text
     assert "cr-mechanism-generalization" in skill_text
     assert "cr-codebase-reuse-and-contracts" in skill_text
+
+
+def test_html_report_skill_integrity():
+    """Verify the html-report skill and its offline/print scaffold are wired in."""
+    skill_file = SKILLS_DIR / "html-report" / "SKILL.md"
+    reference = SKILLS_DIR / "html-report" / "references" / "html-report-scaffold.md"
+    assert skill_file.exists(), "Missing html-report SKILL.md"
+    assert reference.exists(), "Missing html-report scaffold reference"
+
+    skill_text = skill_file.read_text(encoding="utf-8")
+    scaffold = reference.read_text(encoding="utf-8")
+
+    assert "references/html-report-scaffold.md" in skill_text
+    assert "**technical-reporting**" in skill_text
+    assert "**data-visualization**" in skill_text
+
+    for marker in ("<!DOCTYPE html>", "prefers-color-scheme", "@media print", "tabular-nums", "Copy Summary"):
+        assert marker in scaffold, f"Missing scaffold marker '{marker}'"
+
+    for approval_rule in ("explicitly approves", "offline warning", "SRI hash"):
+        assert approval_rule in skill_text, f"Missing controlled CDN rule '{approval_rule}'"
+
+    for emoji in ("❌", "✅", "⚠️", "🚀"):
+        assert emoji not in skill_text, f"Forbidden emoji '{emoji}' in {skill_file}"
+        assert emoji not in scaffold, f"Forbidden emoji '{emoji}' in {reference}"
 
 

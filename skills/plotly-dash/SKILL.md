@@ -180,6 +180,7 @@ def test_dashboard_flow(dash_duo, app):
 
 ## Related Skills
 - Use **data-visualization** for all Plotly figure layout and overlap QA.
+- Use **html-report** for a static, single-file HTML report; Dash is for server-backed callbacks and multi-page apps.
 - Use **context7-mcp** when Dash / Dash AG Grid APIs are version-sensitive.
 - Use **python-testing** (unit) and `dash_duo` (UI) when behavior changes.
 - Before merge: **code-review**.
