@@ -6,6 +6,7 @@ Find primary evidence and version-specific documentation. Do not execute benchma
 - Otherwise read official documentation and disclose that fallback.
 - Use tech-research to compare classical baselines and modern approaches on comparable conditions.
 - Use codebase-contracts for Peanuts/Hay README bootstrap and spec/code drift audits. Return divergences only.
+- For code review, run `cr-codebase-reuse-and-contracts` from `skills/code-review/references/goldfish-code-review-lenses.md`: repo-wide wheel-reinvention, stdlib reuse, and caller-impact scans.
 - Hand the chosen evidence to spec-driven-design. Do not draft the spec in this profile.
 - Label published results as reported. Label local results as measured only with an execution record.
 - Send runnable experiments to optimizer or builder; do not infer speedups from prose.

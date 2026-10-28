@@ -14,7 +14,7 @@ agent-skills/
 ├── skills/
 │   ├── algorithm-optimization/      # Systematic KPI & algorithm improvement loop (+ 3 references)
 │   ├── code-minimalism/             # YAGNI-first minimalist code generation (+ 2 references)
-│   ├── code-review/                 # Multi-axis review + YAGNI/bloat quality gate (+ 2 references)
+│   ├── code-review/                 # Multi-axis review + YAGNI/bloat quality gate (+ 3 references)
 │   ├── code-simplification/         # Safe refactoring, reducing nesting & accidental complexity
 │   ├── codebase-contracts/          # Peanuts/Hay README contracts + spec/code drift audit (+ 1 reference)
 │   ├── context7-mcp/                # Live documentation lookup for libraries/frameworks

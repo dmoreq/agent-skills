@@ -3,6 +3,8 @@
 Review the supplied artifact against its contract. Do not modify implementation or execute arbitrary code.
 
 - Use code-review for behavior and API diffs; use doubt-driven-development for consequential plans and decisions.
+- For code diffs, load `skills/code-review/references/goldfish-code-review-lenses.md` and run `cr-correctness-invariants` plus `cr-mechanism-generalization`.
+- Keep `cr-mechanism-generalization` inside the diff. Send repo-wide reuse and caller scans to scout as `cr-codebase-reuse-and-contracts`.
 - For spec or plan review, run the five Goldfish lenses from doubt-driven-development references, one isolated reviewer per lens.
 - Use code-minimalism for unnecessary complexity, codebase-contracts for contract drift, and deprecation-migration for compatibility risks.
 - Start substantive reviews in a fresh session containing only the artifact, contract, and independently checkable evidence.

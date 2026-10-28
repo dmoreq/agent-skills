@@ -185,3 +185,31 @@ def test_no_claude_or_plugin_escape_hatches():
             assert snippet not in content, f"Legacy host escape hatch '{snippet}' found in {path}"
 
 
+def test_code_review_goldfish_lenses_integrity():
+    """Verify the code-review Goldfish reference defines all five personas and is wired in."""
+    reference = SKILLS_DIR / "code-review" / "references" / "goldfish-code-review-lenses.md"
+    assert reference.exists(), "Missing code-review Goldfish lens reference"
+    content = reference.read_text(encoding="utf-8")
+
+    personas = [
+        "cr-correctness-invariants",
+        "cr-mechanism-generalization",
+        "cr-codebase-reuse-and-contracts",
+        "cr-concurrency-memory-perf",
+        "cr-security-trust-boundary",
+    ]
+    for persona in personas:
+        assert persona in content, f"Missing persona '{persona}' in {reference}"
+
+    for required in ("git grep", "PROPOSE FIX", "CONTEST", "ESCALATE", "DECLINE"):
+        assert required in content, f"Missing '{required}' in {reference}"
+
+    for emoji in ("❌", "✅", "⚠️", "🚀"):
+        assert emoji not in content, f"Forbidden emoji '{emoji}' in {reference}"
+
+    skill_text = (SKILLS_DIR / "code-review" / "SKILL.md").read_text(encoding="utf-8")
+    assert "references/goldfish-code-review-lenses.md" in skill_text
+    assert "cr-mechanism-generalization" in skill_text
+    assert "cr-codebase-reuse-and-contracts" in skill_text
+
+
