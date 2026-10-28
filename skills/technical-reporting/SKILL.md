@@ -30,6 +30,7 @@ Create a saved technical markdown document when the user asked for a durable rep
 - A report that becomes a review handoff must satisfy **code-review** evidence rules: exact revision, executed checks, and separated findings.
 
 ## Related Skills
+- Use **html-report** when the saved deliverable must be a single-file, self-contained, print-ready `.html` page instead of Markdown.
 - Use **data-visualization** when embedding Plotly/SVG charts (layout and overlap QA live there).
 - Use **data-storytelling** when the report carries a stakeholder decision narrative.
 - Use **doubt-driven-development** when the report locks a decision rather than recording one.

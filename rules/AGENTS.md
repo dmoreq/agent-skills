@@ -109,5 +109,6 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
 
 ## 5. Reporting & Visual Assets (Kernel Stub)
 - Skip formal reports for one-off answers; prefer text + tables in the direct response.
-- All persistent report standards (ISO dates, Mermaid allowlist, asset paths) live strictly in **`technical-reporting`**.
+- All persistent Markdown report standards (ISO dates, Mermaid allowlist, asset paths) live strictly in **`technical-reporting`**.
+- Single-file HTML report layout, dual-theme tokens, and print CSS live strictly in **`html-report`**.
 - Visual design, Plotly layout, and SVG export QA live strictly in **`data-visualization`**.

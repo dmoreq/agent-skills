@@ -23,6 +23,7 @@ agent-skills/
 │   ├── data-visualization/          # Plotly-first charts, layout optimization & anti-overlap QA
 │   ├── deprecation-migration/       # Safe removal, replacement & sunsetting of legacy APIs (+ 2 references)
 │   ├── doubt-driven-development/    # Adversarial stress-testing of non-trivial architectural choices
+│   ├── html-report/                 # Single-file interactive HTML reports, print-ready PDF (+ 1 reference)
 │   ├── plotly-dash/                 # Interactive Python data apps with Plotly Dash & clean callbacks
 │   ├── polars-duckdb/               # High-performance DataFrame & local SQL ETL (+ migration reference)
 │   ├── pyo3-maturin/                # Rust native extensions with PyO3 & Maturin for CPU hotspots
@@ -60,6 +61,7 @@ agent-skills/
 | **`data-visualization`** | Plotly-first clean visual creation, SVG export, text density hygiene, and anti-overlap QA. |
 | **`deprecation-migration`** | Safely sunset, replace, and migrate legacy APIs/systems using Strangler, Adapter, and Feature Flags. |
 | **`doubt-driven-development`** | Adversarial review to stress-test high-risk decisions and uncover unstated assumptions. |
+| **`html-report`** | Single-file, self-contained HTML reports with dual-theme tokens, client-side filtering, and print/PDF fidelity. |
 | **`plotly-dash`** | Production-grade Plotly Dash apps with modular layouts, disciplined callbacks, state hygiene & performance. |
 | **`polars-duckdb`** | High-performance tabular data wrangling, ETL, and analytical SQL with Polars, DuckDB, PyArrow, and Pandas 2.x. |
 | **`pyo3-maturin`** | High-performance Rust native extensions with PyO3 and Maturin for CPU-bound hotspots. *(Rust skill)* |
@@ -83,7 +85,7 @@ agent-skills/
 - **Micro-Kernel Architecture**: `rules/AGENTS.md` holds global negative constraints, invariants, token hygiene, and the YAGNI code generation ladder.
 - **Zero Restatement**: Skills never duplicate global rules (tone, emoji, LaTeX minimization). Each skill inherits them cleanly.
 - **Optional Handoffs**: Most relationships are conditional pointers (`Use X when <condition>`).
-- **Five Hard Invariants**: Core gates that cannot be bypassed.
+- **Six Hard Invariants**: Core gates that cannot be bypassed.
 - **No Long Chains**: Avoid default multi-hop chains to protect context and token budgets.
 
 ### 0. Ownership (Single Source of Truth)
@@ -97,7 +99,8 @@ agent-skills/
 | Skip formal reports; tables first; date-prefixed files | `AGENTS.md` §5 stub | Full viz encyclopedias |
 | Aggressive YAGNI intensity tiers (`lite` / `full` / `ultra`) | `code-minimalism` | `AGENTS.md` |
 | Over-engineering & bloat review checklist | `code-review` | `AGENTS.md` |
-| Saved markdown, Mermaid allowlist, asset paths | `technical-reporting` | Plotly, QBR narrative |
+| Saved Markdown, Mermaid allowlist, asset paths | `technical-reporting` | HTML reports, Plotly, QBR narrative |
+| Single-file HTML layout, dual-theme and print CSS, client-side filtering | `html-report` | Markdown reports, chart design, server apps |
 | Plotly chart type, anti-overlap, SVG/Kaleido | `data-visualization` | Reporting, Dash figure restatement |
 | Stakeholder Hook → Ask | `data-storytelling` | Analysis |
 | High-volume CSV/Parquet ETL, Polars/DuckDB query mechanics | `polars-duckdb` | `data-science`, `python-performance` |
@@ -138,10 +141,11 @@ agent-skills/
 | **Migration** | **`deprecation-migration`** | Zombie/legacy code from review | `python-testing` (verify compatibility); `code-simplification` (clean shims) | Optional |
 | **ETL & Data** | **`polars-duckdb`** | Tabular datasets (CSV, Parquet, Arrow, SQL) | `data-science` (analysis & ML); `python-performance` | Optional |
 | **Analysis** | **`data-science`** | Raw data, EDA, modeling, statistics, A/B | `data-visualization` (charts); `data-storytelling` (narrative); `technical-reporting` | Optional / Required* |
-| **Visualization** | **`data-visualization`** | Metrics/insights from `data-science` | `plotly-dash`, `technical-reporting`, `data-storytelling` | Optional |
-| **Dashboard** | **`plotly-dash`** | Figures from `data-visualization`; pipeline from `data-science` | `python-testing` (callback test); `code-review` (merge gate) | Optional |
-| **Narrative** | **`data-storytelling`** | Validated insights from `data-science` | Embedded in `technical-reporting` with `data-visualization` charts | **Required input from `data-science`** |
-| **Reporting** | **`technical-reporting`** | Formal results from research, data science, optimization | Complete technical report with Mermaid/SVG assets | Optional presentation |
+| **Visualization** | **`data-visualization`** | Metrics/insights from `data-science` | `plotly-dash`, `html-report`, `technical-reporting`, `data-storytelling` | Optional |
+| **Dashboard** | **`plotly-dash`** | Figures from `data-visualization`; pipeline from `data-science` | `python-testing` (callback test); `code-review` (merge gate); `html-report` (static single file) | Optional |
+| **Narrative** | **`data-storytelling`** | Validated insights from `data-science` | Embedded in `technical-reporting` or `html-report` with `data-visualization` charts | **Required input from `data-science`** |
+| **Reporting** | **`technical-reporting`** | Formal Markdown results from research, data science, optimization | Complete Markdown report with Mermaid/SVG assets; `html-report` for single-file HTML | Optional presentation |
+| **HTML Output** | **`html-report`** | Validated content and exported figures | Single-file HTML with inline CSS/JS/SVG and print CSS | Optional presentation |
 | **Architecture** | **`python-patterns`** | Framework choice, layout, ADR | `python-pro` (implement); `python-concurrency` (executor choice) | Optional |
 | **Implementation** | **`python-pro`** | Design from patterns or feature request | `python-testing` (test suite); `code-review` (merge gate) | **Required on merge path** |
 | **Concurrency** | **`python-concurrency`** | Concurrency model choice | `python-performance` (measured profiling); `python-testing` | Optional |
@@ -149,10 +153,10 @@ agent-skills/
 | **Native Extension**| **`pyo3-maturin`** | CPU hotspot profiled from Python | `python-testing` (parity tests); `code-review` | Optional (Rust skill) |
 | **Rust Dev** | **`rust-pro`** | Rust service/crate implementation | `rust-async-patterns` (async Tokio); `code-review` | Optional (Rust skill) |
 | **Rust Concurrency**| **`rust-async-patterns`** | Tokio, channels, streams | `rust-pro`; `code-review` | Optional (Rust skill) |
-| **Optimization** | **`algorithm-optimization`** | KPI/quality degradation on real data | `data-visualization` (charts); `technical-reporting` | Optional |
+| **Optimization** | **`algorithm-optimization`** | KPI/quality degradation on real data | `data-visualization` (charts); `technical-reporting` or `html-report` (saved deliverable) | Optional |
 | **Testing** | **`python-testing`** | Logic change from `python-pro` or cleanup | Pre-merge verification safety net | **Required for logic changes** |
 | **Cleanup** | **`code-simplification`** | Deep nesting, Cyclomatic/Cognitive complexity flagged | Verified by tests; returned to `code-review` | Optional |
-| **QA Gate** | **`code-review`** | PR/diff from implementation or refactoring | Merged when passing six review axes and complexity gates; `codebase-contracts` for drift | **Required on merge path** |
+| **QA Gate** | **`code-review`** | PR/diff from implementation or refactoring | Merged when passing six review axes and complexity gates; `codebase-contracts` for drift; `html-report` for an HTML audit page | **Required on merge path** |
 
 ---
 
@@ -198,6 +202,14 @@ doubt-driven-development
     ├─ actionable risks ─► python-testing
     └─ stable decision ─► implementation ─► code-review
 
+html-report
+    ├─ input from ─► technical-reporting / data-visualization / plotly-dash / data-storytelling / algorithm-optimization / code-review
+    ├─ Markdown alternative ─► technical-reporting
+    ├─ chart design and export ─► data-visualization
+    ├─ server-backed app ─► plotly-dash
+    ├─ decision narrative ─► data-storytelling
+    └─ final artifact check ─► verify-and-stop
+
 code-minimalism (YAGNI ladder)
     ├─ create minimum diff ─► verify-and-stop
     └─ audit diff ─► code-review
@@ -221,6 +233,7 @@ code-review
     ├─ reduce complexity ─► code-simplification
     ├─ trim bloat ─► code-minimalism
     ├─ check documented contracts ─► codebase-contracts
+    ├─ HTML audit page ─► html-report
     └─ sunset legacy ─► deprecation-migration
 ```
 
@@ -240,9 +253,10 @@ code-review
 | EDA, statistics, machine learning, A/B testing | **`data-science`** |
 | High-performance ETL, Polars / DuckDB queries, Parquet / Arrow | **`polars-duckdb`** |
 | Create clean Plotly charts with anti-overlap QA | **`data-visualization`** |
-| Build interactive dashboard / data app | **`plotly-dash`** |
+| Build a server-backed multi-page dashboard / data app | **`plotly-dash`** |
 | Present data insights to business stakeholders | **`data-storytelling`** |
-| Write durable technical report / ADR / Mermaid diagram | **`technical-reporting`** |
+| Produce a single-file, interactive or print-ready HTML report | **`html-report`** |
+| Write durable Markdown report / ADR / Mermaid diagram | **`technical-reporting`** |
 | Choose Python framework, project layout, ADR | **`python-patterns`** |
 | Implement Python 3.12+ features (uv, ruff, pyright) | **`python-pro`** |
 | Select concurrency model (asyncio vs threads vs processes) | **`python-concurrency`** |

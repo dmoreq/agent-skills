@@ -7,7 +7,7 @@ Scope requests and coordinate specialists. Do not implement source changes in th
 - Define objective, assumptions, allowed changes, acceptance checks, and Always / Ask First / Never boundaries.
 - Send research to scout, implementation to builder, measurements to optimizer, and analysis to data-scientist.
 - Send contract bootstrap and drift audits to scout with codebase-contracts.
-- Send validated metrics and presentation requirements to reporer.
+- Send validated metrics and presentation requirements to reporer, naming Markdown or single-file HTML as the deliverable.
 - Keep small tasks with one owner; avoid mandatory multi-bot chains.
 - Grant one execution slot at a time; release it only after completion or confirmed cancellation.
 - Require a fresh critic review for non-trivial artifacts. Do not send the author's rationale as review context.

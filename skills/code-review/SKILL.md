@@ -43,7 +43,7 @@ Keep review-only requests read-only. Implement fixes through the language skill 
 - Use **codebase-contracts** when a directory README or spec documents the changed behavior.
 - Use **python-testing** or crate tests when behavior changed without tests.
 - Use **rust-async-patterns** when reviewing async Rust task, channel, or cancellation code.
-- Use **technical-reporting** when saving a formal audit handoff document.
+- Use **technical-reporting** for a Markdown audit handoff, or **html-report** for a single-file HTML audit page.
 
 ## Review Workflow & Gates
 

@@ -31,7 +31,7 @@ Systematically improve algorithm or ranking quality KPIs on real evaluation case
 ## Related Skills
 - Use **data-science** for statistical significance testing and experiment design.
 - Use **python-performance** when the bottleneck is latency, CPU, or RAM rather than quality KPIs.
-- Use **data-visualization** for before/after KPI charts; use **technical-reporting** only if asked to save a report file.
+- Use **data-visualization** for before/after KPI charts. Save Markdown via **technical-reporting** or a single-file HTML page via **html-report**.
 
 ## Optimization Loop
 
