@@ -1,7 +1,8 @@
 ---
 name: data-visualization
 description: >-
-  Build analytical Plotly and Matplotlib/Seaborn charts with form-first selection, colorblind-safe palettes, anti-overlap QA, and SVG export.
+  Build analytical Plotly and Matplotlib/Seaborn charts with form-first selection,
+  Zen Minimalism warm organic palettes, colorblind-safe contrast, anti-overlap QA, and SVG export.
   Not for Mermaid/architecture diagrams, Dash apps, or stakeholder narrative.
 risk: safe
 source: local
@@ -10,7 +11,7 @@ date_added: "2026-08-23"
 
 # Data Visualization Skill
 
-Create clear, accurate, readable charts with Plotly (default for interactive/HTML/Kaleido SVG) or Matplotlib/Seaborn (when static publication figures are requested). Choose the visual form before the library, enforce semantic color palettes, and never deliver overlapping text.
+Create clear, accurate, readable charts with Plotly (default for interactive/HTML/Kaleido SVG) or Matplotlib/Seaborn (when static publication figures are requested). Choose the visual form before the library, enforce **Zen Minimalism** (*Kanso* high data-ink ratio, *Ma* breathing room, and *Shibumi* warm organic palettes), and never deliver overlapping text.
 
 ## When to Use
 - Analytical charts for reports, notebooks, or exploratory data analysis
@@ -27,17 +28,17 @@ Create clear, accurate, readable charts with Plotly (default for interactive/HTM
 ## Related Skills
 - Use **ui-accessibility** to audit chart contrast, legends, and text alternatives for WCAG 2.2.
 - Use **data-science** or **polars-duckdb** to compute and validate metrics before plotting.
-- Use **html-report** when exported SVG or Plotly figures must be assembled into one offline HTML deliverable.
+- Use **html-report** when exported SVG or Plotly figures must be assembled into one offline HTML deliverable (`dossier`, `zen-garden`, or `chronicle`).
 - Use **plotly-dash** when the figure becomes an interactive application.
 - Use **technical-reporting** when embedding exported SVG figures into a saved markdown report.
 - Use **data-storytelling** when the chart supports an executive business recommendation.
 
 ## 1. Form Before Chart Library (Is It Even a Chart?)
 Before writing plotting code, match the data cardinality to the right representation:
-- **1 number + delta/trend** → Use a KPI callout or inline stat, not a 1-bar chart.
-- **1 ratio against a capacity limit** → Use a progress bar or bullet meter, not a 2-slice pie chart.
-- **Exact lookup values matter more than shape, or > 7 high-cardinality classes** → Use a sorted Markdown table with explicit numbers and `%` deltas.
-- **> 5 time-series lines on one axis (spaghetti plot)** → Highlight 1–2 focal series in color against muted gray context lines, or split into small multiples (`facet_col` / `facet_row`).
+- **1 number + delta/trend** -> Use a KPI callout or inline stat, not a 1-bar chart.
+- **1 ratio against a capacity limit** -> Use a progress bar or bullet meter, not a 2-slice pie chart.
+- **Exact lookup values matter more than shape, or > 7 high-cardinality classes** -> Use a sorted Markdown table with explicit numbers and `%` deltas.
+- **> 5 time-series lines on one axis (spaghetti plot)** -> Highlight 1-2 focal series in color against muted stone gray context lines, or split into small multiples (`facet_col` / `facet_row`).
 
 ## 2. Chart Selection Matrix
 
@@ -50,13 +51,13 @@ Before writing plotting code, match the data cardinality to the right representa
 | **Part-to-whole** | 100% stacked horizontal bar (<= 5 parts) | Stacked area with > 4 volatile series |
 | **Model evaluation** | Calibration reliability curve, PR curve, lift/gain chart, confusion matrix | Raw ROC curve alone on heavily imbalanced data |
 
-## 3. Semantic Color & Accessibility Discipline
+## 3. Semantic Color, Zen Minimalism & Accessibility Discipline
 Every color in a chart must perform exactly one of four jobs:
-1. **Categorical (unordered groups, <= 6 classes)**: Use a colorblind-safe qualitative palette (Okabe-Ito: `#0072B2`, `#E69F00`, `#009E73`, `#CC79A7`, `#56B4E9`, `#D55E00`). Group tail categories into `"Other"` (`#999999`).
-2. **Sequential (ordered magnitude, low → high)**: Use a perceptually uniform ramp (`Viridis`, `Cividis`, or single-hue blue/teal).
-3. **Diverging (deviation around a meaningful zero/baseline)**: Use a symmetric two-hue ramp (`RdBu`, `Coolwarm`) anchored strictly at the neutral reference value (`zmid=0`).
-4. **Highlight / Alert (focal vs. context)**: Color the focal series/bar (`#0072B2` or `#D55E00`) and mute baseline/context series (`#B0B5BC`).
-- **Consistency Invariant**: When generating multiple charts in one analysis, bind each category (`"Control"`, `"Treatment"`, `"Basic"`, `"Pro"`) to the exact same hex color across every figure.
+1. **Highlight / Focal vs. Context (Default Zen Report Pattern)**: Color the primary focal series with the active preset's warm earthy accent (Shibumi Clay `#9E583B`, Kyoto Moss `#4A6B53`, or Kinfolk Terracotta `#A65638`) and mute the baseline/historical comparison series in warm stone (`#878079`). Context series must still hold >= 3:1 against the page surface. Use forest green (`#2B6648`) for positive deltas and muted crimson (`#992B2B`) for negative deltas.
+2. **Categorical (unordered groups, <= 6 classes)**: Use a colorblind-safe qualitative palette (Okabe-Ito: `#0072B2`, `#E69F00`, `#009E73`, `#CC79A7`, `#56B4E9`, `#D55E00` or warm earthy equivalents with verified >= 3:1 contrast). Group tail categories into `"Other"` (`#878079`).
+3. **Sequential (ordered magnitude, low -> high)**: Use a perceptually uniform ramp (`Viridis`, `Cividis`, or single-hue warm terracotta/sage).
+4. **Diverging (deviation around a meaningful zero/baseline)**: Use a symmetric two-hue ramp (`RdBu`, `Coolwarm`, or Crimson-to-Forest) anchored strictly at the neutral reference value (`zmid=0`).
+- **Consistency Invariant**: When generating multiple charts in one analysis, bind each category (`"PlaceSearch"`, `"Historical"`, `"Control"`, `"Treatment"`) to the exact same hex color or CSS variable (`var(--chart-ps)`, `var(--chart-prod)`) across every figure.
 
 ## 4. Plotly Defaults & Anti-Overlap Rules
 - Use `plotly.express` (`px`) for concise construction; refine with `fig.update_layout()` and `fig.update_traces()`.
@@ -66,16 +67,17 @@ Every color in a chart must perform exactly one of four jobs:
   fig.update_xaxes(automargin=True, title_text="...")
   fig.update_yaxes(automargin=True, title_text="...")
   ```
-- **Anti-Overlap Protocol**:
+- **Kanso & Ma Chart Hygiene (Anti-Overlap Protocol)**:
+  - Strip heavy outer chart borders, background fills, and vertical gridlines when direct bar labels are present.
   - Never label every point on dense series; annotate only top-N, extrema, or threshold crossings.
-  - Place legends outside the plot canvas (` orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1`) or label lines directly at their right endpoint.
-  - Switch to a horizontal bar chart (`orientation="h"`) whenever category labels collide or rotate > 30°.
+  - Place legends outside the plot canvas (`orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1`) or label lines directly at their right endpoint.
+  - Switch to a horizontal bar chart (`orientation="h"`) whenever category labels collide or rotate > 30 degrees.
   - Export static report figures as vector `.svg` via **Kaleido** (`fig.write_image("chart.svg", width=900, height=520)`) and visually inspect the rendered output.
 
 ## Visual QA Checklist
 - [ ] Visual form matches purpose (table used when exact lookup beats shape)
-- [ ] Palette matches data semantics (Okabe-Ito categorical, Viridis sequential, centered diverging)
+- [ ] Palette matches data semantics, and every data color holds >= 3:1 against the page surface
 - [ ] Category colors stay identical across all figures in the same report
 - [ ] Zero overlapping or clipped titles, axis ticks, data labels, or legends
-- [ ] Units (`%`, `USD`, `ms`, `N=...`) explicitly stated in title/subtitle or axis labels
+- [ ] Units (`%`, `pp`, `USD`, `ms`, `N=...`) explicitly stated in title/subtitle or axis labels
 - [ ] Exported `.svg`/`.png` verified at target display dimensions

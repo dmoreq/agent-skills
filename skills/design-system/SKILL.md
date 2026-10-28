@@ -2,9 +2,9 @@
 name: design-system
 description: >-
   Build and maintain a 3-tier W3C DTCG design token system, dual light/dark themes,
-  component specifications, and responsive layout rules. Use when bootstrapping a
-  visual identity, creating or updating a design system, or handing design to code.
-  Not for UX research, accessibility audits, or feature specs.
+  Zen Minimalism visual hierarchy, component specifications, and responsive layout rules.
+  Use when bootstrapping a visual identity, creating or updating a design system, or
+  handing design to code. Not for UX research, accessibility audits, or feature specs.
 risk: safe
 source: local
 date_added: "2026-10-28"
@@ -12,7 +12,7 @@ date_added: "2026-10-28"
 
 # Design System Skill
 
-Own the visual contract between product intent and implementation: tokens, components, states, responsive rules, and the handoff to code.
+Own the visual contract between product intent and implementation: tokens, components, states, responsive rules, and the handoff to code, grounded in **Zen Minimalism** (*Kanso*, *Ma*, *Shibumi*).
 
 ## When to Use
 - Bootstrapping a visual identity for a new product or surface.
@@ -38,11 +38,11 @@ Own the visual contract between product intent and implementation: tokens, compo
 
 ### Step 1: Set the Minimalist Aesthetic Direction
 1. Read the product brief from `ux-product-shaper`: Surface Mode, audience, and constraints.
-2. Choose one register: Swiss editorial (Mode A) or utilitarian (Mode B).
-3. **Monochrome + 1 Accent**: render at least 90% of the viewport from a neutral surface ramp tinted toward the brand hue. Reserve one accent color for the primary CTA and active focus ring. Reserve status colors for live system feedback, never decorative badges.
+2. Choose one register: Swiss/Zen editorial (Mode A) or Shibumi utilitarian (Mode B).
+3. **Monochrome + 1 Accent (Warm Organic Neutrals)**: render at least 90% of the viewport from a warm organic surface ramp (such as parchment `#F7F4EE`, raked limestone `#F4F1EA`, or warm paper `#FBF9F5` in light mode; deep espresso `#141210` in dark mode) paired with warm charcoal ink (`#22201E`). Reserve one earthy accent color (muted clay `#9E583B`, Kyoto moss `#4A6B53`, or terracotta `#A65638`) for the primary CTA, chapter index, and active focus ring. Reserve status colors for live system feedback, never decorative badges.
 4. Do not default to purple-to-blue gradients, neon glows on B2B surfaces, decorative blobs, glassmorphism, icon tiles above headings, or pure untinted `#000000` and `#808080`.
-5. **Typography caps**: at most 2 font families (UI/display plus monospace) and at most 5 sizes. Hero metrics may reach 2.5x-3x body size. Use weight 400/700 contrast, left-aligned axes, 60ch-75ch measure, and `tabular-nums` on numeric data.
-6. **Whitespace over boxes**: use 2-4rem macro spacing between sections and 0.5-1rem micro spacing inside groups. Prefer a 1px hairline over nested bordered cards.
+5. **Typography caps & Zen Editorial Rhythm**: at most 2 font families (an editorial serif or clean UI sans plus monospace) and at most 5 sizes. Hero metrics may reach 2.5x-3x body size. Use weight 400/600 contrast, left-aligned axes, 60ch-70ch measure, and `tabular-nums` on numeric data. Keep prose paragraphs to 2-3 sentences (`<= 60 words`) so typography breathes.
+6. **Ma (Whitespace over boxes)**: treat negative space as an active structural element. Use 3-5.5rem macro spacing between sections and 0.5-1rem micro spacing inside groups. Prefer a 1px hairline over nested bordered cards.
 
 ### Step 2: Build the Three-Tier Token System
 The full token and component templates are in `references/token-and-component-specs.md`.
@@ -54,7 +54,7 @@ The full token and component templates are in `references/token-and-component-sp
 | Component | Explicit bindings for hover, active, focus-visible, disabled | Scoped to one component family |
 
 Required semantic roles:
-- Surfaces: `--bg-canvas`, `--bg-surface`, `--bg-elevated`, `--bg-overlay`.
+- Surfaces: `--bg-canvas`, `--bg-surface`, `--bg-subtle`, `--bg-elevated`, `--bg-overlay`.
 - Text: `--text-primary`, `--text-secondary`, `--text-muted`, `--text-on-accent`.
 - Intent: `--intent-primary`, `--intent-danger`, `--intent-warning`, `--intent-success`.
 - Borders and focus: `--border-subtle`, `--border-strong`, `--focus-ring`.
@@ -98,7 +98,7 @@ Avoid nested card slop. Do not place bordered cards inside bordered cards; use w
 - Wrap motion in `@media (prefers-reduced-motion: no-preference)`.
 
 ### Step 6: Hand Off to Implementation
-- Hand tokens and specs to `html-report` for a single-file HTML report, `plotly-dash` for a Dash application, or `python-pro` for a Python-served UI.
+- Hand tokens and specs to `html-report` for a single-file HTML report (`dossier`, `zen-garden`, or `chronicle`), `plotly-dash` for a Dash application, or `python-pro` for a Python-served UI.
 - Give the implementer the token files, component acceptance criteria, and the state matrix from `ux-product-shaper`.
 - Hand the result to `ui-accessibility` for the WCAG audit and to `ux-critic` for heuristic critique.
 - Tell the implementer to follow the YAGNI rung ladder: native primitives first, inline until the Rule of Three, compound components over boolean props, and no unrequested chrome.
@@ -129,7 +129,7 @@ Before handoff, fail the design system if any check fails:
 
 ## Verification Checklist
 - [ ] Aesthetic direction is recorded and justified.
-- [ ] Palette uses Monochrome + 1 Accent; status colors are reserved for live states.
+- [ ] Palette uses Monochrome + 1 Accent with warm organic surfaces; status colors are reserved for live states.
 - [ ] At most 2 font families and 5 font sizes are declared.
 - [ ] Three token tiers exist with semantic roles.
 - [ ] At most 20-25 semantic tokens; every token has an active caller.
@@ -143,6 +143,6 @@ Before handoff, fail the design system if any check fails:
 ## Related Skills
 - Use **ux-product-shaper** for the product brief, Surface Mode, and 8-state contract before tokens.
 - Use **ui-accessibility** to audit contrast, focus, target size, and reduced motion.
-- Use **html-report** to implement the system in a single-file HTML deliverable.
+- Use **html-report** to implement the system in a single-file HTML deliverable (`dossier`, `zen-garden`, or `chronicle`).
 - Use **plotly-dash** to implement the system in a server-backed Dash application.
 - Use **deprecation-migration** when retiring tokens or components with active consumers.

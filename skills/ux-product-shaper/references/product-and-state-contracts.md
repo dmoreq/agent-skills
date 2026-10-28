@@ -4,7 +4,7 @@ Reference for `ux-product-shaper`. It defines the Surface Mode decision, informa
 
 ## 1. Surface Mode
 
-| Dimension | Persuade & Experience | Operate & Read |
+| Dimension | Mode A: Swiss / Zen Editorial (Persuade & Experience) | Mode B: Shibumi Utilitarian (Operate & Read) |
 | :--- | :--- | :--- |
 | Primary goal | Convince, delight, create desire | Complete a task with low cognitive load |
 | Examples | Landing page, portfolio, launch, campaign | Admin console, settings, checkout, data table |
@@ -48,6 +48,7 @@ Rules:
 6. **Progressive disclosure.** Show the decision first, details on demand. Use explicit expand controls, not hidden hover-only content.
 7. **Recovery path.** Every primary flow needs a cancel, back, undo, or retry path.
 8. **Scope boundary.** Record what the screen intentionally does not do. Unowned edge cases become future defects.
+9. **Wording budget.** Cap section leads at `<= 25 words` and body paragraphs at `2-3 sentences` (`<= 60 words`).
 
 ## 4. The 8-State Matrix
 
@@ -84,7 +85,7 @@ Save as `docs/designs/YYYY-MM-DD_product-brief_<topic>.md`.
 
 ## Surface Mode
 
-- Mode: Persuade & Experience | Operate & Read
+- Mode: Mode A (Persuade & Experience) | Mode B (Operate & Read)
 - Reason:
 - Split surfaces, if any:
 

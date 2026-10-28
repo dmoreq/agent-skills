@@ -1,7 +1,8 @@
 ---
 name: technical-reporting
 description: >-
-  Write saved formal markdown: benchmarks, ADRs, architecture notes, asset paths, Mermaid diagrams.
+  Write saved formal markdown: benchmarks, ADRs, architecture notes, asset paths,
+  and Mermaid diagrams with Zen Minimalism prose clarity and Kanso/Ma paragraphing.
   Not for Plotly chart construction, Dash apps, or stakeholder QBR narrative.
 risk: safe
 source: local
@@ -10,7 +11,7 @@ date_added: "2026-08-22"
 
 # Technical Reporting Skill
 
-Create a saved technical markdown document when the user asked for a durable report, benchmark write-up, or ADR file. Skip this skill for in-chat answers.
+Create a saved technical markdown document when the user asked for a durable report, benchmark write-up, or ADR file. Skip this skill for in-chat answers. Apply **Zen Minimalism** in prose rhythm, paragraph density, and structural clarity.
 
 ## When to Use
 - User asked to save a report, benchmark summary, or architecture analysis as markdown
@@ -30,7 +31,7 @@ Create a saved technical markdown document when the user asked for a durable rep
 - A report that becomes a review handoff must satisfy **code-review** evidence rules: exact revision, executed checks, and separated findings.
 
 ## Related Skills
-- Use **html-report** when the saved deliverable must be a single-file, self-contained, print-ready `.html` page instead of Markdown.
+- Use **html-report** when the saved deliverable must be a single-file, self-contained, print-ready `.html` page (`dossier`, `zen-garden`, or `chronicle`) instead of Markdown.
 - Use **data-visualization** when embedding Plotly/SVG charts (layout and overlap QA live there).
 - Use **data-storytelling** when the report carries a stakeholder decision narrative.
 - Use **doubt-driven-development** when the report locks a decision rather than recording one.
@@ -54,28 +55,31 @@ Create a saved technical markdown document when the user asked for a durable rep
 
 ## 3. Mermaid (in-document diagrams)
 - Supported headers only: `xychart-beta`, `flowchart TD` / `flowchart LR` / `graph`, `sequenceDiagram`, `stateDiagram-v2`, `erDiagram`, `classDiagram`.
-- Keep sketches compact (3–5 nodes). No HTML inside nodes.
+- Keep sketches compact (3-5 nodes). No HTML inside nodes.
 - Architecture / EDA charts that need real axes: export SVG via `data-visualization` (Plotly) or, if the repo already uses them, Seaborn/Matplotlib. Infrastructure diagrams: `diagrams` (Mingrammer). Decision trees / state machines: `graphviz`.
 - Prefer `.svg`; PNG only when SVG cannot be produced. Do not embed raw HTML or iframes.
 
-## 4. Content Standards
-- Start with `TL;DR` / Executive Summary (metrics + takeaway).
+## 4. Content & Zen Minimalism Prose Standards
+- Start with `TL;DR` / Executive Summary (metrics + takeaway in 1-2 declarative sentences).
 - Inherit global communication invariants (`AGENTS.md` §1): zero fluff, table preferences, and plain-text/Unicode math over LaTeX.
+- **Kanso (Essentialist Wording)**: Cut filler intros, hedging, and ornamental adjectives. Lead every section with the conclusion and exact metric (`<= 20 words` per sentence target).
+- **Ma (Paragraph Breathing Room)**: Keep paragraphs strictly at **2-3 sentences** (`<= 60 words`). Break up dense explanations into markdown tables or parallel bullet lists so each block has cognitive breathing room.
+- **Shibumi (Understated Evidence Honesty)**: Let exact counts, revision hashes, and probe commands carry authority. Never use hype superlatives.
 - Charts only when they reveal a pattern a table would hide.
 - When a claim in an earlier version of the same document turns out to be wrong, open with a **retraction section before anything else**: state the claim, the probe that produced it, the mechanism that made the probe wrong, and the corrected measurement. Patching the wrong sentence silently and keeping the same title leaves a document whose conclusion cannot be trusted; the reader needs to see which statement was withdrawn.
 - Every measured row carries its harvesting command next to the number. A figure without the command that produced it is a reading from memory, and the next session cannot reproduce or falsify it.
-- Keep projections visibly separate from measurements — label a projected capture size or wall clock as an estimate and say which measured value it was scaled from.
+- Keep projections visibly separate from measurements - label a projected capture size or wall clock as an estimate and say which measured value it was scaled from.
 
 ## Implementation Handoffs
 
 - A proposal or plan is a report too. Honor an explicit plan-mode target path over the `docs/reports/` default; in plan mode, write only that plan file and perform no implementation, mutating commands, or commits. Otherwise save in the owning repo's `docs/reports/`. State that the plan authorizes no code, data, or commit yet.
 - For a remediation handoff to an implementer without context, enumerate every reviewed finding and separate actionable defects from unproven cleanup. Give each behavior change an exact file, complete test and minimal patch, expected RED failure and GREEN result, targeted verification command, and commit boundary. Use a characterization check instead of fabricating a failing test for deletion of unreachable code.
 - Every defect claim in a plan carries the measurement next to it (the count, the rank boundary, the probe result) or is marked as a static reading. A plan that asserts "the current artifact is dirty" without the observed numbers is not verifiable by the implementer.
-- Make accept criteria executable: name each verification check, its pass condition, and the command that produces it. Add an explicit "if a check fails, report the failure instead of adjusting the gate to make it pass" instruction — self-tightening thresholds to reach a target count is the recurring failure in gated selection work.
+- Make accept criteria executable: name each verification check, its pass condition, and the command that produces it. Add an explicit "if a check fails, report the failure instead of adjusting the gate to make it pass" instruction - self-tightening thresholds to reach a target count is the recurring failure in gated selection work.
 - End with one block of open decisions, each with the default taken if the user does not answer.
 - When the user asks another agent to implement an analysis, save an actionable handoff rather than merely copying the conversation. Include source evidence, invariants, small work packages, acceptance tests, data/product blockers, and a copy-ready agent prompt.
 - Record approved names, default configurations, supported combinations, and explicitly deferred combinations before defining work packages. Remove superseded proposals from the implementation instructions so the next agent does not implement competing APIs.
-- Assign each non-trivial work package a corresponding independent specialist reviewer and require principal-level review of architectural boundaries. Put reviewer specialties, acceptance evidence, and unresolved-review blockers in the package itself and the copy-ready prompt; a generic final “review code” step is insufficient.
+- Assign each non-trivial work package a corresponding independent specialist reviewer and require principal-level review of architectural boundaries. Put reviewer specialties, acceptance evidence, and unresolved-review blockers in the package itself and the copy-ready prompt; a generic final "review code" step is insufficient.
 - Include focused naming/YAGNI cleanup in the migration scope, but separate mechanical moves, redundancy removal, and behavior changes. Preserve legacy imports and wire/fixture identifiers until consumer evidence supports removal.
 - Identify the dirty-tree baseline and pre-existing edits; a commit hash alone does not describe reviewed uncommitted code.
 - Separate immediately actionable correctness fixes from conditional redesign and calibration. A backlog is not authorization to implement every item or remove curated behavior.
@@ -88,6 +92,7 @@ Use [references/implementation-handoffs.md](references/implementation-handoffs.m
 - [ ] User actually asked for a saved file (otherwise answer in-chat)
 - [ ] ISO date prefix on persistent files
 - [ ] TL;DR with key metrics
+- [ ] Paragraphs follow *Kanso* and *Ma* discipline (2-3 sentences, <= 60 words)
 - [ ] Mermaid headers from the allowlist, or SVG via `data-visualization`
 - [ ] Relative asset paths
 - [ ] Claims backed by explicit numbers

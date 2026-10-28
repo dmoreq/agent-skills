@@ -279,6 +279,13 @@ def test_html_report_skill_integrity():
     for approval_rule in ("explicitly approves", "offline warning", "SRI hash"):
         assert approval_rule in skill_text, f"Missing controlled CDN rule '{approval_rule}'"
 
+    for stale in ("920px", "980px", "5.5rem"):
+        assert stale not in skill_text, f"Stale preset dimension '{stale}' in {skill_file}"
+    for preset in ('data-preset="dossier"', 'data-preset="zen-garden"', 'data-preset="chronicle"'):
+        assert preset in scaffold, f"Missing scaffold preset '{preset}'"
+    assert "REPLACE_WITH" not in scaffold, "Scaffold still contains an unresolved SRI placeholder"
+    assert "#878079" in scaffold, "Scaffold context series must use the 3:1 warm stone token"
+
     for emoji in ("❌", "✅", "⚠️", "🚀"):
         assert emoji not in skill_text, f"Forbidden emoji '{emoji}' in {skill_file}"
         assert emoji not in scaffold, f"Forbidden emoji '{emoji}' in {reference}"
@@ -321,5 +328,32 @@ def test_ui_ux_family_integrity():
         for emoji in ("❌", "✅", "⚠️", "🚀"):
             assert emoji not in skill_text, f"Forbidden emoji '{emoji}' in {skill_file}"
             assert emoji not in ref_text, f"Forbidden emoji '{emoji}' in {reference}"
+
+    shaper_skill = (SKILLS_DIR / "ux-product-shaper" / "SKILL.md").read_text(encoding="utf-8")
+    shaper_ref = (
+        SKILLS_DIR / "ux-product-shaper" / "references" / "product-and-state-contracts.md"
+    ).read_text(encoding="utf-8")
+    assert "4-6" not in shaper_skill, "ux-product-shaper reintroduced the 4-6 navigation cap"
+    assert "4 numbered items" in shaper_skill, "ux-product-shaper must cap navigation at 4 items"
+    assert "At most 4 top-level navigation items." in shaper_ref, (
+        "ux-product-shaper reference must agree on the 4-item navigation cap"
+    )
+
+
+def test_zen_prose_budget_consistency():
+    """Verify every report/UI skill declares one paragraph budget: 2-3 sentences, <= 60 words."""
+    skills = (
+        "data-storytelling",
+        "design-system",
+        "html-report",
+        "technical-reporting",
+        "ux-critic",
+        "ux-product-shaper",
+    )
+    for name in skills:
+        text = (SKILLS_DIR / name / "SKILL.md").read_text(encoding="utf-8")
+        assert "2-3 sentences" in text, f"{name} does not declare the 2-3 sentence budget"
+        for stale in ("40-60", "45-60", "<= 3 sentences"):
+            assert stale not in text, f"{name} contains stale prose budget '{stale}'"
 
 

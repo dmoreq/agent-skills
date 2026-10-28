@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `skills/design-system/references/token-and-component-specs.md`: Token tiers, naming, type/spacing/motion scales, component spec template, and handoff checklist.
 - `skills/ui-accessibility` (new): WCAG 2.2 AA audit procedure, keyboard/focus model, ARIA failure patterns, and the audit report template.
 - `skills/ui-accessibility/references/wcag-2-2-audit.md`: Checklist, optional Playwright/axe-core commands, severity, and gate rules.
-- `skills/ux-critic` (new): Five-dimension heuristic critique, squint test, Nielsen's ten heuristics, and steering vocabulary.
+- `skills/ux-critic` (new): Six-dimension heuristic critique, squint test, Nielsen's ten heuristics, and steering vocabulary.
 - `skills/ux-critic/references/heuristic-critique.md`: Critique dimensions, severity, steering commands, and the report template.
 - `tests/test_invariants.py`: Added `test_ui_ux_family_integrity` and extended ISO-date checks to the UI/UX family.
 
@@ -57,6 +57,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `tests/test_setup_script.sh`: Default install now asserts `ux-product-shaper` and `design-system`.
 - `.github/workflows/ci.yml`: Added a CI workflow for pytest and the setup script tests.
 - `.gitignore`: Ignored `.zcode/` session state.
+- `skills/data-storytelling`, `data-visualization`, `design-system`, `html-report`, `technical-reporting`, `ux-critic`, and `ux-product-shaper`: Applied the Zen Minimalism upgrade (Kanso, Ma, Shibumi) with warm organic palettes, a unified 2-3 sentence paragraph budget, and three curated HTML report presets (`dossier`, `zen-garden`, `chronicle`).
+- `skills/html-report/references/html-report-scaffold.md`: Rebuilt the scaffold around the three presets, dual-theme tokens, preset switcher, table filtering, print rules, and an offline self-check.
+- `skills/ux-product-shaper/references/product-and-state-contracts.md`: Canonicalized Mode A/Mode B names and added the wording budget.
+- `skills/ux-critic/references/heuristic-critique.md`: Documented all six critique dimensions, including YAGNI and signifier honesty.
+- `skills/design-system/references/token-and-component-specs.md`: Replaced the cool slate primitive example with a warm stone ramp and declared `--bg-subtle`.
+
+### Fixed
+- `skills/html-report`: Restored project-token precedence, the `design-system` YAGNI item, the publish-confirmation rule, the decisive `verify-and-stop` check, and the accessibility/critique checklist gates.
+- `skills/html-report`: Aligned preset dimensions with the scaffold (`960px`, `1020px`, `5.25rem`, `1220px`) and replaced the unresolved Chart.js SRI placeholder with a verified SHA-384.
+- `skills/data-visualization` and `skills/html-report`: Raised the muted context series to at least 3:1 contrast on every preset surface (`#878079` light, `#746B62` dark).
+- `skills/ux-product-shaper`: Resolved the 4-6 versus 4 navigation-cap contradiction by standardizing on 4 items.
+- `skills/ux-critic`: Corrected the five-versus-six dimension count and added YAGNI to the report template.
+- `skills/technical-reporting` and `skills/data-storytelling`: Unified paragraph budgets and restored the simple-delta and audience principles.
+- `tests/test_invariants.py`: Added guards against preset-dimension drift, unresolved SRI placeholders, navigation-cap drift, and prose-budget drift.
 
 ### Removed
 - Hermes host support: deleted `rules/hermes-preamble.md`, `bots/seven-bots/`, and `tests/verify-profiles.sh`; removed Hermes detection, SOUL composition, host routing, and summary output from `setup.sh`.
