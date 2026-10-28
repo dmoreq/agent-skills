@@ -12,7 +12,7 @@ Reference for `ux-product-shaper`. It defines the Surface Mode decision, informa
 | Layout | Asymmetry, editorial rhythm, one strong focal point | Predictable grid, dense but aligned, one primary action |
 | Motion | Orchestrated entry, deliberate reveal | Functional feedback only, under 200ms |
 | Density | Low, generous whitespace | High, progressive disclosure |
-| Minimalist posture | Swiss editorial: 3x+ hero type, asymmetry, at least 40% negative space, one focal CTA | Utilitarian: data-ink ratio, Jakob familiarity, tabular numbers, no decorative banner |
+| Minimalist posture | Swiss editorial: page-title display at 3x+ and KPI/hero metrics at 2.5x-3x, asymmetry, at least 40% negative space, one focal CTA | Utilitarian: data-ink ratio, Jakob familiarity, tabular numbers, no decorative banner |
 | Navigation | Story anchors and a single CTA | Persistent navigation, breadcrumbs, filters |
 | Failure mode | Style hides the action or slows reading | A brand hero competes with the task |
 

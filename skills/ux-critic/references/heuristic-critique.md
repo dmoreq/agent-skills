@@ -24,11 +24,16 @@ Pass conditions:
 - Macro whitespace between sections is larger than micro whitespace inside a group.
 - Left edges align across headings, cards, and table columns.
 - Spacing comes from a 4px or 8px scale, not arbitrary values.
+- Typography stays within 2 primary families plus one monospace face.
+- Reports use the 9 editorial roles; product UI uses at most 5 size tokens.
+- Prose measure stays within 60ch-70ch, target 66ch.
 
 Failure signals:
 - Section gaps smaller than card padding.
 - Mixed alignment axes across the same column.
 - A single card with 17px padding in a 16px system.
+- A third display face or an arbitrary one-off font size.
+- A prose column wider than 70ch or narrower than 60ch.
 
 ### 1.3 State Honesty
 
@@ -53,12 +58,16 @@ Pass conditions:
 - Helper text appears before the mistake, not after.
 - The same concept uses one term throughout.
 - Body paragraphs stay at 2-3 sentences (`<= 60 words`) with one job each.
+- Display weights stay at 300-400; UI labels use 500; emphasis uses 600; 700 is absent.
+- Body prose is at least 0.9375rem, labels at least 0.75rem, and code at least 0.82rem.
+- Numeric columns, deltas, and axes use tabular numerals.
 
 Failure signals:
 - "Something went wrong" with no recovery.
 - Two names for the same object.
 - A destructive action labeled like a safe one.
 - A wall-of-text paragraph, or the same idea repeated across paragraphs.
+- A 700-weight display heading, 0.7rem labels, or proportional numeric columns.
 
 ### 1.5 Mode Fit
 

@@ -45,7 +45,7 @@ Transform validated analysis into a calm, authoritative, decision-ready narrativ
    - Start sentences with the subject or the metric: *"PlaceSearch lifts Top-1 accuracy by +8.36pp (78.52% vs 70.16%) across 4.37M converted queries."*
    - Target <= 20 words per sentence so every clause carries high signal.
 2. **Ma (Negative Space in Paragraphing)**:
-   - Cap every paragraph at **2-3 sentences** (`<= 60 words`, <= 70ch line width).
+   - Cap every paragraph at **2-3 sentences** (`<= 60 words`, 60ch-70ch measure, target 66ch).
    - Never stack more than two paragraphs without a structural break (a compact table, a bulleted takeaway, or a numbered section header).
    - Give each paragraph exactly one job: either state the claim, explain the mechanism, or quantify the consequence.
 3. **Shibumi (Understated Authority)**:

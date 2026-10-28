@@ -1,7 +1,7 @@
 ---
 name: html-report
 description: >-
-  Build a single-file, self-contained, interactive, print-ready HTML report for
+  Build a single-file, offline-first, interactive, print-ready HTML report for
   audits, architecture explainers, comparison matrices, and decision memos using
   Zen Minimalism and three curated presets (dossier, zen-garden, chronicle).
   Not for short answers, Git-tracked Markdown, or server-backed Dash apps.
@@ -12,7 +12,7 @@ date_added: "2026-10-28"
 
 # HTML Report Skill
 
-Deliver findings as one offline HTML file. HTML is a presentation format; the analysis and numbers come from the owning skill. Every generated report strictly follows **Zen Minimalism** principles and ships with three built-in aesthetic presets.
+Deliver findings as one offline-capable HTML file. HTML is a presentation format; the analysis and numbers come from the owning skill. Every report strictly follows **Zen Minimalism** principles and ships with three built-in aesthetic and typographic presets.
 
 ## When to Use
 - The user asks for an HTML report, visual explainer, dashboard page, audit page, or decision memo.
@@ -35,64 +35,63 @@ Deliver findings as one offline HTML file. HTML is a presentation format; the an
 - Keep the file under 1 MB. Aggregate or downsample embedded data.
 - Never write an undated file at the repository root.
 
-## Curated Zen Minimalism Presets (Strict 3-Option Architecture)
+## Curated Zen Minimalism Presets & Typography System (Single-Preset Output)
 
-Every report must strictly implement these three named templates via `data-preset` on `<html>`, defaulting to **`dossier`** and offering the reader an interactive preset selector in the toolbar (or allowing the user to request a specific preset upfront):
+Each report uses exactly one preset via `data-preset` on `<html>`, chosen by the generator from the report profile. Default to **`dossier`**; never expose a runtime preset switcher. Each preset has a **distinct editorial typography pairing** loaded via Google Fonts (`Fraunces`, `Cormorant Garamond`, `Plus Jakarta Sans`, `Inter`, `JetBrains Mono`) with graceful offline fallbacks.
 
-| Preset ID | Memorable Name | Origin & Aesthetic Posture | Layout & Typography |
-| :--- | :--- | :--- | :--- |
-| **`dossier`** *(Default)* | **The Clinical Dossier** *(Shibumi)* | Understated authority (*Shibumi*) + biomarker clarity. Soft parchment (`#F7F4EE`), cream surface (`#FDFBF7`), muted clay accent (`#9E583B`). | Two-column architectural split (`230px` sticky numbered chapter sidebar + fluid evidence column), `3.5rem` section padding, high-density tabular scanning. |
-| **`zen-garden`** *(Option 2)* | **The Zen Garden** *(Karesansui)* | Contemplative dry rock garden (*Karesansui*) + generous *Ma* negative space. Raked limestone gravel (`#F4F1EA`), warm stone (`#F9F7F2`), Kyoto moss (`#4A6B53`). | Centered single-stream contemplative flow (`960px` max-width), centered chapter headers, top-bordered thesis callout, expansive `5.25rem` vertical *Ma* breathing room. |
-| **`chronicle`** *(Option 3)* | **The Slow Chronicle** *(Kinfolk Editorial)* | Slow-living editorial magazine pacing. Warm paper (`#FBF9F5`), sand cards (`#F5F0E6`), earth terracotta (`#A65638`). | Editorial single-column narrative (`1020px` max-width), full-width horizontal chapter headers with inline numbered indices (`01`-`06`), oversized serif pull-quotes. |
+Preset routing: **`dossier`** for audits, engineering reports, and decision memos; **`zen-garden`** for contemplative deep dives; **`chronicle`** for executive narratives and QBRs. Select one before writing markup. Do not ask the reader to choose.
+
+| Preset ID | Memorable Name | Palette (Canvas / Surface / Accent) | Typography Pairing (`--font-display` / `--font-sans` / `--font-mono`) | Layout & Pacing |
+| :--- | :--- | :--- | :--- | :--- |
+| **`dossier`** *(Default)* | **Clinical Dossier** *(Shibumi)* | Parchment `#F7F4EE` / Cream `#FDFBF7` / Clay `#9E583B` | `'Fraunces'` `350`/`400` + `'Inter'` `400`/`500` + `'JetBrains Mono'` | `240px` sticky chapter sidebar + fluid column, `3.5rem` padding, `1220px` max-width. |
+| **`zen-garden`** | **Zen Garden** *(Karesansui)* | Limestone `#F4F1EA` / Stone `#F9F7F2` / Moss `#4A6B53` | `'Cormorant Garamond'` `300`/`400` + `'Inter'` `400`/`500` + `'JetBrains Mono'` | Centered `960px` stream, centered headers, `5.25rem` *Ma* space. |
+| **`chronicle`** | **Slow Chronicle** *(Kinfolk)* | Paper `#FBF9F5` / Sand `#F5F0E6` / Terracotta `#A65638` | `'Cormorant Garamond'` `300`/`400` + `'Plus Jakarta Sans'` `400`/`500` + `'JetBrains Mono'` | `1020px` editorial column, horizontal chapter banners. |
+
+## Mandatory Typography & Micro-Typesetting Rules
+1. **Webfonts**: Load `Fraunces`, `Cormorant Garamond`, `Plus Jakarta Sans`, `Inter`, and `JetBrains Mono` with `preconnect` and `display=swap`; back them with local fallbacks. This stylesheet is the only permitted network request.
+2. **Optical sizing**: Set `font-optical-sizing: auto` and `font-feature-settings: "kern" 1, "liga" 1, "calt" 1` on headings, thesis, KPI figures, summaries, and body.
+3. **Display contrast**: Serif headings use weights `300`/`350`/`400` (never `700`), tracking `-0.03em` to `-0.012em`, and line-height `1.04`-`1.06` for `h1`, `1.12` for `h2`.
+4. **Italic nuance**: Use `<em>` for emphasis in `.thesis-box p` and section titles instead of bold sans.
+5. **Numeric precision**: Numeric cells, KPI deltas, and SVG axes use `var(--font-mono)`, `tabular-nums`, and `-0.01em`.
+6. **Labels**: Uppercase eyebrows, KPI labels, and table headers use `var(--font-mono)`, `0.75rem`, weight `500`, and `+0.08em` to `+0.1em`; no tabular numerals.
 
 ## Zen Minimalism Wording & Paragraphing Rules
-1. **Kanso (Essentialist Prose)**: Strip ornamental adjectives, hype superlatives, and throat-clearing meta-intros. Open every section with a single declarative thesis sentence containing the primary number and direction.
-2. **Ma (Paragraph Breathing Room)**: Cap paragraphs at 2-3 sentences and `<= 60 words` (<= 70ch width). Never emit dense wall-of-text paragraphs; let whitespace separate distinct ideas.
-3. **Shibumi (Understated Precision)**: State exact deltas (`+8.36pp`, `N = 4,365,797`) in calm, active voice. Let verified numbers carry authority rather than exclamation marks or marketing buzzwords.
+1. **Kanso (Essentialist Prose)**: Strip ornamental adjectives, hype superlatives, and throat-clearing intros. Open every section with a single declarative thesis sentence containing the primary number and direction.
+2. **Ma (Paragraph Breathing Room)**: Keep paragraphs at 2-3 sentences, <= 60 words (60ch-70ch measure; target 66ch). Never emit dense wall-of-text paragraphs; let whitespace separate distinct ideas.
+3. **Shibumi (Understated Precision)**: State exact deltas (`+8.36 pp`, `N = 4,365,797`) in calm, active voice. Let verified numbers carry authority rather than exclamation marks.
 4. **Sequential Chapter Rhythm**: Guide the eye through numbered architectural chapters (`01`, `02`, `03`...) where the chapter lead states *why it matters* in <= 25 words before presenting the table or chart.
 
 ## Workflow
 
 ### Step 1: Calibrate Scope, Preset, and Zen Register
-1. Honor explicit user instructions first, then project design tokens from **design-system**, then the preset defaults below. A preset owns layout and typography; project tokens override its palette.
-2. Honor an explicit preset choice (`dossier`, `zen-garden`, or `chronicle`); otherwise default to `data-preset="dossier"` and include the 3-preset switcher in `.toolbar`.
-3. Ban generic AI styling: cold slate/blue browser defaults, purple-to-blue gradients, neon cyberpunk dashboards, rainbow charts, emoji section headers, and nested bordered cards.
-4. Never use pure `#FFFFFF` page backgrounds or pure `#000000` ink in light mode; use the warm organic paper and charcoal tokens in `references/html-report-scaffold.md`.
+1. Choose one preset: `dossier` for audits, engineering, and decision memos; `zen-garden` for contemplative deep dives; `chronicle` for executive narratives and QBRs. Default to `dossier`. Do not render a switcher.
+2. Honor user instructions, then project tokens from **design-system**, then preset defaults. Presets own layout and typography; project tokens override palette.
+3. Ban cold slate/blue defaults, purple gradients, neon dashboards, rainbow charts, emoji headers, and nested cards.
+4. Never use pure `#FFFFFF` or `#000000` in light mode.
 
 ### Step 2: Enforce a Self-Contained and Secure Architecture
-- Emit a complete `<!DOCTYPE html>` document with `meta charset="utf-8"`, `meta viewport`, inline `<style>`, and inline `<script>`.
-- Use native CSS Grid and Flexbox with custom properties. Never load Tailwind CSS from a CDN.
-- Prefer inline SVG for flowcharts, architecture diagrams, timelines, and bar/delta comparisons.
-- Do not call `fetch()` or any live API. The file must work from the filesystem with no network.
-- Redact credential-shaped strings before embedding logs or snippets.
-- HTML-escape `&`, `<`, `>`, `"`, and `'` in every interpolated value, path, and diff.
-- Embed data as UTF-8 JSON with non-ASCII preserved. Aggregate or downsample below 1 MB.
-- **Controlled CDN exception**: Chart.js from a pinned CDN only when complex interactive charting is required, the user explicitly approves, the page shows an offline warning, and the script tag carries an SRI hash. Otherwise export the figure as SVG from `data-visualization` and embed it.
+- Emit a complete `<!DOCTYPE html>` with `meta charset`, `meta viewport`, the font `<link>`, inline `<style>`, and inline `<script>`.
+- Use CSS Grid, Flexbox, and custom properties; never load Tailwind.
+- Prefer inline SVG for diagrams and bar/delta comparisons.
+- Never call `fetch()` or a live API. The font stylesheet is the only network request; the file must render offline with fallbacks. Do not fake SRI on fonts.
+- Redact credential-shaped strings and HTML-escape `&`, `<`, `>`, `"`, and `'` in every interpolated value.
+- **Controlled Chart.js exception**: pinned CDN only when the user explicitly approves, the page shows an offline warning, and the script tag carries a verified SRI hash; otherwise embed an SVG from `data-visualization`.
 
 ### Step 3: Implement Dual-Theme Tokens, Presets, and Responsive Typography
-- Define semantic custom properties on `:root` for `dossier` (default), `zen-garden`, and `chronicle`; support `@media (prefers-color-scheme: dark)` and manual overrides with `:root[data-theme="dark"]` and `:root[data-theme="light"]`.
-- Use `html { font-size: 16px; }` and `rem` units. Body text at least 0.9375rem, labels at least 0.75rem, monospace at least 0.84rem.
-- Keep prose between 60ch and 70ch. Allow tables and grids to expand up to 1220px in `dossier`.
-- Apply `font-variant-numeric: tabular-nums` to numeric columns, KPI cards, and timestamps.
-- Use the exact 3-preset token block, layout rules, and print rules in `references/html-report-scaffold.md`.
+- Define per-preset tokens on `:root`, with `prefers-color-scheme` and manual `data-theme` overrides.
+- Use `html { font-size: 16px; }` and `rem`. Body prose `>=0.9375rem`, labels `>=0.75rem`, code `>=0.82rem`.
+- Keep exactly one preset token block; delete the other two. Use the nine editorial roles and print rules in `references/html-report-scaffold.md`.
 
 ### Step 4: Structure for Scanning and Progressive Disclosure
-1. Header and outcome bar: eyebrow label, declarative title, cohort/timestamp metadata, status pill, and toolbar with preset switcher (`Dossier`, `Zen Garden`, `Chronicle`), theme toggle, expand/collapse all, and copy summary.
+1. Header: declarative serif title, one provenance line (date, cohort, revision), and a single `Theme` button at the top-right. No eyebrow, status pill, preset switcher, expand/collapse, or copy-summary controls.
 2. Sticky section navigation with numbered anchors (`01` through `06`) when the report has 4+ sections.
 3. Executive rollup: a one- or two-sentence thesis callout (`.thesis-box`) and 3-4 biomarker-style KPI cards (`.kpi-grid`). Never hide the primary conclusion in a closed tab.
 4. Findings and comparison matrices: use declarative action titles, tag claims as `FACT`, `INFERENCE`, `DECISION`, or `RISK` when auditing, and cite `file:line` or a source link.
-5. Wrap wide tables in `.table-wrap` so the page never scrolls horizontally.
-6. Put raw logs, methodology invariants, and secondary deep-dives inside `<details>`. Keep primary sections open by default.
-7. Attach listeners with `addEventListener`, never inline `onclick`. Add search filtering for tables over 6 rows. Provide a "Copy Summary (MD)" button for the executive summary.
-8. Apply the minimalism and YAGNI doctrine from **design-system**: one primary action, no unrequested navigation, search, filter, export, or account chrome, and whitespace over nested cards.
+5. Wrap wide tables in `.table-wrap` and place secondary deep-dives inside `<details>`. Attach listeners with `addEventListener`, never inline `onclick`. Add search filtering for tables over 6 rows.
+6. Apply the minimalism and YAGNI doctrine from **design-system**: one primary action, no unrequested navigation, search, filter, export, or account chrome, and whitespace over nested cards.
 
 ### Step 5: Guarantee Print and PDF Fidelity
-Include the `@media print` block from `references/html-report-scaffold.md`. It must:
-- Hide navigation, preset switchers, buttons, toolbars, and filter inputs.
-- Force a white background and black text at 10.5pt.
-- Collapse split grids into a clean single-column print flow and expand closed `<details>` elements.
-- Prevent breaks inside cards, tables, figures, and sections.
-- Set `@page` margins to 16mm by 14mm and disable animations/transitions.
+Include the `@media print` block from `references/html-report-scaffold.md` to hide chrome, force white background/black text at 10.5pt, collapse split grids, expand `<details>`, prevent page breaks inside blocks, and set `@page` margins to 16mm by 14mm.
 
 ### Step 6: Review and Deliver
 Select the review gate from the report profile before delivery:
@@ -103,21 +102,18 @@ Select the review gate from the report profile before delivery:
 | Shared, interactive, or print/PDF | `ui-accessibility` -> `verify-and-stop` |
 | Executive or decision report | `ux-critic` -> `ui-accessibility` -> `verify-and-stop` |
 
-- For the shared/print gate, run `ui-accessibility` against the final file: contrast, keyboard path, focus, `<details>` disclosure, table headers, target size, and print layout.
-- For the executive gate, run `ux-critic` on desktop, mobile, and print views: squint test, hierarchy, state honesty, and microcopy.
 - Never publish or upload the file to an external service without explicit confirmation.
 - Save the `.html` file, give the path, and return a concise executive summary in chat. Do not dump raw HTML.
-- The decisive `verify-and-stop` check remains: one file, no external requests, both themes render, print preview expands details.
+- The decisive `verify-and-stop` check remains: one file, one preset, no scripted network requests, both themes render, print preview expands details.
 
 ## Verification Checklist
-- [ ] The request genuinely benefits from HTML spatial layout or interactivity.
-- [ ] One complete offline file with inline CSS, JavaScript, SVG, and data.
-- [ ] Implements all 3 curated presets (`dossier` default, `zen-garden`, `chronicle`) with live switching.
-- [ ] Prose follows Zen Minimalism wording and paragraphing (2-3 sentences per paragraph, zero fluff).
-- [ ] No Tailwind CDN and no live `fetch()`.
-- [ ] Secrets redacted and all interpolated text escaped.
-- [ ] Light and dark themes work through semantic tokens across all 3 presets.
-- [ ] Print CSS expands details and hides chrome.
+- [ ] One complete HTML file with inline CSS, JavaScript, SVG, data, and the Google Fonts `<link>` block.
+- [ ] Exactly one preset is fixed at generation time; no preset switcher is present.
+- [ ] Header contains only the title, one provenance line, and the Theme button at top-right.
+- [ ] Display serifs use light/regular weights (`300`/`350`/`400`), optical sizing, and tight tracking (`-0.03em` to `-0.012em`).
+- [ ] Prose follows Zen Minimalism wording and paragraphing (2-3 sentences, <= 60 words per paragraph).
+- [ ] No Tailwind CDN and no live `fetch()`; the font stylesheet is the only network request and degrades offline.
+- [ ] Light and dark themes work through semantic tokens; print CSS expands details and hides the Theme button.
 - [ ] Headline conclusion and KPIs are visible without a click.
 - [ ] The selected review gate matches the report profile (`ui-accessibility` / `ux-critic`).
 - [ ] Shared or print reports passed `ui-accessibility`.
@@ -127,8 +123,8 @@ Select the review gate from the report profile before delivery:
 - Use **design-system** for project tokens, component specs, theme parity, and the Zen minimalism/YAGNI doctrine; this skill consumes them.
 - Use **ui-accessibility** for shared, interactive, or print reports; audit contrast, keyboard, focus, and table semantics.
 - Use **ux-critic** for executive or decision reports; critique hierarchy, state honesty, and microcopy.
-- Use **technical-reporting** for editable Markdown reports, ADRs, Mermaid, and `docs/reports/YYYY-MM-DD_*.md` conventions.
-- Use **data-visualization** for chart selection, palettes, anti-overlap QA, and SVG export; this skill embeds charts, it does not design them.
-- Use **plotly-dash** when the deliverable needs server callbacks, routing, `dcc.Store`, or background jobs.
-- Use **data-storytelling** when the report needs a Hook -> Ask decision narrative with Zen Minimalism pacing.
-- Use **verify-and-stop** to run the decisive artifact check once and stop.
+- Use **technical-reporting** for Markdown reports, ADRs, Mermaid, and `docs/reports/YYYY-MM-DD_*.md` conventions.
+- Use **data-visualization** for chart selection, palettes, anti-overlap QA, and SVG export.
+- Use **plotly-dash** for server callbacks, routing, `dcc.Store`, or background jobs.
+- Use **data-storytelling** for a Hook -> Ask decision narrative.
+- Use **verify-and-stop** for the decisive artifact check.
