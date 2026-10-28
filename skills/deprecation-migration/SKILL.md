@@ -27,6 +27,7 @@ Plan and execute safe replacement, consolidation, or removal of legacy APIs, mod
 - Initial greenfield architecture selection (`python-patterns`)
 
 ## Related Skills
+- Use **design-system** when retiring tokens or components that still have consumers.
 - Use **tech-research** when surveying replacement libraries or architectures.
 - Use **doubt-driven-development** to stress-test high-risk cutover plans.
 - Use **codebase-contracts** to record the legacy contract and the replacement contract.

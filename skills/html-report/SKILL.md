@@ -37,7 +37,7 @@ Deliver findings as one offline HTML file. HTML is a presentation format; the an
 ## Workflow
 
 ### Step 1: Calibrate Scope, Register, and Aesthetic
-1. Honor explicit user instructions first, then project design tokens, then the defaults below.
+1. Honor explicit user instructions first, then project design tokens from **design-system**, then the defaults below.
 2. Choose the register:
    - Polished-utilitarian default for audits, run reports, data notes, and code reviews. High information density, restrained palette, hairline borders, tabular numbers, no hero banner.
    - Editorial for executive briefs, concept explainers, and deep dives. A three-act arc: what happened, why it matters, what to do.
@@ -93,6 +93,7 @@ Include the `@media print` block from the scaffold reference. It must:
 - [ ] Headline conclusion and KPIs are visible without a click.
 
 ## Related Skills
+- Use **design-system** for project tokens, component specs, and theme parity; this skill consumes them.
 - Use **technical-reporting** for editable Markdown reports, ADRs, Mermaid, and `docs/reports/YYYY-MM-DD_*.md` conventions.
 - Use **data-visualization** for chart selection, palettes, anti-overlap QA, and SVG export; this skill embeds charts, it does not design them.
 - Use **plotly-dash** when the deliverable needs server callbacks, routing, `dcc.Store`, or background jobs.

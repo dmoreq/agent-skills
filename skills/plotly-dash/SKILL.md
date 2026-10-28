@@ -179,6 +179,7 @@ def test_dashboard_flow(dash_duo, app):
 ---
 
 ## Related Skills
+- Use **design-system** for tokens, component specs, and theme parity before implementing the app shell.
 - Use **data-visualization** for all Plotly figure layout and overlap QA.
 - Use **html-report** for a static, single-file HTML report; Dash is for server-backed callbacks and multi-page apps.
 - Use **context7-mcp** when Dash / Dash AG Grid APIs are version-sensitive.

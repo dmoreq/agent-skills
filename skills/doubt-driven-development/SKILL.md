@@ -175,6 +175,7 @@ what it returned.
 - Use **python-testing** (or crate tests) to turn important doubts into regression tests.
 - Use **deprecation-migration** when the decision is a sunset or cutover.
 - Use **code-review** for the final diff and merge-quality gate.
+- Use **ux-critic** when the decision is a rendered-UI design critique.
 - Use **codebase-contracts** when the finding depends on whether the code matches a documented contract.
 
 ## Final Checklist
