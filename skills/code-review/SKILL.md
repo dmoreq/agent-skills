@@ -35,10 +35,13 @@ Keep review-only requests read-only. Implement fixes through the language skill 
 - Prove artifact reachability using the loader's true resolution paths rather than flat directory probes.
 
 ## Related Skills
+- Use **python-pro** to apply the requested fix in the language idiomatic to the codebase.
 - Use **code-simplification** when the main issue is structural complexity or nesting in existing code.
 - Use **code-minimalism** when the diff contains bloat, unrequested abstractions, or premature dependencies.
 - Use **deprecation-migration** when the diff or review surfaces a legacy API that should be sunset.
+- Use **codebase-contracts** when a directory README or spec documents the changed behavior.
 - Use **python-testing** or crate tests when behavior changed without tests.
+- Use **rust-async-patterns** when reviewing async Rust task, channel, or cancellation code.
 - Use **technical-reporting** when saving a formal audit handoff document.
 
 ## Review Workflow & Gates
@@ -68,7 +71,7 @@ For diff reviews, execute automated and structural gates before manual semantic 
    - **Callers of Deleted Symbols / References to Deleted Targets**: Did a repo-wide grep confirm every reference — code importer, sibling script, AND non-code routing reference (agent/profile config, SOUL/instruction files, docs, prompts, registry lists) — was retargeted in the same commit? Grep the whole tree (`git grep -nw '<name>' <rev> -- .`), never a hand-written glob: a glob like `profiles/*/SOUL.md` silently excludes a governing file at a different depth (e.g. a root-level SOUL/README that outranks per-profile copies), so the scope of the search becomes the scope of the blind spot. A deleted name still referenced as a routing/escalation target is a **Critical** dangling reference even when the surrounding file is prose, not code.
    - **Observability**: Are new error states logged with contextual parameters?
    - **Negative & Edge Tests**: Are empty collections, `None` inputs, and timeouts tested?
-   - **Documentation Sync**: Are `CHANGELOG.md`, `__all__`, or `README.md` updated for public changes?
+   - **Documentation Sync**: Are `CHANGELOG.md`, `__all__`, or `README.md` updated for public changes? If a directory README or spec documents the changed behavior, run a **codebase-contracts** drift check instead of guessing.
    - **Commit-Message Claims vs Artifact**: Verify each concrete claim in the commit message against the tree, not the intent. A message asserting a cleanup ("no longer references X", "removes Y") is a testable statement; if the tree still violates it, that is a finding, and the message itself becomes misleading evidence for downstream reviewers.
 
 When re-reviewing an amended commit: verify the amend delta directly (`git diff <old> <new> --name-only`) and confirm it contains ONLY the change you requested — an amend is the easiest place to smuggle unrelated edits past a reviewer who only re-reads the flagged hunk. Reproduce the original finding's own check against the new revision to confirm it is actually closed, and re-read the commit message to confirm claims that were false before are now true (or were updated).

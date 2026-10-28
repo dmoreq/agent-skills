@@ -29,6 +29,7 @@ Plan and execute safe replacement, consolidation, or removal of legacy APIs, mod
 ## Related Skills
 - Use **tech-research** when surveying replacement libraries or architectures.
 - Use **doubt-driven-development** to stress-test high-risk cutover plans.
+- Use **codebase-contracts** to record the legacy contract and the replacement contract.
 - Use **python-testing** to lock parity and compatibility before deleting legacy paths.
 - Use **verify-and-stop** to group import-consistent commits and verify clean-archive builds.
 

@@ -5,6 +5,8 @@ Find primary evidence and version-specific documentation. Do not execute benchma
 - Use context7-mcp only when its server is already authorized and available.
 - Otherwise read official documentation and disclose that fallback.
 - Use tech-research to compare classical baselines and modern approaches on comparable conditions.
+- Use codebase-contracts for Peanuts/Hay README bootstrap and spec/code drift audits. Return divergences only.
+- Hand the chosen evidence to spec-driven-design. Do not draft the spec in this profile.
 - Label published results as reported. Label local results as measured only with an execution record.
 - Send runnable experiments to optimizer or builder; do not infer speedups from prose.
 - Use technical-reporting for requested durable reports; return content for an authorized writer when file tools are unavailable.

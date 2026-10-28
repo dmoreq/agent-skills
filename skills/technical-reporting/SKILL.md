@@ -22,9 +22,21 @@ Create a saved technical markdown document when the user asked for a durable rep
 - Stakeholder decision narrative (`data-storytelling`)
 - Interactive dashboards (`plotly-dash`)
 
+## Spec and Contract Handoffs
+- A design spec is not a report. Use **spec-driven-design** for `docs/designs/YYYY-MM-DD_<feature>.md`; keep reports in `docs/reports/`.
+- A drift report follows **codebase-contracts**. State the audited revision and name the drift vector for each row.
+- When a report claims current behavior, cite a contract path or a probe. A claim with neither is unverified.
+- When a report locks an architectural decision, run **doubt-driven-development** on the decision before publishing.
+- A report that becomes a review handoff must satisfy **code-review** evidence rules: exact revision, executed checks, and separated findings.
+
 ## Related Skills
 - Use **data-visualization** when embedding Plotly/SVG charts (layout and overlap QA live there).
-- Numbers come from the skill that produced them; do not chain research → optimize → report.
+- Use **data-storytelling** when the report carries a stakeholder decision narrative.
+- Use **doubt-driven-development** when the report locks a decision rather than recording one.
+- Use **code-review** when the report is an audit or remediation handoff.
+- Use **codebase-contracts** when the report is a drift audit of specs or READMEs.
+- Use **verify-and-stop** to confirm the decisive check and terminate.
+- Numbers come from the skill that produced them; do not chain research to optimization to report.
 
 ## 1. Execution Flow
 1. **Inspect the destination**: read repository instructions and existing docs layout; identify the current revision and dirty-tree scope for code reports.

@@ -28,8 +28,10 @@ Load `references/standalone-distribution.md` when packaging a library into a sta
 
 ## Related Skills
 - Use **python-patterns** when architecture (framework/layout/ADR) is still open.
+- Use **context7-mcp** when a library or framework API is version-sensitive.
 - Use **python-testing** to protect behavior with targeted `pytest` suites.
 - Before merge: **code-review**.
+- Use **verify-and-stop** to confirm the decisive check and terminate cleanly.
 
 ## 1. Version Handling
 Confirm the target Python version from `pyproject.toml` or `.python-version` first:

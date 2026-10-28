@@ -30,6 +30,7 @@ Load `references/ab-testing-and-causal.md` when designing or analyzing A/B exper
 ## Related Skills
 - Use **polars-duckdb** for fast, memory-safe tabular ingestion, joins, and aggregations.
 - Use **data-visualization** when findings require charts.
+- Use **plotly-dash** when the analysis needs an interactive app rather than a static chart.
 - Use **data-storytelling** when translating validated metrics into an executive decision narrative.
 - Use **algorithm-optimization** when running multi-arm KPI or search-ranking evaluations.
 

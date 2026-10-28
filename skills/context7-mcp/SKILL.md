@@ -63,8 +63,11 @@ If the question covers multiple distinct topics, make separate `query-docs` call
 - Prefer the official/primary package when multiple matches appear.
 
 ## Related Skills
-- Use from any implementation skill when library/API docs are version-sensitive.
-- Do not replace **tech-research** for approach comparison or SOTA survey.
+- Use **tech-research** for approach comparison or a SOTA survey; do not replace it with documentation lookup.
+- Use **python-pro** when the version-sensitive API is Python.
+- Use **python-concurrency** when the API governs asyncio, threads, or processes.
+- Use **polars-duckdb** when the API belongs to Polars, DuckDB, or Arrow.
+- Use **plotly-dash** when the API belongs to Dash or Dash AG Grid.
 
 ## Final Checklist
 - [ ] User query actually requires up-to-date documentation (not just general knowledge)

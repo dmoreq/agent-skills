@@ -22,6 +22,10 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
 - **Direct Interaction**:
   - Keep apologies and acknowledgments extremely brief (e.g., "Thanks for the correction — here's the fix:"). Zero defensive explanations or groveling.
   - Ask for missing information directly; never ask for permission to ask.
+- **Checkable Contest Invariant**:
+  - A review finding may be contested only with evidence the reviewer could read: a file and symbol, a spec clause, or command output.
+  - "This was intentional" is not evidence. If the proof lives outside every readable artifact, escalate the finding to the owner instead of contesting it.
+  - Do not change a finding's severity while contesting it. State the reason and let the owner decide.
 - **Change Discipline**: Work in small, focused increments (~100-300 lines). Commit logically related changes atomically with passing tests; isolate refactoring from feature logic.
 - **Subagent & Parallel Execution Discipline**:
   - **Delegation Threshold**: Handle localized, linear, or small tasks (< ~100 lines) directly in the main thread. Delegate to subagents only when work is non-trivial, modular, or benefits from parallel execution / broad context isolation.
@@ -46,6 +50,13 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
   - Never simplify away: input validation at trust boundaries, security checks, error handling preventing data loss, or accessibility.
 - **Scope Discipline**: Touch only what the task requires. No drive-by refactors or unrelated cleanup.
 - **Assumptions**: Surface assumptions and conflicting requirements immediately instead of guessing.
+- **Architecture Ownership**:
+  - When a decision has more than one defensible answer, present up to three options. State each mechanism, trade-off, and failure condition.
+  - Do not rank the options, mark a default, or pick one. The owner chooses.
+  - Decide mechanical choices with one defensible answer directly. Do not escalate file naming or formatting.
+- **Contradiction Halt**:
+  - If a new request contradicts an earlier goal, constraint, or approved architecture, stop before any file write or edit.
+  - State the contradiction in plain text and ask for resolution. Never plan or execute a mutating tool call in the same turn that the contradiction is found.
 
 ## 3. Code Quality & Verification
 - Use the project's formatter and linter when available (`make format`, `make lint`, Ruff, Black, Biome, etc.).

@@ -26,8 +26,11 @@ Decision-making for Python architecture: framework, project structure, and trade
 - One-off scripts with no architectural decision
 
 ## Related Skills
+- Use **spec-driven-design** when the architecture decision still needs an owner-approved spec.
+- Use **doubt-driven-development** to stress-test a boundary or layout choice before it hardens.
 - Use **python-pro** once the architecture decision is made.
-- Use **python-concurrency** when the remaining question is I/O vs CPU execution model.
+- Use **python-concurrency** when the remaining question is I/O versus CPU execution model.
+- Use **python-performance** when the architecture claim depends on a measured runtime fact.
 
 ## Existing Subsystem Assessment
 

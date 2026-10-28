@@ -98,10 +98,17 @@ Keep only the 3–5 most relevant options.
 - **A 'newer, bigger' model that is slower at equal accuracy is a losing recommendation.** Quote both axes in the same table row so the trade is visible. Do not propose replacing a fast classic decoder with a neural one unless the newer option wins on a slice the user actually cares about.
 - **When research contradicts a number you already reported, lead with the correction.** Re-measure, patch the saved plan, and move the earlier figure to a superseded marker rather than leaving two baselines in circulation.
 
+## Handoff to Spec and Report
+- When the survey hardens into a direction, hand the constraints, rejected options, and evidence rows to **spec-driven-design**. Do not restate the survey inside the spec.
+- When the owner asks for a durable file, hand the same evidence to **technical-reporting** with a `docs/reports/YYYY-MM-DD_<topic>.md` path.
+- A survey that ends in no decision stays in chat. Do not create a spec or report by default.
+
 ## Related Skills
+- Hand the chosen direction to **spec-driven-design** for the design spec.
 - Use **doubt-driven-development** when a recommendation is about to lock in.
 - Use **algorithm-optimization** when candidates need validation on real KPIs.
 - Use **context7-mcp** for version-sensitive library docs.
+- Use **technical-reporting** when the evidence must become a saved report or ADR.
 
 ## Final Checklist
 - [ ] Scope and constraints are clearly understood
