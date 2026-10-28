@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- `rules/AGENTS.md`: Added mandatory **Progress Visibility for Long Tasks** under §4 Safety & Workspace Hygiene. Requires scripts running >5 seconds or >100 iterations to output progress indicators (`tqdm` or structured interval logging with rate and completion estimates).
+- `skills/python-pro`: Documented progress visibility and throttling standards for batch iterations and CLI scripts.
+- `tests/test_invariants.py`: Added invariant test `test_progress_visibility_rule_invariants` asserting the presence of progress visibility clauses in `rules/AGENTS.md` and `skills/python-pro/SKILL.md`.
+
 ## [2.2.0] - 2026-10-25
 
 ### Added

@@ -83,6 +83,12 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
   - Stream or chunk datasets line-by-line; never load unbounded files entirely into memory at once.
   - Bound worker processes conservatively (target <= 4 workers); avoid unconstrained process pools.
   - Set explicit command timeouts; terminate runaway processes immediately if memory escalates.
+- **Progress Visibility for Long Tasks**:
+  - Scripts, batch jobs, or loops running over 5 seconds (or >100 iterations) must provide continuous progress feedback.
+  - Use `tqdm` (or `tqdm.auto`) for batch workloads when installed or permissible.
+  - Fall back to standard library `logging` or periodic flushed stdout counters if extra dependencies are restricted.
+  - Output completed counts, total items, elapsed time, and rate or estimated completion.
+  - Throttle reporting intervals (for example, every 5%–10% or 1–5 seconds) to avoid log flooding.
 - **Temporary File Strategy**:
   - Use a dedicated, gitignored temporary directory (e.g., `.tmp/` or conversation scratch directory) for intermediate files, downloads, extracts, and scratch builds.
   - Ensure the temporary directory is listed in `.gitignore` before creating transient files.

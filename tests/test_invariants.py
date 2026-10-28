@@ -107,3 +107,17 @@ def test_python_scripts_complexity_and_safety():
                     f"(violates rules/AGENTS.md structural complexity threshold)"
                 )
 
+
+def test_progress_visibility_rule_invariants():
+    """Verify AGENTS.md and python-pro enforce progress visibility for long tasks."""
+    rules_text = RULES_FILE.read_text(encoding="utf-8")
+    assert "Progress Visibility for Long Tasks" in rules_text
+    assert "tqdm" in rules_text
+
+    python_pro_skill = SKILLS_DIR / "python-pro" / "SKILL.md"
+    assert python_pro_skill.exists()
+    skill_text = python_pro_skill.read_text(encoding="utf-8")
+    assert "Progress Visibility" in skill_text
+    assert "tqdm" in skill_text
+
+
