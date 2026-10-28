@@ -53,11 +53,11 @@ Before writing plotting code, match the data cardinality to the right representa
 
 ## 3. Semantic Color, Zen Minimalism & Accessibility Discipline
 Every color in a chart must perform exactly one of four jobs:
-1. **Highlight / Focal vs. Context (Default Zen Report Pattern)**: Color the primary focal series with the active preset's warm earthy accent (Shibumi Clay `#9E583B`, Kyoto Moss `#4A6B53`, or Kinfolk Terracotta `#A65638`) and mute the baseline/historical comparison series in warm stone (`#878079`). Context series must still hold >= 3:1 against the page surface. Use forest green (`#2B6648`) for positive deltas and muted crimson (`#992B2B`) for negative deltas.
-2. **Categorical (unordered groups, <= 6 classes)**: Use a colorblind-safe qualitative palette (Okabe-Ito: `#0072B2`, `#E69F00`, `#009E73`, `#CC79A7`, `#56B4E9`, `#D55E00` or warm earthy equivalents with verified >= 3:1 contrast). Group tail categories into `"Other"` (`#878079`).
+1. **Highlight / Focal vs. Context (Shared Warm Data Family)**: Focal `--chart-ps` is muted clay `#9E583B` in Dossier and Zen Garden, and terracotta `#A65638` in Chronicle. Secondary `--chart-prod` `#5A5550`, baseline/historical `--chart-old` `#878079`, positive `--chart-pos` `#2B6648`, and negative `--chart-neg` `#992B2B` are shared across presets. Zen Garden keeps moss `#4A6B53` for UI chrome but uses the Dossier chart palette. Every data color must hold >= 3:1 against the page surface.
+2. **Categorical (unordered groups, <= 6 classes)**: Use a colorblind-safe qualitative palette (Okabe-Ito: `#0072B2`, `#E69F00`, `#009E73`, `#CC79A7`, `#56B4E9`, `#D55E00` or warm earthy equivalents with verified >= 3:1 contrast). Group tail categories into `"Other"` (`var(--chart-old)`, `#878079`).
 3. **Sequential (ordered magnitude, low -> high)**: Use a perceptually uniform ramp (`Viridis`, `Cividis`, or single-hue warm terracotta/sage).
 4. **Diverging (deviation around a meaningful zero/baseline)**: Use a symmetric two-hue ramp (`RdBu`, `Coolwarm`, or Crimson-to-Forest) anchored strictly at the neutral reference value (`zmid=0`).
-- **Consistency Invariant**: When generating multiple charts in one analysis, bind each category (`"PlaceSearch"`, `"Historical"`, `"Control"`, `"Treatment"`) to the exact same hex color or CSS variable (`var(--chart-ps)`, `var(--chart-prod)`) across every figure.
+- **Consistency Invariant**: When generating multiple charts in one analysis, bind each category (`"PlaceSearch"`, `"Historical"`, `"Control"`, `"Treatment"`) to the same CSS variable (`var(--chart-ps)`, `var(--chart-prod)`, `var(--chart-old)`, `var(--chart-pos)`, `var(--chart-neg)`) across every figure.
 
 ## 4. Plotly Defaults & Anti-Overlap Rules
 - Use `plotly.express` (`px`) for concise construction; refine with `fig.update_layout()` and `fig.update_traces()`.
@@ -68,6 +68,8 @@ Every color in a chart must perform exactly one of four jobs:
   fig.update_yaxes(automargin=True, title_text="...")
   ```
 - **Kanso & Ma Chart Hygiene (Anti-Overlap Protocol)**:
+  - Use `font-family: var(--font-mono)`, `font-variant-numeric: tabular-nums`, and at least `0.75rem` for axes, ticks, legends, and direct labels.
+  - Direct labels: percentages use two decimals, counts use `k`/`M`, and labels stay `aria-hidden` with `pointer-events="none"`. Widen bar centres to at least `44px` when five-character labels would collide; exact values stay in the table and tooltip.
   - Strip heavy outer chart borders, background fills, and vertical gridlines when direct bar labels are present.
   - Never label every point on dense series; annotate only top-N, extrema, or threshold crossings.
   - Place legends outside the plot canvas (`orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1`) or label lines directly at their right endpoint.
@@ -77,7 +79,9 @@ Every color in a chart must perform exactly one of four jobs:
 ## Visual QA Checklist
 - [ ] Visual form matches purpose (table used when exact lookup beats shape)
 - [ ] Palette matches data semantics, and every data color holds >= 3:1 against the page surface
+- [ ] Chart text uses mono + tabular numerals at >= 0.75rem
 - [ ] Category colors stay identical across all figures in the same report
 - [ ] Zero overlapping or clipped titles, axis ticks, data labels, or legends
+- [ ] Direct labels use two decimals for percentages, abbreviate counts, and leave exact values in the table
 - [ ] Units (`%`, `pp`, `USD`, `ms`, `N=...`) explicitly stated in title/subtitle or axis labels
 - [ ] Exported `.svg`/`.png` verified at target display dimensions

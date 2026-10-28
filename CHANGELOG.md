@@ -58,7 +58,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.github/workflows/ci.yml`: Added a CI workflow for pytest and the setup script tests.
 - `.gitignore`: Ignored `.zcode/` session state.
 - `skills/data-storytelling`, `data-visualization`, `design-system`, `html-report`, `technical-reporting`, `ux-critic`, and `ux-product-shaper`: Applied the Zen Minimalism upgrade (Kanso, Ma, Shibumi) with warm organic palettes, a unified 2-3 sentence paragraph budget, and three curated HTML report presets (`dossier`, `zen-garden`, `chronicle`).
-- `skills/html-report/references/html-report-scaffold.md`: Rebuilt the scaffold around the three presets, dual-theme tokens, preset switcher, table filtering, print rules, and an offline self-check.
+- `skills/html-report/references/html-report-scaffold.md`: Rebuilt the scaffold around one selected preset, dual-theme tokens, a single top-right Theme toggle, table filtering, print rules, and an offline self-check.
+- `skills/html-report`: Adopted a single-preset output contract and a minimal header (title, one provenance line, one top-right Theme toggle); removed the preset switcher, expand/collapse, copy-summary, eyebrow, and status pill.
+- `skills/html-report` and `skills/design-system`: Reconciled the typography contract: 2 primary families plus 1 monospace data face, 5 product or 9 editorial sizes, role-based weights, `60ch-70ch` measure, and minimum body/label/code sizes.
+- `skills/html-report`: The Google Fonts stylesheet is the only permitted network request; the report must render offline with local fallbacks.
+- `skills/data-visualization` and `skills/html-report`: Zen Garden charts now use Dossier's warm data palette while moss remains the UI-only accent.
+- `skills/html-report`: Added the native SVG chart interaction contract: hover/focus tooltip, legend dimming, chart-to-table cross-highlight, and always-visible data labels with two-decimal percentages and abbreviated counts.
+- `skills/data-visualization`, `ui-accessibility`, and `ux-critic`: Added direct-label formatting, chart keyboard/ARIA checks, and chart-interaction critique rules.
+- `tests/test_invariants.py`: Added chart-interaction contract guards.
 - `skills/ux-product-shaper/references/product-and-state-contracts.md`: Canonicalized Mode A/Mode B names and added the wording budget.
 - `skills/ux-critic/references/heuristic-critique.md`: Documented all six critique dimensions, including YAGNI and signifier honesty.
 - `skills/design-system/references/token-and-component-specs.md`: Replaced the cool slate primitive example with a warm stone ramp and declared `--bg-subtle`.
@@ -71,6 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `skills/ux-critic`: Corrected the five-versus-six dimension count and added YAGNI to the report template.
 - `skills/technical-reporting` and `skills/data-storytelling`: Unified paragraph budgets and restored the simple-delta and audience principles.
 - `tests/test_invariants.py`: Added guards against preset-dimension drift, unresolved SRI placeholders, navigation-cap drift, and prose-budget drift.
+- `tests/test_invariants.py`: Added typography-contract, minimal-header, and Zen Garden palette guards.
 
 ### Removed
 - Hermes host support: deleted `rules/hermes-preamble.md`, `bots/seven-bots/`, and `tests/verify-profiles.sh`; removed Hermes detection, SOUL composition, host routing, and summary output from `setup.sh`.
