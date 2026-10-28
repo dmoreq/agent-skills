@@ -131,20 +131,17 @@ The reference defines all three presets. A generated report keeps exactly one pr
   --bg-subtle: #EFEAE1;
   --text-primary: #22201E;
   --text-secondary: #5A5550;
-  --text-muted: #878079;
   --border: #E0D9CE;
   --border-strong: #B8AFA3;
   --accent: #9E583B;
   --accent-subtle: #F2E5DF;
   --status-ok: #2B6648;
-  --status-warn: #A85B14;
   --status-bad: #992B2B;
   --chart-ps: #9E583B;
   --chart-prod: #5A5550;
   --chart-old: #878079;
   --chart-pos: #2B6648;
   --chart-neg: #992B2B;
-  --on-accent: #FDFBF7;
 
   --font-display: 'Fraunces', "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -169,21 +166,18 @@ The reference defines all three presets. A generated report keeps exactly one pr
   --bg-subtle: #EAE5DB;
   --text-primary: #2B2A27;
   --text-secondary: #5E5C56;
-  --text-muted: #8C887F;
   --border: #DCD6CA;
   --border-strong: #BDB5A6;
   --accent: #4A6B53;
   --accent-subtle: #E3ECE5;
   /* Shared warm data palette: Zen Garden charts match Dossier. */
   --status-ok: #2B6648;
-  --status-warn: #A85B14;
   --status-bad: #992B2B;
   --chart-ps: #9E583B;
   --chart-prod: #5A5550;
   --chart-old: #878079;
   --chart-pos: #2B6648;
   --chart-neg: #992B2B;
-  --on-accent: #F9F7F2;
 
   --font-display: 'Cormorant Garamond', "Iowan Old Style", Georgia, serif;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -208,20 +202,17 @@ The reference defines all three presets. A generated report keeps exactly one pr
   --bg-subtle: #EBE4D6;
   --text-primary: #211E1B;
   --text-secondary: #5C564F;
-  --text-muted: #8C847A;
   --border: #E3DAC9;
   --border-strong: #C2B6A1;
   --accent: #A65638;
   --accent-subtle: #EFE0D9;
   --status-ok: #356348;
-  --status-warn: #A85C18;
   --status-bad: #962D2D;
   --chart-ps: #A65638;
   --chart-prod: #5C564F;
   --chart-old: #8C847A;
   --chart-pos: #356348;
   --chart-neg: #962D2D;
-  --on-accent: #FBF9F5;
 
   --font-display: 'Cormorant Garamond', "Iowan Old Style", Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -247,20 +238,17 @@ The reference defines all three presets. A generated report keeps exactly one pr
     --bg-subtle: #27231F;
     --text-primary: #F5EFE6;
     --text-secondary: #B8AFA6;
-    --text-muted: #A8988A;
     --border: #2E2924;
     --border-strong: #4A423B;
     --accent: #D48462;
     --accent-subtle: #2C1F1A;
     --status-ok: #68B684;
-    --status-warn: #E09F3E;
     --status-bad: #E06D6D;
     --chart-ps: #D48462;
     --chart-prod: #B8AFA6;
     --chart-old: #A8988A;
     --chart-pos: #68B684;
     --chart-neg: #E06D6D;
-    --on-accent: #141210;
   }
 }
 
@@ -270,20 +258,17 @@ The reference defines all three presets. A generated report keeps exactly one pr
   --bg-subtle: #27231F;
   --text-primary: #F5EFE6;
   --text-secondary: #B8AFA6;
-  --text-muted: #A8988A;
   --border: #2E2924;
   --border-strong: #4A423B;
   --accent: #D48462;
   --accent-subtle: #2C1F1A;
   --status-ok: #68B684;
-  --status-warn: #E09F3E;
   --status-bad: #E06D6D;
   --chart-ps: #D48462;
   --chart-prod: #B8AFA6;
   --chart-old: #A8988A;
   --chart-pos: #68B684;
   --chart-neg: #E06D6D;
-  --on-accent: #141210;
 }
 ```
 
@@ -302,7 +287,7 @@ body {
   background: var(--bg-page);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   line-height: var(--body-lh);
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
