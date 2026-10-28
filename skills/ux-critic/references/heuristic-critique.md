@@ -1,6 +1,6 @@
 # Heuristic Critique
 
-Reference for `ux-critic`. It defines the five critique dimensions, the squint test, Nielsen's ten heuristics, the steering vocabulary, severity, and the report template.
+Reference for `ux-critic`. It defines the six critique dimensions, the squint test, Nielsen's ten heuristics, the steering vocabulary, severity, and the report template.
 
 ## 1. Six Critique Dimensions
 
@@ -52,11 +52,13 @@ Pass conditions:
 - Errors state what happened and what to do next.
 - Helper text appears before the mistake, not after.
 - The same concept uses one term throughout.
+- Body paragraphs stay at 2-3 sentences (`<= 60 words`) with one job each.
 
 Failure signals:
 - "Something went wrong" with no recovery.
 - Two names for the same object.
 - A destructive action labeled like a safe one.
+- A wall-of-text paragraph, or the same idea repeated across paragraphs.
 
 ### 1.5 Mode Fit
 
@@ -177,7 +179,7 @@ Save as `docs/reports/YYYY-MM-DD_ux-critique_<topic>.md`.
 ### <Issue Title>
 
 - Severity: Critical | Important | Suggestion | Nit
-- Dimension: Focal point | Spatial rhythm | State honesty | Microcopy | Mode fit
+- Dimension: Focal point and squint test | Spatial rhythm and *Ma* alignment | State honesty | Microcopy, *Kanso* wording, and paragraph rhythm | Mode fit and *Shibumi* restraint | YAGNI and signifier honesty
 - Heuristic: <Nielsen number or Not applicable>
 - Evidence: <screenshot path and region>
 - Finding: <what is wrong>

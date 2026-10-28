@@ -1,10 +1,11 @@
 ---
 name: ux-product-shaper
 description: >-
-  Shape product context, information architecture, user flows, Surface Mode, and
-  an 8-state completeness contract before UI work. Use when starting a UI project,
-  designing a screen or flow, or clarifying ambiguous UX requirements. Not for
-  visual styling, token systems, implementation, or code review.
+  Shape product context, information architecture, user flows, Surface Mode,
+  Zen Minimalism microcopy/paragraph pacing, and an 8-state completeness contract
+  before UI work. Use when starting a UI project, designing a screen or flow, or
+  clarifying ambiguous UX requirements. Not for visual styling, token systems,
+  implementation, or code review.
 risk: safe
 source: local
 date_added: "2026-10-28"
@@ -12,7 +13,7 @@ date_added: "2026-10-28"
 
 # UX Product Shaper Skill
 
-Turn an approved feature intent into a product brief that UI work can execute. Fix the surface mode and the state model before any visual or code decision.
+Turn an approved feature intent into a product brief that UI work can execute. Fix the surface mode, Zen Minimalism information rhythm (*Kanso*, *Ma*, *Shibumi*), and the state model before any visual or code decision.
 
 ## When to Use
 - Starting a new UI surface, screen, or flow.
@@ -37,25 +38,25 @@ Turn an approved feature intent into a product brief that UI work can execute. F
 ### Step 1: Classify the Surface Mode and Minimalist Register
 | Register | Use for | Visual posture |
 | :--- | :--- | :--- |
-| Mode A: Swiss Editorial | Marketing, portfolio, launch, brand campaign | Hero type at 3x+ body, asymmetry, at least 40% negative space, one focal CTA above the fold |
-| Mode B: Utilitarian | B2B SaaS, admin console, data table, settings, checkout | Data-ink ratio, Jakob familiarity, tabular numbers, no decorative banners or theatrical motion |
+| Mode A: Swiss / Zen Editorial | Marketing, portfolio, executive chronicle, launch, brand campaign | Hero type at 3x+ body, intentional asymmetry or contemplative centered flow, at least 40% *Ma* negative space, one focal CTA above the fold |
+| Mode B: Shibumi Utilitarian | B2B SaaS, clinical/engineering dossier, admin console, data table, settings | High data-ink ratio, Jakob familiarity, tabular numbers, compact sticky chapter guides, zero decorative banners or theatrical motion |
 
 If a surface mixes both, split it into separate screens. Do not blend a brand hero into a dense operations table.
 
-### Step 2: Enforce YAGNI Scope
+### Step 2: Enforce YAGNI & Kanso Scope
 1. Build only the views, inputs, and controls required by the prompt.
 2. Do not add unrequested top navbars, sidebars, search inputs, filter bars, notification bells, avatar menus, settings gears, dark-mode toggles, pagination, or export buttons.
 3. Keep one primary CTA per view. Demote secondary actions to text, ghost controls, or progressive disclosure.
-4. Cap top-level navigation at 4 items and summary KPIs at 3-4 high-signal metrics.
+4. Cap top-level navigation at 4 numbered items and summary KPIs at 3-4 high-signal biomarker metrics.
 5. Record a "What We Are NOT Building" list in the product brief.
 
-### Step 3: Map Information Architecture and Cognitive Budget
-1. Name the primary decision or task on the screen.
+### Step 3: Map Information Architecture, Ma Rhythm, and Wording Budget
+1. Name the primary decision or task on the screen in a single declarative sentence (`<= 20 words`).
 2. Place one focal point per screen. Competing equal-weight cards are a failure.
-3. Limit the first view to 3-5 progressive disclosure chunks.
-4. Trace the primary flow from entry to completion and to recovery.
-5. Apply ecosystem familiarity (Jakob): keep navigation and control placement where users expect it.
-6. Record what is intentionally out of scope.
+3. Limit the first view to 3-5 progressive disclosure chunks separated by generous *Ma* whitespace.
+4. **Zen Wording & Paragraphing Contract**: cap section lead descriptions at `<= 25 words` and body paragraphs at `2-3 sentences` (`<= 60 words`). Ban filler instructions, marketing superlatives, and passive voice.
+5. Trace the primary flow from entry to completion and to recovery.
+6. Apply ecosystem familiarity (Jakob): keep navigation and control placement where users expect it.
 
 ### Step 4: Lock the 8-State Matrix
 Every screen must define all eight states before implementation. The full matrix is in `references/product-and-state-contracts.md`.
@@ -96,6 +97,7 @@ Hand the brief to `design-system` for tokens, component specs, and responsive ru
 - [ ] Surface Mode is recorded and justified.
 - [ ] A YAGNI exclusions list exists and bans unrequested chrome.
 - [ ] Each screen has one named focal point and one primary CTA.
+- [ ] Section leads (`<= 25 words`) and paragraphs (`2-3 sentences`) obey *Kanso* and *Ma* wording budgets.
 - [ ] The primary flow includes a recovery path.
 - [ ] All eight states are defined with realistic data.
 - [ ] The brief uses an ISO-dated path under `docs/designs/`.

@@ -1,13 +1,13 @@
 # Token and Component Specifications
 
-Reference for `design-system`. It defines the 3-tier token model, naming rules, theme parity, component spec format, responsive rules, and the implementation handoff.
+Reference for `design-system`. It defines the 3-tier token model, Zen Minimalism art style, naming rules, theme parity, component spec format, responsive rules, and the implementation handoff.
 
 ## 1. Three-Tier Token Model
 
 | Tier | Purpose | Example names | Consumer |
 | :--- | :--- | :--- | :--- |
-| Primitive | Raw scale values | `--slate-50` to `--slate-950`, `--space-1` to `--space-12`, `--radius-sm`, `--duration-fast` | Never used directly by components |
-| Semantic | Role-based meaning | `--bg-canvas`, `--bg-surface`, `--text-primary`, `--intent-danger`, `--border-subtle`, `--focus-ring` | Components and layouts |
+| Primitive | Raw scale values | `--stone-50` to `--stone-950`, `--space-1` to `--space-12`, `--radius-sm`, `--duration-fast` | Never used directly by components |
+| Semantic | Role-based meaning | `--bg-canvas`, `--bg-surface`, `--bg-subtle`, `--text-primary`, `--intent-danger`, `--border-subtle`, `--focus-ring` | Components and layouts |
 | Component | Component-scoped bindings | `--button-bg-hover`, `--button-border-focus`, `--input-border-error` | One component family |
 
 Rules:
@@ -16,17 +16,17 @@ Rules:
 - A theme changes semantic mappings, not component names.
 - Token names use lowercase kebab-case with a role prefix.
 
-## 2. Minimalism Art Style
+## 2. Zen Minimalism Art Style (Kanso, Ma, Shibumi)
 
-- **Monochrome + 1 Accent**: at least 90% of the viewport uses a neutral surface ramp tinted toward the brand hue. Reserve one accent for the primary CTA and active focus ring. Reserve status colors for live system feedback, never decorative badges.
-- **Whitespace over boxes**: use 2-4rem macro spacing between sections and 0.5-1rem micro spacing inside groups. Prefer a 1px hairline over a nested bordered card. Never place a bordered or shadowed card inside another.
-- **Typography caps**: at most 2 font families and at most 5 font sizes. Hero metrics may reach 2.5x-3x body size. Use weight 400/700 contrast, left-aligned axes, 60ch-75ch measure, and `tabular-nums` on numeric data.
-- **Typography as the primary graphic**: do not add decorative illustrations, gradient blobs, floating 3D shapes, glassmorphism, or icon tiles above headings.
+- **Monochrome + 1 Accent (Warm Organic Surfaces)**: at least 90% of the viewport uses a warm neutral surface ramp tinted toward natural paper or stone (such as Shibumi parchment `#F7F4EE`, Karesansui gravel `#F4F1EA`, or Kinfolk warm paper `#FBF9F5` in light mode; Kyoto espresso `#141210` in dark mode). Reserve one earthy accent (`#9E583B` muted clay, `#4A6B53` Kyoto moss, or `#A65638` terracotta) for the primary CTA, numbered chapter index, and active focus ring. Reserve status colors for live system feedback, never decorative badges.
+- **Ma (Whitespace over boxes)**: treat emptiness as an active design material. Use 3-5.5rem macro spacing between sections and 0.5-1rem micro spacing inside groups. Prefer a 1px hairline over a nested bordered card. Never place a bordered or shadowed card inside another.
+- **Shibumi (Understated Typography & Prose Rhythm)**: at most 2 font families and at most 5 font sizes. Hero metrics may reach 2.5x-3x body size. Use weight 400/600 contrast, left-aligned axes, 60ch-70ch measure, and `tabular-nums` on numeric data. Cap prose paragraphs at 2-3 sentences (`<= 60 words`) so copy reads with calm authority.
+- **Kanso (Typography as the primary graphic)**: do not add decorative illustrations, gradient blobs, floating 3D shapes, glassmorphism, or icon tiles above headings.
 - No unmotivated purple-to-blue gradient: avoid `#8b5cf6` to `#3b82f6` as a default hero.
 - No neon cyberpunk glow on B2B, admin, or data surfaces.
-- No pure `#000000` or `#808080` neutrals. Tint toward the brand hue.
+- No pure `#000000` or `#808080` neutrals. Tint toward warm charcoal (`#22201E`) and stone (`#878079`).
 - No emoji as a functional icon. Use an SVG icon with an accessible name.
-- No centered body text in an operational screen.
+- No centered body text in an operational screen (reserve centered chapter headers strictly for contemplative single-column views like `zen-garden`).
 - No decorative animation without a reduced-motion guard.
 
 ## 3. Typography, Spacing, Radius, and Motion Scales
@@ -35,24 +35,24 @@ Rules:
 
 | Token | Size | Use |
 | :--- | :--- | :--- |
-| `--text-xs` | 0.75rem | Labels, captions |
+| `--text-xs` | 0.75rem | Labels, captions, uppercase monospace eyebrows |
 | `--text-sm` | 0.875rem | Secondary body, table cells |
 | `--text-base` | 1rem | Body |
 | `--text-lg` | 1.25rem | Section heading, lead paragraph |
-| `--text-display` | 2.25rem+ | Page title, hero metric |
+| `--text-display` | 2.25rem+ | Page title, hero metric, chapter index |
 
-Use at most 2 font families: one UI/display sans and one monospace. Do not add a third display face. Use a modular ratio of 1.200 or 1.250. Keep prose at 60ch-75ch. Apply `font-variant-numeric: tabular-nums` to metrics, prices, dates, and table numbers.
+Use at most 2 font families: one editorial serif or UI sans and one monospace. Do not add a third display face. Use a modular ratio of 1.200 or 1.250. Keep prose at 60ch-70ch. Apply `font-variant-numeric: tabular-nums` to metrics, prices, dates, and table numbers.
 
 ### Spacing scale
 
-Use a 4px base: `0.25rem`, `0.5rem`, `0.75rem`, `1rem`, `1.5rem`, `2rem`, `3rem`, `4rem`, `6rem`. Macro whitespace must exceed micro whitespace.
+Use a 4px base: `0.25rem`, `0.5rem`, `0.75rem`, `1rem`, `1.5rem`, `2rem`, `3rem`, `4rem`, `5.5rem`. Macro whitespace must exceed micro whitespace.
 
 ### Radius and motion
 
 | Token | Value | Use |
 | :--- | :--- | :--- |
-| `--radius-sm` | 0.25rem | Inputs, chips |
-| `--radius-md` | 0.5rem | Cards, buttons |
+| `--radius-sm` | 0.25rem | Inputs, chips, `zen-garden` cards |
+| `--radius-md` | 0.5rem | `dossier` cards, buttons |
 | `--radius-lg` | 0.75rem | Modals, large panels |
 | `--duration-fast` | 100ms | Hover, focus |
 | `--duration-base` | 180ms | Expand, collapse |

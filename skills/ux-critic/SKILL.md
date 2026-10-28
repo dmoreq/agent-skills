@@ -1,10 +1,10 @@
 ---
 name: ux-critic
 description: >-
-  Red-team rendered UI with heuristic critique, squint tests, and targeted design
-  steering. Use after accessibility gates pass or when asked to critique, review,
-  or elevate an existing interface. Not for implementation, token generation, or
-  code review.
+  Red-team rendered UI with heuristic critique, squint tests, Zen Minimalism
+  subtraction (Kanso, Ma, Shibumi), and targeted design steering. Use after
+  accessibility gates pass or when asked to critique, review, or elevate an
+  existing interface. Not for implementation, token generation, or code review.
 risk: safe
 source: local
 date_added: "2026-10-28"
@@ -12,14 +12,14 @@ date_added: "2026-10-28"
 
 # UX Critic Skill
 
-Review the rendered interface as a hostile design director. Find what is weak, missing, or dishonest before a user does. Do not edit code.
+Review the rendered interface as a hostile design director. Find what is weak, missing, cluttered, or dishonest before a user does. Enforce **Zen Minimalism** (*Kanso* essentialism, *Ma* breathing room, *Shibumi* understated authority) alongside Dieter Rams and Nielsen. Do not edit code.
 
 ## When to Use
 - After `ui-accessibility` passes and the screen is ready for a design review.
 - When asked to critique, review, or elevate an existing interface.
 - When a screen feels cluttered, flat, confusing, or off-brand.
 - Before a stakeholder demo or a release candidate review.
-- An executive or decision report rendered as a single-file HTML page.
+- An executive or decision report rendered as a single-file HTML page (`dossier`, `zen-garden`, or `chronicle`).
 
 ## When Not to Use
 - Implementation or code changes (`html-report`, `plotly-dash`, `python-pro`).
@@ -47,19 +47,19 @@ The full dimension table, heuristic mapping, and steering commands are in `refer
 | Dimension | Question | Failure signal |
 | :--- | :--- | :--- |
 | Focal point and squint test | Is the primary metric or action unmistakable within two seconds? | Four equal-weight cards compete; the eye lands on decoration |
-| Spatial rhythm and alignment | Is macro whitespace larger than micro whitespace? Are alignment axes unified? | Inverted rhythm; mixed left edges; cramped groups |
+| Spatial rhythm and *Ma* alignment | Is macro whitespace larger than micro whitespace? Are alignment axes unified? | Inverted rhythm; mixed left edges; cramped groups without breathing room |
 | State honesty | Does empty guide, loading preserve geometry, and error explain recovery? | Loading looks disabled; empty state has no next step |
-| Microcopy and clarity | Are labels declarative, human, and specific? | "Submit", "Something went wrong", vague helper text |
-| Mode fit | Does the visual ambition match the Surface Mode? | A brand hero inside an operations console; a flat admin table on a launch page |
+| Microcopy, *Kanso* wording, and paragraph rhythm | Are labels declarative and specific? Are paragraphs `2-3 sentences` (`<= 60 words`) with zero fluff? | "Submit", "Something went wrong", dense wall-of-text paragraphs, hype superlatives |
+| Mode fit and *Shibumi* restraint | Does the visual ambition match the Surface Mode without shouting? | A brand hero inside an operations console; cold harsh `#0000FF` or neon accents |
 | YAGNI and signifier honesty | Did an unrequested widget, decorative icon, or vanity metric appear? Are controls recognizable without hover? | Hallucinated chrome; ghost buttons; false minimalism |
 
-### Step 3: Apply Dieter Rams and Nielsen
-Before Nielsen, score the screen against five Rams principles:
+### Step 3: Apply Dieter Rams, Zen Minimalism, and Nielsen
+Before Nielsen, score the screen against five Rams principles and three Zen Minimalism tenets:
 - **#4 Good design is understandable**: the primary action is obvious without a manual.
-- **#5 Unobtrusive**: decoration does not compete with the task.
+- **#5 Unobtrusive (*Shibumi*)**: decoration and color never shout or compete with the task.
 - **#6 Honest**: states and affordances do not overpromise.
-- **#8 Thorough down to the last detail**: alignment, states, and edge cases are complete.
-- **#10 Less, but better**: remove before you add.
+- **#8 Thorough down to the last detail**: alignment, states, tabular numerals, and edge cases are complete.
+- **#10 Less, but better (*Kanso* & *Ma*)**: remove non-essential elements and prose filler before you add; preserve purposeful emptiness around focal insights.
 
 Then apply Nielsen's Ten Heuristics:
 Evaluate each heuristic against the screenshots and record evidence:
@@ -78,21 +78,19 @@ A heuristic that does not apply is marked `Not applicable`, not `Pass`.
 
 ### Step 4: Run the Mandatory Subtraction Pass
 Run subtraction before any polish:
-1. `distill`: remove badges, decorative icons, redundant subtitles, and outer borders until removing one more item would break task comprehension.
-2. `quieter`: reduce chroma and contrast on secondary metadata, gridlines, and auxiliary controls.
-3. `clarify`: replace vague labels with verb-noun microcopy.
+1. `distill` (*Kanso*): remove badges, decorative icons, redundant subtitles, outer borders, and prose filler until removing one more item would break task comprehension. Split or trim any paragraph outside the 2-3 sentence band.
+2. `quieter` (*Shibumi* & *Ma*): replace harsh pure white/black or cold saturated surfaces with warm organic paper/stone tones; reduce chroma on secondary metadata and gridlines; expand macro section whitespace.
+3. `clarify`: replace vague labels with verb-noun microcopy and lead sections with a declarative metric thesis.
 4. `polish`: align baselines, optical padding, and 100-180ms ease-out transitions.
 
 Use `bolder` or `harden` only after subtraction, when hierarchy or resilience still needs work.
 
-Then use the deterministic steering vocabulary. Replace vague feedback with one or more commands. Each command names a concrete change.
-
 | Command | Intent | Example action |
 | :--- | :--- | :--- |
-| `distill` | Remove noise | Drop redundant badges, decorative borders, duplicate labels |
+| `distill` | Remove noise (*Kanso*) | Drop redundant badges, decorative borders, duplicate labels; trim paragraphs to `2-3 sentences` |
 | `bolder` | Strengthen hierarchy | Increase the hero metric to 3x body size; sharpen the focal contrast |
-| `quieter` | Reduce aggression | Soften saturated surfaces; restore breathing room in dense screens |
-| `clarify` | Improve meaning | Rename "Submit" to "Create workspace"; rewrite the error recovery step |
+| `quieter` | Reduce aggression (*Shibumi* / *Ma*) | Soften saturated surfaces into warm organic neutrals; expand section breathing room |
+| `clarify` | Improve meaning | Rename "Submit" to "Create workspace"; open with the exact delta thesis |
 | `polish` | Align craft | Harmonize radii, baselines, spacing, and transition timing |
 | `harden` | Improve resilience | Cover overflow, long strings, slow loading, and partial data |
 
@@ -120,7 +118,7 @@ The report contains:
 ## Verification Checklist
 - [ ] Desktop and mobile screenshots are available.
 - [ ] Product brief and design system are read.
-- [ ] All six dimensions are evaluated, including YAGNI and signifier honesty.
+- [ ] All six dimensions are evaluated, including *Kanso* wording, *Ma* spacing, and YAGNI signifier honesty.
 - [ ] The five Rams principles are checked.
 - [ ] All ten heuristics are marked Pass, Fail, or Not applicable.
 - [ ] The subtraction pass ran before polish.
@@ -130,7 +128,7 @@ The report contains:
 - [ ] The ship recommendation is explicit.
 
 ## Related Skills
-- Use **html-report** when the critique targets a single-file report; review desktop, mobile, and print screenshots.
+- Use **html-report** when the critique targets a single-file report; review desktop, mobile, and print screenshots across `dossier`, `zen-garden`, or `chronicle`.
 - Use **ux-product-shaper** for the Surface Mode and 8-state contract the critique must respect.
 - Use **design-system** for token, component, and responsive rules behind the findings.
 - Use **ui-accessibility** before this critique; accessibility failures block visual polish.
