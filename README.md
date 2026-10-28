@@ -63,7 +63,7 @@ agent-skills/
 | **`data-storytelling`** | Decision narrative from **already-validated** metrics. Does not analyze or invent numbers. |
 | **`data-visualization`** | Plotly-first clean visual creation, SVG export, text density hygiene, and anti-overlap QA. |
 | **`deprecation-migration`** | Safely sunset, replace, and migrate legacy APIs/systems using Strangler, Adapter, and Feature Flags. |
-| **`design-system`** | Build 3-tier W3C DTCG tokens, dual light/dark themes, component specs, and responsive layout rules. |
+| **`design-system`** | Build minimalist 3-tier W3C DTCG tokens, dual light/dark themes, component specs, and responsive layout with a YAGNI token diet. |
 | **`doubt-driven-development`** | Adversarial review to stress-test high-risk decisions and uncover unstated assumptions. |
 | **`html-report`** | Single-file, self-contained HTML reports with dual-theme tokens, client-side filtering, and print/PDF fidelity. |
 | **`plotly-dash`** | Production-grade Plotly Dash apps with modular layouts, disciplined callbacks, state hygiene & performance. |
@@ -79,9 +79,9 @@ agent-skills/
 | **`spec-driven-design`** | Turn a concept into an owner-approved spec with six-lens brainstorm, Gate 1/Gate 2, and Zero-Decision drafting. |
 | **`tech-research`** | SOTA methods, benchmark evaluation, and conditional recommendations before implementation. |
 | **`technical-reporting`** | Saved formal markdown: benchmarks, ADRs, Mermaid, asset paths. Not Plotly charts or QBR narrative. |
-| **`ui-accessibility`** | Audit WCAG 2.2 AA, keyboard and focus models, ARIA, contrast, target size, and reduced motion. |
-| **`ux-critic`** | Red-team rendered UI with heuristic critique, squint tests, and targeted design steering. |
-| **`ux-product-shaper`** | Shape Surface Mode, information architecture, user flows, and the 8-state contract before UI work. |
+| **`ui-accessibility`** | Audit WCAG 2.2 AA, keyboard and focus models, ARIA, contrast, target size, and false minimalism. |
+| **`ux-critic`** | Red-team rendered UI with Dieter Rams, heuristic critique, a subtraction pass, and one required deletion. |
+| **`ux-product-shaper`** | Shape Surface Mode, IA, user flows, YAGNI scope, and the 8-state contract before UI work. |
 | **`verify-and-stop`** | Disciplined execution and termination protocol. Verifies minimal acceptance criteria with a single decisive check, presents proof, and stops immediately without runaway loops. |
 
 ---
@@ -112,6 +112,7 @@ agent-skills/
 | UX research, Surface Mode, IA, 8-state contract | `ux-product-shaper` | Visual design, implementation |
 | WCAG 2.2, keyboard/focus, accessibility audit | `ui-accessibility` | Visual style, token generation |
 | Adversarial UI critique, heuristic evaluation, steering vocabulary | `ux-critic` | Implementation, code review |
+| Minimalism Art Style and YAGNI doctrine for UI | `design-system` + `ux-product-shaper` | Accessibility invariants, backend architecture |
 | Plotly chart type, anti-overlap, SVG/Kaleido | `data-visualization` | Reporting, Dash figure restatement |
 | Stakeholder Hook → Ask | `data-storytelling` | Analysis |
 | High-volume CSV/Parquet ETL, Polars/DuckDB query mechanics | `polars-duckdb` | `data-science`, `python-performance` |
@@ -301,9 +302,11 @@ code-review
 | Produce a single-file, interactive or print-ready HTML report | **`html-report`** |
 | Shape product context, IA, user flows, and the 8-state contract | **`ux-product-shaper`** |
 | Build or update design tokens, themes, and component specs | **`design-system`** |
+| Apply Minimalism/YAGNI to a UI (tokens, typography, chrome) | **`design-system`** |
 | Audit WCAG 2.2, keyboard, focus, contrast, and target size | **`ui-accessibility`** |
 | Audit a shared or print-ready HTML report for WCAG | **`ui-accessibility`** |
 | Critique a rendered UI and prescribe design steering | **`ux-critic`** |
+| Audit UI for unrequested chrome or premature abstraction | **`ux-critic`** |
 | Critique an executive or decision HTML report | **`ux-critic`** |
 | Write durable Markdown report / ADR / Mermaid diagram | **`technical-reporting`** |
 | Choose Python framework, project layout, ADR | **`python-patterns`** |

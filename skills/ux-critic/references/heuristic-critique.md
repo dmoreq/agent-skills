@@ -2,7 +2,7 @@
 
 Reference for `ux-critic`. It defines the five critique dimensions, the squint test, Nielsen's ten heuristics, the steering vocabulary, severity, and the report template.
 
-## 1. Five Critique Dimensions
+## 1. Six Critique Dimensions
 
 ### 1.1 Focal Point and Squint Test
 
@@ -70,7 +70,32 @@ Failure signals:
 - A flat, low-contrast table on a launch page.
 - Decorative motion in a high-frequency workflow.
 
-## 2. Squint Test Procedure
+### 1.6 YAGNI and Signifier Honesty
+
+Pass conditions:
+- Every visible control was requested or is required to complete the task.
+- No unrequested navbar, sidebar, search, filter, notification, avatar, settings, dark-mode toggle, pagination, or export control.
+- Interactive controls are recognizable without hover discovery: fill contrast, border definition, cursor pointer, and hover/active feedback.
+- No decorative icon tiles, vanity metrics, or badge clutter.
+
+Failure signals:
+- A search bar or filter bar that the prompt never requested.
+- A ghost button that looks like a label.
+- A metric card added for visual balance with no decision value.
+
+## 2. Dieter Rams Red-Team
+
+Score the screen against five Rams principles before Nielsen:
+
+| Principle | Question | Failure signal |
+| :--- | :--- | :--- |
+| #4 Good design is understandable | Is the primary action obvious without a manual? | The user must hover or guess |
+| #5 Unobtrusive | Does decoration stay out of the task's way? | A hero illustration or gradient competes with the work |
+| #6 Honest | Do states and affordances match reality? | A loading state looks disabled; a success toast with no change |
+| #8 Thorough down to the last detail | Are alignment, states, and edge cases complete? | Empty/error states are missing; baselines are misaligned |
+| #10 Less, but better | Did we remove before adding? | Extra cards, badges, and subtitles with no task role |
+
+## 3. Squint Test Procedure
 
 1. View the screenshot at 100% on the shipping viewport.
 2. Apply a blur of 6-10px, or step back until text is unreadable.
@@ -78,7 +103,7 @@ Failure signals:
 4. Compare that order with the intended hierarchy in the product brief.
 5. Record the mismatch as a finding with the screenshot path.
 
-## 3. Nielsen's Ten Heuristics
+## 4. Nielsen's Ten Heuristics
 
 | Heuristic | Evidence to collect | Failure example |
 | :--- | :--- | :--- |
@@ -95,7 +120,9 @@ Failure signals:
 
 Mark each heuristic `Pass`, `Fail`, or `Not applicable`. A heuristic without evidence is `Not applicable`, not `Pass`.
 
-## 4. Steering Vocabulary
+## 5. Steering Vocabulary
+
+Run subtraction in this order before any polish: `distill`, `quieter`, `clarify`, then `polish`. Use `bolder` or `harden` only after subtraction, when hierarchy or resilience still needs work.
 
 | Command | Use when | Concrete actions |
 | :--- | :--- | :--- |
@@ -108,7 +135,7 @@ Mark each heuristic `Pass`, `Fail`, or `Not applicable`. A heuristic without evi
 
 Use more than one command only when the finding spans multiple dimensions. Name the command in every finding.
 
-## 5. Severity
+## 6. Severity
 
 | Severity | Definition | Ship effect |
 | :--- | :--- | :--- |
@@ -117,7 +144,7 @@ Use more than one command only when the finding spans multiple dimensions. Name 
 | Suggestion | A clear improvement with no task failure | Schedule |
 | Nit | Minor polish | Optional |
 
-## 6. Critique Report Template
+## 7. Critique Report Template
 
 Save as `docs/reports/YYYY-MM-DD_ux-critique_<topic>.md`.
 
@@ -135,6 +162,15 @@ Save as `docs/reports/YYYY-MM-DD_ux-critique_<topic>.md`.
 ## Verdict
 
 <Two sentences: the main strength and the main weakness.>
+
+## Keep
+
+- <1-2 elements that already exemplify "less, but better">
+
+## The One Deletion
+
+- **THE ONE DELETION**: <single element, wrapper, or control to remove completely>
+- Reason: <why this is the highest-leverage deletion>
 
 ## Findings
 
@@ -159,7 +195,7 @@ Save as `docs/reports/YYYY-MM-DD_ux-critique_<topic>.md`.
 - Blocking findings:
 ```
 
-## 7. Anti-Patterns
+## 8. Anti-Patterns
 
 - Critiquing source code instead of a rendered screen.
 - Vague feedback such as "make it pop" or "improve the UX".
@@ -168,3 +204,15 @@ Save as `docs/reports/YYYY-MM-DD_ux-critique_<topic>.md`.
 - Treating an accessibility failure as a visual preference.
 - Inventing a user metric without evidence.
 - Marking an untested heuristic as a pass.
+- Polishing before running the subtraction pass.
+- Adding visual elements to "balance" a layout instead of removing noise.
+- Accepting a minimal design that removes clickability signifiers, focus, labels, or states.
+
+## 9. Anti-Rationalization
+
+| Rationalization | Reality |
+| :--- | :--- |
+| Add a search bar, filter pills, and notification icon so the page looks complete. | Unrequested chrome is visual noise and maintenance debt. If it was not requested, do not render it. |
+| Wrap each metric in a shadowed card with an icon badge. | Nested cards and decorative icons reduce the data-ink ratio. Use whitespace and type hierarchy. |
+| Build a reusable component with 10 configuration props for future flexibility. | Premature abstraction violates the Rule of Three. Write concrete inline code until the pattern repeats. |
+| Skip empty, error, and focus states to keep the code minimal. | Minimalism removes decoration, never usability scaffolding, state honesty, or accessibility. |

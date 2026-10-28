@@ -12,12 +12,33 @@ Reference for `ux-product-shaper`. It defines the Surface Mode decision, informa
 | Layout | Asymmetry, editorial rhythm, one strong focal point | Predictable grid, dense but aligned, one primary action |
 | Motion | Orchestrated entry, deliberate reveal | Functional feedback only, under 200ms |
 | Density | Low, generous whitespace | High, progressive disclosure |
+| Minimalist posture | Swiss editorial: 3x+ hero type, asymmetry, at least 40% negative space, one focal CTA | Utilitarian: data-ink ratio, Jakob familiarity, tabular numbers, no decorative banner |
 | Navigation | Story anchors and a single CTA | Persistent navigation, breadcrumbs, filters |
 | Failure mode | Style hides the action or slows reading | A brand hero competes with the task |
 
 If a screen needs both, split it. A marketing hero above a dense dashboard is two surfaces, not one.
 
-## 2. Information Architecture Rules
+## 2. YAGNI Exclusions
+
+Build only the views, inputs, and controls the prompt requires. Unless the prompt asks for them, do not render:
+
+- Top navbar or sidebar.
+- Search input or filter bar.
+- Notification bell.
+- Avatar or profile menu.
+- Settings gear.
+- Dark-mode toggle.
+- Pagination controls.
+- Export CSV or PDF button.
+
+Rules:
+- One primary CTA per view. Demote secondary actions to text, ghost controls, or progressive disclosure.
+- At most 4 top-level navigation items.
+- At most 3-4 summary KPIs.
+- Record a "What We Are NOT Building" list in the brief.
+- **Lazy, Not Negligent**: YAGNI removes speculative features and abstraction, never the 8 states, validation, WCAG 2.2 AA, or 24x24px targets.
+
+## 3. Information Architecture Rules
 
 1. **One primary decision per screen.** Name it in one sentence. If two decisions compete, split the screen.
 2. **One focal point.** The most important metric or action must be unmistakable within two seconds.
@@ -28,7 +49,7 @@ If a screen needs both, split it. A marketing hero above a dense dashboard is tw
 7. **Recovery path.** Every primary flow needs a cancel, back, undo, or retry path.
 8. **Scope boundary.** Record what the screen intentionally does not do. Unowned edge cases become future defects.
 
-## 3. The 8-State Matrix
+## 4. The 8-State Matrix
 
 Define every state before implementation. Each state needs realistic example data and an acceptance check.
 
@@ -43,7 +64,7 @@ Define every state before implementation. Each state needs realistic example dat
 | Text Overflow / i18n | Survive longer content | Wrap, truncate with disclosure, `+n` chips, long URL handling | Clip, overlap, horizontal page scroll |
 | Keyboard / Screen Reader | Equal access without a mouse | Logical tab order, visible focus, Escape closes, focus returns to the trigger, `aria-live` for async updates | Mouse-only controls, focus lost after modal close, unlabeled inputs |
 
-## 4. Product Brief Template
+## 5. Product Brief Template
 
 Save as `docs/designs/YYYY-MM-DD_product-brief_<topic>.md`.
 
@@ -80,6 +101,12 @@ Save as `docs/designs/YYYY-MM-DD_product-brief_<topic>.md`.
 - First-view chunks (3-5):
 - Out of scope:
 
+## What We Are NOT Building
+
+- Unrequested navigation, search, filter, account, or export chrome
+- Single-use wrappers and speculative configuration
+- Decorative cards, badges, or illustrations without a task role
+
 ## 8-State Contract
 
 | State | Example data | UI behavior | Acceptance check |
@@ -100,7 +127,7 @@ Save as `docs/designs/YYYY-MM-DD_product-brief_<topic>.md`.
 - Target:
 ```
 
-## 5. Anti-Patterns
+## 6. Anti-Patterns
 
 - Coding before the Surface Mode is fixed.
 - Treating the happy path as the whole screen.
@@ -110,13 +137,19 @@ Save as `docs/designs/YYYY-MM-DD_product-brief_<topic>.md`.
 - Disabled controls with no explanation.
 - Hover-only disclosure that keyboard users cannot reach.
 - Mixing a persuasive hero with an operational task on one screen.
+- Adding a search bar, filter pills, or notification icon so the page "looks complete". This violates YAGNI.
+- Wrapping every metric in a shadowed card with an icon badge. This violates the data-ink ratio.
+- Building a reusable component with many configuration props for future flexibility. This violates the Rule of Three.
+- Skipping empty, error, or focus states to keep the code minimal. This violates the Lazy, Not Negligent boundary.
 
-## 6. Gate Checklist
+## 7. Gate Checklist
 
 - [ ] Surface Mode recorded with a reason.
+- [ ] YAGNI exclusions list exists and bans unrequested chrome.
+- [ ] One primary CTA per view; at most 4 top-level navigation items; at most 3-4 KPIs.
 - [ ] One focal point per screen.
 - [ ] Primary flow includes completion and recovery.
 - [ ] All eight states have example data and acceptance checks.
-- [ ] Out-of-scope items are explicit.
+- [ ] Out-of-scope items are explicit, including the "What We Are NOT Building" list.
 - [ ] Success metrics name an event or signal.
 - [ ] The brief path uses `docs/designs/YYYY-MM-DD_product-brief_<topic>.md`.

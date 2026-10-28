@@ -16,13 +16,15 @@ Rules:
 - A theme changes semantic mappings, not component names.
 - Token names use lowercase kebab-case with a role prefix.
 
-## 2. Aesthetic Direction and Anti-Slop
+## 2. Minimalism Art Style
 
+- **Monochrome + 1 Accent**: at least 90% of the viewport uses a neutral surface ramp tinted toward the brand hue. Reserve one accent for the primary CTA and active focus ring. Reserve status colors for live system feedback, never decorative badges.
+- **Whitespace over boxes**: use 2-4rem macro spacing between sections and 0.5-1rem micro spacing inside groups. Prefer a 1px hairline over a nested bordered card. Never place a bordered or shadowed card inside another.
+- **Typography caps**: at most 2 font families and at most 5 font sizes. Hero metrics may reach 2.5x-3x body size. Use weight 400/700 contrast, left-aligned axes, 60ch-75ch measure, and `tabular-nums` on numeric data.
+- **Typography as the primary graphic**: do not add decorative illustrations, gradient blobs, floating 3D shapes, glassmorphism, or icon tiles above headings.
 - No unmotivated purple-to-blue gradient: avoid `#8b5cf6` to `#3b82f6` as a default hero.
 - No neon cyberpunk glow on B2B, admin, or data surfaces.
 - No pure `#000000` or `#808080` neutrals. Tint toward the brand hue.
-- No Inter or Roboto as an unconsidered default. Choose a face that matches the Surface Mode.
-- No nested bordered cards. Use whitespace, `--bg-subtle`, or a hairline divider.
 - No emoji as a functional icon. Use an SVG icon with an accessible name.
 - No centered body text in an operational screen.
 - No decorative animation without a reduced-motion guard.
@@ -36,13 +38,10 @@ Rules:
 | `--text-xs` | 0.75rem | Labels, captions |
 | `--text-sm` | 0.875rem | Secondary body, table cells |
 | `--text-base` | 1rem | Body |
-| `--text-lg` | 1.125rem | Lead paragraph |
-| `--text-xl` | 1.25rem | Section heading |
-| `--text-2xl` | 1.5rem | Page heading |
-| `--text-3xl` | 1.875rem | Hero metric |
-| `--text-display` | 2.5rem+ | Persuade surface only |
+| `--text-lg` | 1.25rem | Section heading, lead paragraph |
+| `--text-display` | 2.25rem+ | Page title, hero metric |
 
-Use a modular ratio of 1.200 or 1.250. Keep prose at 60ch-75ch. Apply `font-variant-numeric: tabular-nums` to metrics, prices, dates, and table numbers.
+Use at most 2 font families: one UI/display sans and one monospace. Do not add a third display face. Use a modular ratio of 1.200 or 1.250. Keep prose at 60ch-75ch. Apply `font-variant-numeric: tabular-nums` to metrics, prices, dates, and table numbers.
 
 ### Spacing scale
 
@@ -171,3 +170,30 @@ Handoff checklist:
 - Theme parity asserted from a screenshot without a ratio.
 - A token rename with no migration path.
 - A component spec without states or acceptance criteria.
+
+## 9. YAGNI Token and Prop Diet
+
+- Emit at most 20-25 semantic tokens for a standalone app.
+- No unused tokens or 10-step color ramps with no callers.
+- Add component tokens only when a state transition cannot be expressed with semantic tokens.
+- Native primitives first: `dialog`, `details`/`summary`, `input type="date"`, native `select` for 7 or fewer options, CSS Grid/Flex, and `@container` before custom JS or a UI library.
+- Rule of Three: keep markup inline until the same visual and behavioral pattern repeats at least 3 times.
+- Compound components over boolean props. More than three boolean mode props is a smell.
+
+| Rationalization | Reality |
+| :--- | :--- |
+| Add a search bar, filter pills, and notification icon so the page looks complete. | Unrequested chrome is visual noise and maintenance debt. Do not render it. |
+| Wrap each metric in a shadowed card with an icon badge. | Nested cards and decorative icons reduce the data-ink ratio. Use whitespace and type hierarchy. |
+| Build a reusable component with 10 configuration props for future flexibility. | Premature abstraction violates the Rule of Three. Write concrete inline code until the pattern repeats. |
+| Skip empty, error, and focus states to keep the code minimal. | Minimalism removes decoration, never usability scaffolding, state honesty, or accessibility. |
+
+## 10. Static Minimalism Gate
+
+- [ ] Every declared token has an active caller.
+- [ ] No raw hex, rgb, or arbitrary pixel value outside the token files.
+- [ ] No bordered or shadowed card inside another.
+- [ ] No wrapper chain longer than three layout-neutral divs.
+- [ ] Destructive actions use `--intent-danger`.
+- [ ] At most one primary-filled CTA per view.
+- [ ] At most three boolean mode props per component.
+- [ ] At most 2 font families and 5 font sizes.

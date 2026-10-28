@@ -181,3 +181,37 @@ Save as `docs/reports/YYYY-MM-DD_a11y-audit_<topic>.md`.
 - `Fail` blocks delivery. The report must list the blocking findings.
 - A `Not tested` criterion is not a pass. State it in the summary.
 - Re-run the affected checks after a fix and record the new revision.
+
+## 9. False Minimalism
+
+Minimalism removes decoration, never access. Fail the audit when any of these are missing:
+
+- Clickability signifiers: fill contrast, border definition, cursor pointer, hover/active feedback.
+- A visible `:focus-visible` ring in every theme.
+- Labels, helper text, and error association.
+- Empty, loading, error, disabled, and overflow states.
+- A 24x24px minimum target.
+- 4.5:1 body text and 3.0:1 UI boundary contrast in every state.
+
+### State-Aware Contrast
+
+| State | Requirement |
+| :--- | :--- |
+| default | 4.5:1 body text; 3.0:1 large text and UI boundary |
+| hover | Same as default; hover must not reduce contrast below target |
+| focus-visible | Focus ring at least 3.0:1 against the adjacent surface |
+| active | Same as default; pressed state must remain legible |
+| disabled | Clearly inactive but still readable; do not use near-invisible text |
+| error | Error text and icon meet 4.5:1 and are not color-only |
+
+### Anti-Rationalization
+
+| Rationalization | Reality |
+| :--- | :--- |
+| Skip empty, error, and focus states to keep the UI minimal. | Minimalism removes decoration, never state honesty, focus, or recovery. |
+| Remove borders and fills so the interface looks cleaner. | Without clickability signifiers, users cannot tell what is interactive. |
+| Use color alone for status because it is simpler. | WCAG 1.4.1 requires a second signal: text, icon, or pattern. |
+| Hide controls until hover to reduce visual noise. | Keyboard and touch users cannot discover or operate them. |
+| Treat an untested route as a pass. | `Not tested` is not `Pass`; report the gap. |
+
+**Lazy, Not Negligent**: YAGNI never cuts WCAG 2.2 AA, the 8 states, validation, or target size.

@@ -34,15 +34,22 @@ Turn an approved feature intent into a product brief that UI work can execute. F
 
 ## Workflow
 
-### Step 1: Classify the Surface Mode
-| Mode | Use for | Visual posture |
+### Step 1: Classify the Surface Mode and Minimalist Register
+| Register | Use for | Visual posture |
 | :--- | :--- | :--- |
-| Persuade & Experience | Marketing, portfolio, launch, brand campaign | Expressive type, asymmetry, deliberate narrative |
-| Operate & Read | B2B SaaS, admin console, data table, settings, checkout | Density, familiarity, scannability, calm hierarchy |
+| Mode A: Swiss Editorial | Marketing, portfolio, launch, brand campaign | Hero type at 3x+ body, asymmetry, at least 40% negative space, one focal CTA above the fold |
+| Mode B: Utilitarian | B2B SaaS, admin console, data table, settings, checkout | Data-ink ratio, Jakob familiarity, tabular numbers, no decorative banners or theatrical motion |
 
 If a surface mixes both, split it into separate screens. Do not blend a brand hero into a dense operations table.
 
-### Step 2: Map Information Architecture and Cognitive Budget
+### Step 2: Enforce YAGNI Scope
+1. Build only the views, inputs, and controls required by the prompt.
+2. Do not add unrequested top navbars, sidebars, search inputs, filter bars, notification bells, avatar menus, settings gears, dark-mode toggles, pagination, or export buttons.
+3. Keep one primary CTA per view. Demote secondary actions to text, ghost controls, or progressive disclosure.
+4. Cap top-level navigation at 4 items and summary KPIs at 3-4 high-signal metrics.
+5. Record a "What We Are NOT Building" list in the product brief.
+
+### Step 3: Map Information Architecture and Cognitive Budget
 1. Name the primary decision or task on the screen.
 2. Place one focal point per screen. Competing equal-weight cards are a failure.
 3. Limit the first view to 3-5 progressive disclosure chunks.
@@ -50,7 +57,7 @@ If a surface mixes both, split it into separate screens. Do not blend a brand he
 5. Apply ecosystem familiarity (Jakob): keep navigation and control placement where users expect it.
 6. Record what is intentionally out of scope.
 
-### Step 3: Lock the 8-State Matrix
+### Step 4: Lock the 8-State Matrix
 Every screen must define all eight states before implementation. The full matrix is in `references/product-and-state-contracts.md`.
 
 | State | Required behavior | Anti-pattern |
@@ -64,7 +71,7 @@ Every screen must define all eight states before implementation. The full matrix
 | Text Overflow / i18n | Handle 40% longer strings, long URLs, chip wrapping with `+n` | Clip text or force horizontal scroll |
 | Keyboard / Screen Reader | Logical tab order, Escape dismissal, focus return, `aria-live` | Mouse-only interaction, focus lost after modal close |
 
-### Step 4: Write the Product Brief
+### Step 5: Write the Product Brief
 Use the template in the reference. Save the brief with the ISO-dated path. The brief is the `PRODUCT.md` contract for the surface. It must contain:
 - Audience and job to be done.
 - Surface Mode and the reason for it.
@@ -72,20 +79,23 @@ Use the template in the reference. Save the brief with the ISO-dated path. The b
 - The complete 8-state matrix with realistic example data.
 - Success metrics and the event or signal that proves each one.
 
-### Step 5: Hand Off
+### Step 6: Hand Off
 Hand the brief to `design-system` for tokens, component specs, and responsive rules. Do not start visual styling or implementation in this skill.
 
 ## Rules
 - No Lorem Ipsum, John Doe, or fake numeric placeholders.
+- No unrequested navigation, search, filter, account, or export chrome.
 - No loading state that is visually indistinguishable from disabled.
 - No error signaled by color alone.
 - No implementation before Surface Mode and the 8-state matrix are fixed.
+- **Lazy, Not Negligent**: YAGNI removes speculative chrome and abstraction, never the 8 states, validation, WCAG 2.2 AA, or 24x24px targets.
 - Ask one open-ended question at a time during intake.
 - Stop on contradictory requirements under the Contradiction Halt rule in `rules/AGENTS.md` §2.
 
 ## Verification Checklist
 - [ ] Surface Mode is recorded and justified.
-- [ ] Each screen has one named focal point.
+- [ ] A YAGNI exclusions list exists and bans unrequested chrome.
+- [ ] Each screen has one named focal point and one primary CTA.
 - [ ] The primary flow includes a recovery path.
 - [ ] All eight states are defined with realistic data.
 - [ ] The brief uses an ISO-dated path under `docs/designs/`.

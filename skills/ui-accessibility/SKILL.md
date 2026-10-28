@@ -75,6 +75,8 @@ If the tools are absent, state that the runtime check was not executed and rely 
 6. Form errors are announced and focus moves to the first invalid field.
 7. Zoom to 200% and confirm no content is clipped or hidden.
 8. Use a screen reader or the accessibility tree to confirm names, roles, and values.
+9. Click or activate every rendered control. Fail any dead or hallucinated control that performs no authorized action.
+10. Confirm reflow at 320px and 200% zoom with no horizontal page scroll.
 
 ### Step 4: Report Findings
 Write the audit report with:
@@ -108,12 +110,26 @@ Write the audit report with:
 
 The full audit procedure and report template are in `references/wcag-2-2-audit.md`.
 
+## False Minimalism and YAGNI Boundary
+
+Minimalism removes decoration, never access. Fail the audit when any of these are removed to make the interface look simpler:
+- Clickability signifiers: fill contrast, border definition, cursor pointer, hover/active feedback.
+- A visible `:focus-visible` ring in every theme.
+- Labels, helper text, and error association.
+- Empty, loading, error, disabled, and overflow states.
+- A 24x24px minimum target.
+- 4.5:1 body text and 3.0:1 UI boundary contrast in every state.
+
+**Lazy, Not Negligent**: YAGNI never cuts WCAG 2.2 AA, the 8 states, validation, or target size.
+
 ## Rules
 - Do not claim conformance from source inspection alone when behavior is interactive; state what was tested.
 - Do not use an LLM guess for contrast. Compute or measure it.
 - Do not accept ARIA attributes as proof of behavior. Test the keyboard path.
 - Do not fix by adding `role` or `aria-label` when a native element already solves it.
 - Do not change visual design without handing the change to `design-system`.
+- Do not accept a minimal design that removes signifiers, labels, focus, or states.
+- Do not treat `Not tested` as pass.
 - No emoji severity markers. Use `Critical`, `Important`, `Suggestion`, `Nit`.
 
 ## Verification Checklist
@@ -124,6 +140,11 @@ The full audit procedure and report template are in `references/wcag-2-2-audit.m
 - [ ] Target size is at least 24x24px.
 - [ ] Reduced-motion preference is respected.
 - [ ] Reflow works at 320px and 200% zoom.
+- [ ] Clickability signifiers are visible without hover discovery.
+- [ ] Focus ring is visible in both themes.
+- [ ] No state is signaled by color alone.
+- [ ] Dead controls: 0; focus loop works.
+- [ ] The minimalism change did not remove any accessibility invariant.
 - [ ] The report names tested and untested criteria.
 - [ ] The gate verdict is explicit.
 

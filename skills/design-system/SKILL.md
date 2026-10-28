@@ -36,12 +36,13 @@ Own the visual contract between product intent and implementation: tokens, compo
 
 ## Workflow
 
-### Step 1: Set the Aesthetic Direction
+### Step 1: Set the Minimalist Aesthetic Direction
 1. Read the product brief from `ux-product-shaper`: Surface Mode, audience, and constraints.
-2. Choose a defensible direction. Do not default to unmotivated purple-to-blue gradients, neon cyberpunk glows on B2B surfaces, or pure untinted `#000000` and `#808080` neutrals.
-3. Tint neutrals slightly toward the brand hue with `oklch()` or `hsl()`.
-4. Pair one expressive display face with a legible UI body face and a monospace face for code and metrics.
-5. Enforce a modular type scale (1.200 or 1.250), a 60ch-75ch prose measure, and `font-variant-numeric: tabular-nums` on numeric data.
+2. Choose one register: Swiss editorial (Mode A) or utilitarian (Mode B).
+3. **Monochrome + 1 Accent**: render at least 90% of the viewport from a neutral surface ramp tinted toward the brand hue. Reserve one accent color for the primary CTA and active focus ring. Reserve status colors for live system feedback, never decorative badges.
+4. Do not default to purple-to-blue gradients, neon glows on B2B surfaces, decorative blobs, glassmorphism, icon tiles above headings, or pure untinted `#000000` and `#808080`.
+5. **Typography caps**: at most 2 font families (UI/display plus monospace) and at most 5 sizes. Hero metrics may reach 2.5x-3x body size. Use weight 400/700 contrast, left-aligned axes, 60ch-75ch measure, and `tabular-nums` on numeric data.
+6. **Whitespace over boxes**: use 2-4rem macro spacing between sections and 0.5-1rem micro spacing inside groups. Prefer a 1px hairline over nested bordered cards.
 
 ### Step 2: Build the Three-Tier Token System
 The full token and component templates are in `references/token-and-component-specs.md`.
@@ -58,6 +59,11 @@ Required semantic roles:
 - Intent: `--intent-primary`, `--intent-danger`, `--intent-warning`, `--intent-success`.
 - Borders and focus: `--border-subtle`, `--border-strong`, `--focus-ring`.
 - Destructive actions must use `--intent-danger`, never the primary accent.
+
+**YAGNI token diet**:
+- Emit at most 20-25 semantic tokens for a standalone app. Add component tokens only when a state transition cannot be expressed with semantic tokens.
+- Do not emit unused tokens or a 10-step color ramp with no callers.
+- Every declared token must have an active caller.
 
 ### Step 3: Verify Theme Parity
 - Body text contrast is at least 4.5:1 in both light and dark themes.
@@ -76,6 +82,11 @@ Every component spec contains:
 - Do and do not examples.
 - Acceptance criteria: visual, behavioral, and accessibility checks.
 
+**YAGNI implementation handoff**:
+- **Native primitives first**: use `dialog`, `details`/`summary`, `input type="date"`, native `select` for 7 or fewer options, CSS Grid/Flex, and `@container` before custom JS or a UI library.
+- **Rule of Three**: keep markup inline until the same visual and behavioral pattern repeats at least 3 times. Do not create single-use wrappers or generic config-driven components.
+- **Compound components**: compose via children or slots, or explicit semantic variants. More than three boolean mode props is a design smell.
+
 Avoid nested card slop. Do not place bordered cards inside bordered cards; use whitespace, `--bg-subtle`, or hairline dividers.
 
 ### Step 5: Define Responsive Layout Rules
@@ -90,22 +101,42 @@ Avoid nested card slop. Do not place bordered cards inside bordered cards; use w
 - Hand tokens and specs to `html-report` for a single-file HTML report, `plotly-dash` for a Dash application, or `python-pro` for a Python-served UI.
 - Give the implementer the token files, component acceptance criteria, and the state matrix from `ux-product-shaper`.
 - Hand the result to `ui-accessibility` for the WCAG audit and to `ux-critic` for heuristic critique.
+- Tell the implementer to follow the YAGNI rung ladder: native primitives first, inline until the Rule of Three, compound components over boolean props, and no unrequested chrome.
 - When retiring an old token or component, use `deprecation-migration` to keep consumers working during the transition.
+
+## Static Minimalism Gate
+Before handoff, fail the design system if any check fails:
+- [ ] Any declared token has zero active references.
+- [ ] Any raw hex, rgb, or arbitrary pixel value appears outside the token files.
+- [ ] Any bordered or shadowed card is nested inside another.
+- [ ] Any wrapper chain exceeds three consecutive layout-neutral divs.
+- [ ] Any destructive action uses the primary accent instead of `--intent-danger`.
+- [ ] Any view has more than one primary-filled CTA.
+- [ ] Any component has more than three boolean mode props.
 
 ## Rules
 - No hardcoded hex, rgb, or arbitrary pixel values outside the token files.
 - No component consumes a primitive token directly.
+- No unused token or 10-step ramp without an active caller.
+- No more than 2 font families or 5 font sizes.
+- No nested bordered or shadowed cards.
+- No unrequested navigation, search, filter, account, or export chrome.
 - No boolean-prop explosion: more than three boolean mode props is a design smell.
 - No theme parity claim without measured contrast.
 - No token rename without a migration path and a consumer audit.
+- **Lazy, Not Negligent**: YAGNI removes speculative tokens and components, never states, validation, WCAG 2.2 AA, or 24x24px targets.
 - No production UI code in this skill; hand off to the implementation skill.
 
 ## Verification Checklist
 - [ ] Aesthetic direction is recorded and justified.
+- [ ] Palette uses Monochrome + 1 Accent; status colors are reserved for live states.
+- [ ] At most 2 font families and 5 font sizes are declared.
 - [ ] Three token tiers exist with semantic roles.
+- [ ] At most 20-25 semantic tokens; every token has an active caller.
 - [ ] Light and dark parity is measured, not assumed.
 - [ ] Every component spec has anatomy, variants, states, and acceptance criteria.
 - [ ] Responsive rules cover 320px, 1440px, and 200% zoom.
+- [ ] The Static Minimalism Gate passes.
 - [ ] Token export uses ISO-dated files under `docs/designs/`.
 - [ ] Handoff names the implementation skill and the audit skills.
 

@@ -50,6 +50,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `skills/html-report`: Added a risk-based review gate; shared or print reports require `ui-accessibility`, and executive reports require `ux-critic` before `verify-and-stop`.
 - `skills/ui-accessibility` and `skills/ux-critic`: Added reciprocal HTML report handoffs and explicit triggers for report review.
 - `tests/test_invariants.py`: Extended `test_html_report_skill_integrity` to assert both report-review handoffs and the three review profiles.
+- `skills/ux-product-shaper`, `design-system`, `ui-accessibility`, and `ux-critic`: Added Minimalism Art Style and YAGNI doctrine: Monochrome + 1 Accent, typography caps, token/prop diet, Rule of Three, subtraction pass, THE ONE DELETION, and the Lazy, Not Negligent boundary.
+- `skills/html-report`: Consumes the minimalism/YAGNI doctrine from `design-system` and forbids unrequested navigation, search, filter, export, or account chrome.
+- `rules/AGENTS.md` and `README.md`: Documented the UI minimalism/YAGNI ownership, catalog wording, and quick-router entries.
+- `tests/test_invariants.py`: Extended the UI/UX family integrity test with minimalism/YAGNI markers.
 - `tests/test_setup_script.sh`: Default install now asserts `ux-product-shaper` and `design-system`.
 - `.github/workflows/ci.yml`: Added a CI workflow for pytest and the setup script tests.
 - `.gitignore`: Ignored `.zcode/` session state.

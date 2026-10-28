@@ -115,4 +115,5 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
 - UX research, Surface Mode, information architecture, and the 8-state contract live in **`ux-product-shaper`**.
 - WCAG 2.2 conformance, keyboard and focus models, and accessibility audits live in **`ui-accessibility`**.
 - Adversarial UI critique and heuristic evaluation live in **`ux-critic`**.
+- Minimalism and YAGNI doctrine for UI lives in **`design-system`** and **`ux-product-shaper`**; accessibility invariants remain non-negotiable in **`ui-accessibility`**.
 - Plotly chart design, anti-overlap, and SVG export live in **`data-visualization`**.

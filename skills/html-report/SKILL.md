@@ -68,6 +68,7 @@ Deliver findings as one offline HTML file. HTML is a presentation format; the an
 5. Wrap wide tables in a scroll container so the page never scrolls horizontally.
 6. Put raw logs, methodology notes, and secondary tables inside `<details>`. Keep primary sections open by default.
 7. Attach listeners with `addEventListener`, never inline `onclick`. Add search or column sort for tables over 10 rows. Provide a "Copy Summary (MD)" button for the executive summary, decisions, and open actions.
+8. Apply the minimalism and YAGNI doctrine from `design-system`: one primary action, no unrequested navigation, search, filter, export, or account chrome, and whitespace over nested cards.
 
 ### Step 5: Guarantee Print and PDF Fidelity
 Include the `@media print` block from the scaffold reference. It must:
@@ -106,7 +107,7 @@ Select the review gate from the report profile before delivery:
 - [ ] Executive reports passed `ux-critic`.
 
 ## Related Skills
-- Use **design-system** for project tokens, component specs, and theme parity; this skill consumes them.
+- Use **design-system** for project tokens, component specs, theme parity, and the minimalism/YAGNI doctrine; this skill consumes them.
 - Use **ui-accessibility** for shared, interactive, or print reports; audit contrast, keyboard, focus, and table semantics.
 - Use **ux-critic** for executive or decision reports; critique hierarchy, state honesty, and microcopy.
 - Use **technical-reporting** for editable Markdown reports, ADRs, Mermaid, and `docs/reports/YYYY-MM-DD_*.md` conventions.

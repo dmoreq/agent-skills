@@ -289,19 +289,19 @@ def test_ui_ux_family_integrity():
     family = {
         "ux-product-shaper": (
             "product-and-state-contracts.md",
-            ("Surface Mode", "8-State", "PRODUCT.md", "docs/designs/"),
+            ("Surface Mode", "8-State", "PRODUCT.md", "docs/designs/", "YAGNI", "Minimalist Register", "NOT Building"),
         ),
         "design-system": (
             "token-and-component-specs.md",
-            ("W3C DTCG", "tokens.css", "html-report", "plotly-dash"),
+            ("W3C DTCG", "tokens.css", "html-report", "plotly-dash", "Monochrome", "1 Accent", "Rule of Three", "20-25"),
         ),
         "ui-accessibility": (
             "wcag-2-2-audit.md",
-            ("WCAG 2.2", "keyboard", "code-review", "verify-and-stop"),
+            ("WCAG 2.2", "keyboard", "code-review", "verify-and-stop", "False Minimalism", "Clickability"),
         ),
         "ux-critic": (
             "heuristic-critique.md",
-            ("Nielsen", "squint", "doubt-driven-development", "docs/reports/"),
+            ("Nielsen", "squint", "doubt-driven-development", "docs/reports/", "Dieter Rams", "Subtraction", "THE ONE DELETION", "YAGNI"),
         ),
     }
 
