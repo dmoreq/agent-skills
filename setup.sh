@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# Sync Global Agent Rules + Skills to Antigravity, Grok Build, OpenCode, Codex, Hermes, Zed, and ZCode.
+# Sync Global Agent Rules + Skills to Antigravity, Grok Build, OpenCode, Codex, Zed, and ZCode.
 # Default: user-global, skips Rust skills. See --help.
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RULES_FILE="$REPO_DIR/rules/AGENTS.md"
-HERMES_PREAMBLE="$REPO_DIR/rules/hermes-preamble.md"
 SKILLS_DIR="$REPO_DIR/skills"
 
 SCOPE="user"          # user | project
@@ -28,8 +27,8 @@ Install this repo's rules (AGENTS.md) and skills to coding agents.
 Options:
   --project          Install into the current directory (.agents/skills, AGENTS.md)
   --user             Install user-global (default)
-  --host LIST        Comma-separated: antigravity,grok,opencode,codex,hermes,zed,zcode,portable
-                     Default: portable + antigravity always; grok/opencode/codex/hermes/zed/zcode if detected
+  --host LIST        Comma-separated: antigravity,grok,opencode,codex,zed,zcode,portable
+                     Default: portable + antigravity always; grok/opencode/codex/zed/zcode if detected
   --with-rust        Include Rust skills (rust-pro, rust-async-patterns, pyo3-maturin). Default: skipped.
   --all              Enable --with-rust and install to all detected hosts.
   --link             Symlink skill folders from this repo (dev). Default is copy.
@@ -44,7 +43,6 @@ Canonical skill path (all modern hosts scan it):
 Native extras (hosts that do not reliably use ~/.agents/skills):
   Antigravity IDE    ~/.gemini/config/skills
   Antigravity CLI    ~/.gemini/antigravity-cli/skills
-  Hermes             ~/.hermes/SOUL.md  (+ ~/.hermes/skills with --mirror-native)
   ZCode Desktop      ~/.zcode/skills (rules: ~/.zcode/AGENTS.md)
 EOF
 }
@@ -76,10 +74,6 @@ detected_codex() {
     [[ -d "$HOME/.codex" ]] || have_cmd codex || [[ -d "/Applications/ChatGPT.app/Contents/Resources/codex-cli" ]]
 }
 
-detected_hermes() {
-    [[ -d "${HERMES_HOME:-$HOME/.hermes}" ]] || have_cmd hermes
-}
-
 detected_zed() {
     [[ -d "$HOME/.config/zed" ]] || have_cmd zed || [[ -d "/Applications/Zed.app" ]]
 }
@@ -107,7 +101,6 @@ host_wanted() {
         grok)     detected_grok || $FORCE ;;
         opencode) detected_opencode || $FORCE ;;
         codex)    detected_codex || $FORCE ;;
-        hermes)   detected_hermes || $FORCE ;;
         zed)      detected_zed || $FORCE ;;
         zcode)    detected_zcode || $FORCE ;;
         *)        return 1 ;;
@@ -176,24 +169,6 @@ write_file() {
     fi
     mkdir -p "$(dirname "$dest")"
     cp "$src" "$dest"
-}
-
-write_hermes_soul() {
-    local dest="${HERMES_HOME:-$HOME/.hermes}/SOUL.md"
-    if $DRY_RUN; then
-        log "  file -> $dest"
-        return 0
-    fi
-    if [[ ! -f "$HERMES_PREAMBLE" ]]; then
-        log "Missing $HERMES_PREAMBLE"
-        exit 1
-    fi
-    mkdir -p "$(dirname "$dest")"
-    {
-        cat "$HERMES_PREAMBLE"
-        printf '\n'
-        cat "$RULES_FILE"
-    } > "$dest"
 }
 
 write_zed_rules() {
@@ -350,7 +325,7 @@ if [[ "$SCOPE" == "project" ]]; then
     write_file "$PROJECT_AGENTS" "$RULES_FILE"
     INSTALLED+=("project|$PROJECT_AGENTS|$PROJECT_SKILLS")
 else
-    # Portable Agent Skills root. Cursor, Pi, Grok, Windsurf, Claude, and Antigravity 2.0 scan this.
+    # Portable Agent Skills root scanned by Grok, Codex, Zed, and other Agent Skills hosts.
     if host_wanted portable; then
         DEST="$HOME/.agents/skills"
         log "==> [portable] ~/.agents/skills"
@@ -404,22 +379,6 @@ else
         log "==> [codex] skipped (Codex not detected)"
     fi
 
-    if host_wanted hermes; then
-        hermes_dir="${HERMES_HOME:-$HOME/.hermes}"
-        if $MIRROR_NATIVE; then
-            log "==> [hermes] \$HERMES_HOME/SOUL.md + native skills root"
-            write_hermes_soul
-            sync_skills "$hermes_dir/skills"
-            INSTALLED+=("hermes|$hermes_dir/SOUL.md|$hermes_dir/skills")
-        else
-            log "==> [hermes] \$HERMES_HOME/SOUL.md (skills stay in the repo via skills.external_dirs)"
-            write_hermes_soul
-            INSTALLED+=("hermes|$hermes_dir/SOUL.md|skills.external_dirs")
-        fi
-    elif [[ -z "$HOSTS_FILTER" ]]; then
-        log "==> [hermes] skipped (Hermes not detected; pass --force or --host hermes)"
-    fi
-
     if host_wanted zed; then
         log "==> [zed] ~/.config/zed/AGENTS.md (skills via ~/.agents/skills)"
         write_zed_rules
@@ -440,7 +399,7 @@ fi
 
 log "========================================================"
 if [[ ${#INSTALLED[@]} -eq 0 ]]; then
-    log "Nothing installed. Use --force or --host antigravity,grok,opencode,codex,hermes,zed,zcode,portable"
+    log "Nothing installed. Use --force or --host antigravity,grok,opencode,codex,zed,zcode,portable"
     exit 1
 fi
 log "Done. Restart each agent session so it re-scans skills."
@@ -455,7 +414,6 @@ log "Verify:"
 log "  Antigravity: ask which skills are available, or /skills"
 log "  Codex:       ask which skills are available, /skills, or codex exec 'What skills are installed?'"
 log "  Grok Build:  grok inspect"
-log "  Hermes:      hermes skills list  (after restart)"
 log "  Zed:         ask which skills are available in the Agent Panel, or /skills"
 log "  OpenCode:    opencode debug config"
 log "  ZCode:       Settings → Skills, or ask which skills are available"

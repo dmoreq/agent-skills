@@ -14,8 +14,7 @@ A Goldfish reviewer runs in a fresh context with no conversation history. It is 
 | Tier | Hosts | Dispatch |
 | :--- | :--- | :--- |
 | 1 | Antigravity, Codex, OpenCode | Six parallel read-only subagents, one per lens |
-| 2 | Hermes | `conductor` delegates to `critic` and `scout`, one lens at a time |
-| 3 | Zed, Grok, ZCode, single-thread CLI | Save the hypothesis first, then apply each card sequentially |
+| 2 | Zed, Grok, ZCode, single-thread CLI | Save the hypothesis first, then apply each card sequentially |
 
 ## 2. Brainstorm Lens Cards
 

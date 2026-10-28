@@ -68,7 +68,7 @@ For diff reviews, execute automated and structural gates before manual semantic 
    - **Core 3-lens swarm** (>= 100 LOC, new helpers/rules, multi-module): `cr-correctness-invariants`, `cr-mechanism-generalization`, `cr-codebase-reuse-and-contracts`.
    - **Full 5-lens swarm** (also I/O, async/threads, large data, auth, SQL, or paths): add `cr-concurrency-memory-perf` and `cr-security-trust-boundary`.
    - Keep lens 2 inside the diff (ad-hoc hardcoding, symptom band-aids, YAGNI, complexity) and lens 3 outside it (`git grep` reuse, stdlib, callers, contract drift). Never merge them.
-   - Tier 1 native parallel: Antigravity `invoke_subagent`, Codex `spawn_agent`, OpenCode `Task`. Tier 2 Hermes `critic` + `scout`. Tier 3 sequential cold read.
+   - Tier 1 native parallel: Antigravity `invoke_subagent`, Codex `spawn_agent`, OpenCode `Task`. Tier 2 sequential cold read for Zed, Grok, ZCode, or a single-thread CLI.
    - Pass only the persona card, diff paths, contract path, and pre-flight confirmation. Never pass author reasoning.
 3. **Reviewability & Blast Radius Gate**:
    - **Reviewability Budget**: Diff exceeds 400 effective LOC (excluding lockfiles/fixtures) → **Important** (request splitting into stacked PRs).

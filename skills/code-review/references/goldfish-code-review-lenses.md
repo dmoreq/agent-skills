@@ -28,8 +28,7 @@ Never merge `cr-mechanism-generalization` and `cr-codebase-reuse-and-contracts`.
 | Tier | Hosts | Dispatch |
 | :--- | :--- | :--- |
 | 1 | Antigravity, Codex, OpenCode | Parallel read-only subagents, one per persona |
-| 2 | Hermes seven-bots | `critic` runs correctness and mechanism; `scout` runs repo-wide reuse and caller scans |
-| 3 | Zed, Grok, ZCode, single-thread CLI | Sequential cold-read passes, one persona rubric per pass |
+| 2 | Zed, Grok, ZCode, single-thread CLI | Sequential cold-read passes, one persona rubric per pass |
 
 Pass only the persona card, target paths or diff, contract or spec path, and pre-flight pass confirmation. Never pass the author's rationale or a prior verdict.
 
