@@ -19,8 +19,8 @@ Rules:
 ## 2. Zen Minimalism Art Style (Kanso, Ma, Shibumi)
 
 - **Monochrome + 1 Accent (Warm Organic Surfaces)**: at least 90% of the viewport uses a warm neutral surface ramp tinted toward natural paper or stone (such as Shibumi parchment `#F7F4EE`, Karesansui gravel `#F4F1EA`, or Kinfolk warm paper `#FBF9F5` in light mode; Kyoto espresso `#141210` in dark mode). Reserve one earthy accent (`#9E583B` muted clay, `#4A6B53` Kyoto moss, or `#A65638` terracotta) for the primary CTA, numbered chapter index, and active focus ring. Reserve status colors for live system feedback, never decorative badges.
-- **Ma (Whitespace over boxes)**: treat emptiness as an active design material. Use 3-5.5rem macro spacing between sections and 0.5-1rem micro spacing inside groups. Prefer a 1px hairline over a nested bordered card. Never place a bordered or shadowed card inside another.
-- **Shibumi (Understated Typography & Prose Rhythm)**: at most 2 font families and at most 5 font sizes. Hero metrics may reach 2.5x-3x body size. Use weight 400/600 contrast, left-aligned axes, 60ch-70ch measure, and `tabular-nums` on numeric data. Cap prose paragraphs at 2-3 sentences (`<= 60 words`) so copy reads with calm authority.
+- **Ma (Whitespace over boxes)**: treat emptiness as an active design material. Use 3.5-5.25rem macro spacing between sections and 0.5-1rem micro spacing inside groups. Prefer a 1px hairline over a nested bordered card. Never place a bordered or shadowed card inside another.
+- **Shibumi (Understated Typography & Prose Rhythm)**: use at most 2 primary font families (an editorial serif plus a UI sans) and one monospace data face. Use at most 5 size tokens for product UI or the 9 editorial roles below for reports. Hero KPI metrics may reach 2.5x-3x body; a page-title display may reach 3x+. Use display weights 300/350/400, body 400, UI 500, and emphasis 600; never 700. Keep left-aligned axes, 60ch-70ch measure, and `tabular-nums` on numeric data. Cap prose paragraphs at 2-3 sentences (`<= 60 words`) so copy reads with calm authority.
 - **Kanso (Typography as the primary graphic)**: do not add decorative illustrations, gradient blobs, floating 3D shapes, glassmorphism, or icon tiles above headings.
 - No unmotivated purple-to-blue gradient: avoid `#8b5cf6` to `#3b82f6` as a default hero.
 - No neon cyberpunk glow on B2B, admin, or data surfaces.
@@ -41,16 +41,35 @@ Rules:
 | `--text-lg` | 1.25rem | Section heading, lead paragraph |
 | `--text-display` | 2.25rem+ | Page title, hero metric, chapter index |
 
-Use at most 2 font families: one editorial serif or UI sans and one monospace. Do not add a third display face. Use a modular ratio of 1.200 or 1.250. Keep prose at 60ch-70ch. Apply `font-variant-numeric: tabular-nums` to metrics, prices, dates, and table numbers.
+Use at most 2 primary font families (an editorial serif plus a UI sans) and one monospace data face. Do not add a third display face. Use a consistent ratio per scale; reports may use optical sizing and clamps. Keep prose at 60ch-70ch, target 66ch. Apply `font-variant-numeric: tabular-nums` to metrics, prices, dates, and table numbers.
+
+### Editorial report extension (9 roles)
+
+Reports use these nine roles instead of the five product tokens. Component aliases may select a per-preset value.
+
+| Role | Size | Use |
+| :--- | :--- | :--- |
+| `--text-xs` | 0.75rem | Eyebrows, labels, table headers, nav numbers |
+| `--text-sm` | 0.875rem | Secondary body, table cells, section leads, code |
+| `--text-base` | 0.95rem | Body prose |
+| `--text-md` | 1.25rem | Summary/details, lead |
+| `--text-lg` | 1.65rem | Section headings, thesis |
+| `--text-xl` | 2rem | Zen/Chronicle section headings |
+| `--text-2xl` | 2.5rem | KPI figures |
+| `--text-3xl` | 2.85rem | Chapter indices |
+| `--text-display` | `clamp(2.35rem, 4.2vw, 3.6rem)` | Page title; Zen/Chronicle override to `clamp(2.65rem, 4.8vw, 4.1rem)` |
+
+Minimums: body prose `>= 0.9375rem`, labels `>= 0.75rem`, code and body monospace `>= 0.82rem`.
 
 ### Spacing scale
 
-Use a 4px base: `0.25rem`, `0.5rem`, `0.75rem`, `1rem`, `1.5rem`, `2rem`, `3rem`, `4rem`, `5.5rem`. Macro whitespace must exceed micro whitespace.
+Use a 4px base: `0.25rem`, `0.5rem`, `0.75rem`, `1rem`, `1.5rem`, `2rem`, `3rem`, `4rem`, `5.25rem`. Macro whitespace must exceed micro whitespace.
 
 ### Radius and motion
 
 | Token | Value | Use |
 | :--- | :--- | :--- |
+| `--radius-xs` | 0.375rem | `chronicle` cards |
 | `--radius-sm` | 0.25rem | Inputs, chips, `zen-garden` cards |
 | `--radius-md` | 0.5rem | `dossier` cards, buttons |
 | `--radius-lg` | 0.75rem | Modals, large panels |
@@ -196,4 +215,4 @@ Handoff checklist:
 - [ ] Destructive actions use `--intent-danger`.
 - [ ] At most one primary-filled CTA per view.
 - [ ] At most three boolean mode props per component.
-- [ ] At most 2 font families and 5 font sizes.
+- [ ] At most 2 primary font families plus one monospace data face; 5 product sizes or 9 editorial report roles.

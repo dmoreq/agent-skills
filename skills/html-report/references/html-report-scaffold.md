@@ -1,16 +1,18 @@
-# HTML Report Scaffold (Zen Minimalism 3-Preset Architecture)
+# HTML Report Scaffold (Zen Minimalism 3-Preset & Editorial Typography Architecture)
 
-Reference for `html-report`. Copy the skeleton and trim only data sections the report does not need. Preserve the 3-preset system (`dossier` default, `zen-garden`, `chronicle`), dual light/dark theme parity, offline self-containment, and print fidelity.
+Reference for `html-report`. Copy the skeleton and trim only data sections the report does not need. Preserve the Google Fonts `<link>`, the 3-preset system (`dossier` default, `zen-garden`, `chronicle`) with distinct typography per preset, dual light/dark theme parity, offline self-containment, and print fidelity.
 
-## 1. The Three Curated Presets
+## 1. The Three Curated Presets & Typography Pairings
 
-| Preset Attribute | UI Label | Default? | Inspiration & Visual Identity |
+| Preset Attribute | UI Label | Default? | Palette & Distinct Typography Pairing |
 | :--- | :--- | :--- | :--- |
-| `data-preset="dossier"` | **Clinical Dossier** | **Yes (Default)** | *Shibumi* (understated authority) + Function Health biomarker precision. Soft parchment (`#F7F4EE`), cream cards (`#FDFBF7`), muted clay accent (`#9E583B`), compact `230px` sticky chapter sidebar (`01`-`06`), high-density tabular scanning. |
-| `data-preset="zen-garden"` | **Zen Garden** | User Option 2 | *Karesansui* dry rock garden + generous *Ma* negative space. Raked limestone (`#F4F1EA`), warm stone (`#F9F7F2`), Kyoto moss (`#4A6B53`), centered `960px` contemplative single-column flow with `5.25rem` vertical section breathing room. |
-| `data-preset="chronicle"` | **Slow Chronicle** | User Option 3 | Kinfolk slow-living editorial narrative. Warm paper (`#FBF9F5`), sand cards (`#F5F0E6`), earth terracotta (`#A65638`), `1020px` single-column magazine flow with full-width horizontal chapter headers and editorial serif pull-quotes. |
+| `data-preset="dossier"` | **Clinical Dossier** | **Yes (Default)** | **Palette**: Soft Parchment (`#F7F4EE`), Cream (`#FDFBF7`), Muted Clay (`#9E583B`).<br>**Typography**: `'Fraunces'` (optical-size variable editorial serif, weight `350`/`400`) + `'Inter'` (precision UI sans) + `'JetBrains Mono'` (tabular data).<br>**Layout**: Compact `240px` sticky chapter sidebar (`01`-`06`) + fluid evidence column (`1220px` max-width). |
+| `data-preset="zen-garden"` | **Zen Garden** | User Option 2 | **Palette**: Raked Limestone (`#F4F1EA`), Warm Stone (`#F9F7F2`), Kyoto Moss (`#4A6B53`).<br>**Typography**: `'Cormorant Garamond'` (high-contrast classical serif, weight `300`/`400`, lyrical italics) + `'Inter'` (weight `400`/`500`, airy `1.75` line-height) + `'JetBrains Mono'`.<br>**Layout**: Centered `960px` contemplative single-column flow with `5.25rem` vertical *Ma* breathing room. |
+| `data-preset="chronicle"` | **Slow Chronicle** | User Option 3 | **Palette**: Warm Paper (`#FBF9F5`), Sand (`#F5F0E6`), Earth Terracotta (`#A65638`).<br>**Typography**: `'Cormorant Garamond'` (oversized `1.65rem` pull-quotes & chapter banners, weight `300`/`400`) + `'Plus Jakarta Sans'` (warm geometric humanist body) + `'JetBrains Mono'`.<br>**Layout**: `1020px` single-column magazine flow with full-width horizontal chapter headers (`01`-`06`). |
 
-## 2. Document Skeleton
+The reference defines all three presets. A generated report keeps exactly one preset token block and deletes the other two. It never includes a preset switcher.
+
+## 2. Document Skeleton (with Required Google Fonts Link)
 
 ```html
 <!DOCTYPE html>
@@ -19,35 +21,26 @@ Reference for `html-report`. Copy the skeleton and trim only data sections the r
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Report Title</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    /* 1. 3-Preset Tokens + Dark Theme Parity */
-    /* 2. Base, Typography & Zen Ma Spacing */
+    /* 1. One-Preset Color & Typography Tokens + Dark Theme Parity */
+    /* 2. Micro-Typesetting, Optical Sizing & Zen Ma Spacing */
     /* 3. Preset Layout Engine (dossier, zen-garden, chronicle) */
     /* 4. Print Stylesheet */
   </style>
 </head>
 <body>
+  <a class="skip" href="#summary">Skip to summary</a>
   <div class="report-shell">
     <header class="report-header">
       <div class="header-title-group">
-        <span class="eyebrow">Evaluation Report</span>
         <h1>Declarative Finding Title</h1>
         <p class="meta">2026-10-28 · Cohort N = 4,365,797 · Revision abc1234</p>
       </div>
-      <div class="header-controls">
-        <span class="status-pill status-ok">Verified Parity</span>
-        <div class="toolbar no-print" role="toolbar" aria-label="Report appearance and actions">
-          <div class="preset-group" role="group" aria-label="Style preset">
-            <button type="button" class="preset-btn active" data-preset-val="dossier" title="Shibumi Clinical Dossier (Default)">Dossier</button>
-            <button type="button" class="preset-btn" data-preset-val="zen-garden" title="Karesansui Zen Garden">Zen Garden</button>
-            <button type="button" class="preset-btn" data-preset-val="chronicle" title="Kinfolk Slow Chronicle">Chronicle</button>
-          </div>
-          <button type="button" id="theme-toggle">Theme</button>
-          <button type="button" id="expand-all">Expand all</button>
-          <button type="button" id="collapse-all">Collapse all</button>
-          <button type="button" id="copy-summary">Copy Summary (MD)</button>
-        </div>
-      </div>
+      <button type="button" id="theme-toggle" class="theme-toggle no-print"
+              aria-label="Toggle color theme" aria-pressed="false">Theme</button>
     </header>
 
     <nav class="section-nav no-print" aria-label="Sections">
@@ -65,13 +58,13 @@ Reference for `html-report`. Copy the skeleton and trim only data sections the r
         </div>
         <div class="section-content">
           <div class="thesis-box" id="thesis-statement">
-            <p>One- or two-sentence declarative thesis stating the exact primary metric, delta, and operational consequence.</p>
+            <p>One- or two-sentence declarative thesis stating the exact primary metric, <em>delta</em>, and operational consequence.</p>
           </div>
           <div class="kpi-grid">
             <article class="kpi">
               <span class="kpi-label">Top-1 Accuracy</span>
               <strong>78.52%</strong>
-              <span class="subtext">Baseline: 70.16% (<span class="delta-pos">+8.36pp</span>)</span>
+              <span class="subtext">Baseline: 70.16% (<span class="delta-pos">+8.36 pp</span>)</span>
             </article>
             <article class="kpi">
               <span class="kpi-label">Evaluated Volume</span>
@@ -111,10 +104,26 @@ Reference for `html-report`. Copy the skeleton and trim only data sections the r
 </html>
 ```
 
-## 3. Preset & Dual-Theme Tokens
+## 3. Preset Color & Typography Tokens (Distinct Font Pairings per Preset)
 
 ```css
-/* DEFAULT PRESET: dossier (The Shibumi Clinical Dossier) */
+/* Shared editorial type roles (9), radius scale, and data palette.
+   Keep only the preset block chosen for the report; delete the other two. */
+:root {
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 0.95rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.65rem;
+  --text-xl: 2rem;
+  --text-2xl: 2.5rem;
+  --text-3xl: 2.85rem;
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+}
+
+/* DEFAULT PRESET: dossier (The Shibumi Clinical Dossier — Fraunces + Inter + JetBrains Mono) */
 :root,
 :root[data-preset="dossier"] {
   --bg-page: #F7F4EE;
@@ -131,42 +140,68 @@ Reference for `html-report`. Copy the skeleton and trim only data sections the r
   --status-warn: #A85B14;
   --status-bad: #992B2B;
   --chart-ps: #9E583B;
-  --chart-prod: #878079; /* 3.55:1 on --bg-page */
+  --chart-prod: #5A5550;
+  --chart-old: #878079;
   --chart-pos: #2B6648;
   --chart-neg: #992B2B;
-  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-  --radius-card: 8px;
+  --on-accent: #FDFBF7;
+
+  --font-display: 'Fraunces', "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --display-weight: 350;
+  --display-tracking: -0.022em;
+  --display-size: clamp(2.35rem, 4.2vw, 3.6rem);
+  --text-thesis: 1.42rem;
+  --chapter-size: var(--text-3xl);
+  --kpi-size: var(--text-2xl);
+  --body-lh: 1.65;
+
+  --radius-card: var(--radius-md);
   --section-pad: 3.5rem;
   --container-max: 1220px;
 }
 
-/* PRESET 2: zen-garden (Karesansui Dry Rock Garden) */
+/* PRESET 2: zen-garden (Karesansui Dry Rock Garden — Cormorant Garamond + Airy Inter + JetBrains Mono) */
 :root[data-preset="zen-garden"] {
   --bg-page: #F4F1EA;
   --bg-card: #F9F7F2;
   --bg-subtle: #EAE5DB;
   --text-primary: #2B2A27;
-  --text-secondary: #605E58;
+  --text-secondary: #5E5C56;
   --text-muted: #8C887F;
   --border: #DCD6CA;
   --border-strong: #BDB5A6;
   --accent: #4A6B53;
   --accent-subtle: #E3ECE5;
-  --status-ok: #3B6E4C;
-  --status-warn: #B06A2B;
-  --status-bad: #9E3B33;
-  --chart-ps: #4A6B53;
-  --chart-prod: #878079; /* 3.45:1 on --bg-page */
-  --chart-pos: #3B6E4C;
-  --chart-neg: #9E3B33;
-  --radius-card: 4px;
+  /* Shared warm data palette: Zen Garden charts match Dossier. */
+  --status-ok: #2B6648;
+  --status-warn: #A85B14;
+  --status-bad: #992B2B;
+  --chart-ps: #9E583B;
+  --chart-prod: #5A5550;
+  --chart-old: #878079;
+  --chart-pos: #2B6648;
+  --chart-neg: #992B2B;
+  --on-accent: #F9F7F2;
+
+  --font-display: 'Cormorant Garamond', "Iowan Old Style", Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --display-weight: 400;
+  --display-tracking: -0.012em;
+  --display-size: clamp(2.65rem, 4.8vw, 4.1rem);
+  --text-thesis: 1.6rem;
+  --chapter-size: var(--text-3xl);
+  --kpi-size: 2.75rem;
+  --body-lh: 1.75;
+
+  --radius-card: var(--radius-sm);
   --section-pad: 5.25rem;
   --container-max: 960px;
 }
 
-/* PRESET 3: chronicle (Kinfolk Slow-Living Chronicle) */
+/* PRESET 3: chronicle (Kinfolk Slow-Living Chronicle — Cormorant Garamond + Plus Jakarta Sans + JetBrains Mono) */
 :root[data-preset="chronicle"] {
   --bg-page: #FBF9F5;
   --bg-card: #F5F0E6;
@@ -182,10 +217,24 @@ Reference for `html-report`. Copy the skeleton and trim only data sections the r
   --status-warn: #A85C18;
   --status-bad: #962D2D;
   --chart-ps: #A65638;
-  --chart-prod: #878079; /* 3.70:1 on --bg-page */
+  --chart-prod: #5C564F;
+  --chart-old: #8C847A;
   --chart-pos: #356348;
   --chart-neg: #962D2D;
-  --radius-card: 4px;
+  --on-accent: #FBF9F5;
+
+  --font-display: 'Cormorant Garamond', "Iowan Old Style", Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --display-weight: 400;
+  --display-tracking: -0.015em;
+  --display-size: clamp(2.65rem, 4.8vw, 4.1rem);
+  --text-thesis: 1.65rem;
+  --chapter-size: 2.35rem;
+  --kpi-size: 2.75rem;
+  --body-lh: 1.7;
+
+  --radius-card: var(--radius-xs);
   --section-pad: 4.75rem;
   --container-max: 1020px;
 }
@@ -198,7 +247,7 @@ Reference for `html-report`. Copy the skeleton and trim only data sections the r
     --bg-subtle: #27231F;
     --text-primary: #F5EFE6;
     --text-secondary: #B8AFA6;
-    --text-muted: #7E756C;
+    --text-muted: #A8988A;
     --border: #2E2924;
     --border-strong: #4A423B;
     --accent: #D48462;
@@ -207,9 +256,11 @@ Reference for `html-report`. Copy the skeleton and trim only data sections the r
     --status-warn: #E09F3E;
     --status-bad: #E06D6D;
     --chart-ps: #D48462;
-    --chart-prod: #746B62; /* 3.58:1 on --bg-page */
+    --chart-prod: #B8AFA6;
+    --chart-old: #A8988A;
     --chart-pos: #68B684;
     --chart-neg: #E06D6D;
+    --on-accent: #141210;
   }
 }
 
@@ -219,7 +270,7 @@ Reference for `html-report`. Copy the skeleton and trim only data sections the r
   --bg-subtle: #27231F;
   --text-primary: #F5EFE6;
   --text-secondary: #B8AFA6;
-  --text-muted: #7E756C;
+  --text-muted: #A8988A;
   --border: #2E2924;
   --border-strong: #4A423B;
   --accent: #D48462;
@@ -228,157 +279,214 @@ Reference for `html-report`. Copy the skeleton and trim only data sections the r
   --status-warn: #E09F3E;
   --status-bad: #E06D6D;
   --chart-ps: #D48462;
-  --chart-prod: #746B62; /* 3.58:1 on --bg-page */
+  --chart-prod: #B8AFA6;
+  --chart-old: #A8988A;
   --chart-pos: #68B684;
   --chart-neg: #E06D6D;
+  --on-accent: #141210;
 }
 ```
 
-## 4. Base, Preset Layout Engine, and Components
+## 4. Base, Micro-Typesetting, Preset Layout Engine, and Components
 
 ```css
 * { box-sizing: border-box; }
-html { font-size: 16px; scroll-behavior: smooth; }
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
 body {
   margin: 0;
   background: var(--bg-page);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 0.9375rem;
-  line-height: 1.65;
+  font-size: 0.95rem;
+  line-height: var(--body-lh);
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-.report-shell { max-width: var(--container-max); margin: 0 auto; padding: 0 1.75rem 5rem; }
-p, li { max-width: 68ch; }
-h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1.2; break-after: avoid; }
-.eyebrow, .kpi-label {
+.report-shell { max-width: var(--container-max); margin: 0 auto; padding: 0 2rem 5rem; }
+p, li { max-width: 66ch; text-wrap: pretty; }
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  font-optical-sizing: auto;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  line-height: 1.12;
+  text-wrap: balance;
+  break-after: avoid;
+}
+.kpi-label, .tag {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: var(--text-xs);
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
 }
-.meta, .status-pill, .num, .kpi { font-variant-numeric: tabular-nums; }
+.meta, .num, .kpi, td.num, th.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.meta { font-size: var(--text-sm); color: var(--text-secondary); margin: 0; }
 
 .report-header {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.5rem;
-  align-items: flex-end;
+  gap: 2rem;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 3.5rem 0 2.25rem;
+  padding: 4rem 0 2.5rem;
   border-bottom: 1px solid var(--border-strong);
 }
-.header-title-group h1 { font-size: clamp(2rem, 3.8vw, 3.1rem); margin: 0.4rem 0 0.65rem; }
-.header-controls { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; }
-.toolbar { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
-.preset-group { display: inline-flex; background: var(--bg-subtle); padding: 0.2rem; border-radius: 999px; border: 1px solid var(--border); }
-button {
-  font: inherit;
-  font-size: 0.78rem;
-  padding: 0.38rem 0.75rem;
+.header-title-group h1 {
+  font-size: var(--display-size);
+  line-height: 1.06;
+  margin: 0.5rem 0 0.85rem;
+  max-width: 20ch;
+}
+:root[data-preset="zen-garden"] .header-title-group h1,
+:root[data-preset="chronicle"] .header-title-group h1 {
+  line-height: 1.04;
+}
+.theme-toggle { align-self: flex-start; }
+button, .filter-input {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  min-height: 2rem;
+  padding: 0.38rem 0.8rem;
   color: var(--text-primary);
   background: var(--bg-card);
   border: 1px solid var(--border-strong);
   border-radius: 999px;
   cursor: pointer;
 }
-.preset-btn { border: none; background: transparent; color: var(--text-secondary); }
-.preset-btn.active { background: var(--accent); color: #FDFBF7; font-weight: 600; }
-.status-pill { padding: 0.25rem 0.75rem; border-radius: 999px; font-family: var(--font-mono); font-size: 0.72rem; border: 1px solid currentColor; }
-.status-ok { color: var(--status-ok); background: var(--accent-subtle); }
 
 .section-nav {
   position: sticky;
   top: 0;
   z-index: 10;
   display: flex;
-  gap: 1.5rem;
-  padding: 0.85rem 0;
+  gap: 1.75rem;
+  padding: 0.9rem 0;
   background: var(--bg-page);
   border-bottom: 1px solid var(--border);
   overflow-x: auto;
 }
-.section-nav a { color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; white-space: nowrap; }
-.section-nav a .nav-num { font-family: var(--font-mono); color: var(--accent); margin-right: 0.3rem; }
+.section-nav a { color: var(--text-secondary); text-decoration: none; font-size: var(--text-sm); font-weight: 500; white-space: nowrap; }
+.section-nav a .nav-num { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--accent); margin-right: 0.35rem; }
 
-/* DEFAULT LAYOUT (dossier): Compact 230px Sticky Chapter Sidebar + Evidence Column */
+/* DEFAULT LAYOUT (dossier): Compact 240px Sticky Chapter Sidebar + Evidence Column */
 .report-section {
   padding: var(--section-pad) 0;
   border-bottom: 1px solid var(--border);
   display: grid;
-  grid-template-columns: 230px 1fr;
-  gap: 2.5rem;
+  grid-template-columns: 240px 1fr;
+  gap: 3rem;
   align-items: start;
 }
-.section-sidebar { position: sticky; top: 3.5rem; }
-.chapter-index { font-family: var(--font-display); font-size: 2.5rem; line-height: 1; color: var(--accent); display: block; margin-bottom: 0.35rem; }
-.section-sidebar h2 { font-size: 1.5rem; margin: 0 0 0.6rem; }
-.section-lead { font-size: 0.86rem; color: var(--text-secondary); margin: 0; }
+.section-sidebar { position: sticky; top: 3.75rem; }
+.chapter-index {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: var(--chapter-size);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--accent);
+  font-optical-sizing: auto;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  display: block;
+  margin-bottom: 0.45rem;
+}
+.section-sidebar h2 { font-size: var(--text-lg); margin: 0 0 0.65rem; }
+:root[data-preset="zen-garden"] .section-sidebar h2,
+:root[data-preset="chronicle"] .section-sidebar h2 { font-size: var(--text-xl); }
+.section-lead { font-size: var(--text-sm); color: var(--text-secondary); margin: 0; line-height: 1.6; }
 
 /* PRESET 2 LAYOUT (zen-garden): Centered Contemplative Flow + Extra Ma Whitespace */
-:root[data-preset="zen-garden"] .report-section {
-  grid-template-columns: 1fr;
-  gap: 2rem;
-}
-:root[data-preset="zen-garden"] .section-sidebar {
-  position: static;
-  text-align: center;
-  max-width: 620px;
-  margin: 0 auto 0.5rem;
-}
-:root[data-preset="zen-garden"] .thesis-box {
-  border-left: none;
-  border-top: 2px solid var(--accent);
-  text-align: center;
-}
+:root[data-preset="zen-garden"] .report-section { grid-template-columns: 1fr; gap: 2.25rem; }
+:root[data-preset="zen-garden"] .section-sidebar { position: static; text-align: center; max-width: 640px; margin: 0 auto 0.5rem; }
+:root[data-preset="zen-garden"] .thesis-box { border-left: 1px solid var(--border-strong); border-top: 2px solid var(--accent); text-align: center; }
+:root[data-preset="zen-garden"] .thesis-box p { margin: 0 auto; font-size: 1.6rem; font-style: italic; }
 
 /* PRESET 3 LAYOUT (chronicle): Kinfolk Horizontal Chapter Banner + Editorial Pull-Quotes */
-:root[data-preset="chronicle"] .report-section {
-  grid-template-columns: 1fr;
-  gap: 2.25rem;
-}
+:root[data-preset="chronicle"] .report-section { grid-template-columns: 1fr; gap: 2.25rem; }
 :root[data-preset="chronicle"] .section-sidebar {
   position: static;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 240px 1fr;
   align-items: baseline;
-  gap: 1.25rem;
+  gap: 1.5rem;
   border-bottom: 1px solid var(--border-strong);
-  padding-bottom: 0.85rem;
+  padding-bottom: 1rem;
 }
-:root[data-preset="chronicle"] .chapter-index { font-size: 2rem; margin-bottom: 0; }
+:root[data-preset="chronicle"] .chapter-index { font-size: 2.35rem; margin-bottom: 0; }
+:root[data-preset="chronicle"] .thesis-box p { font-size: 1.65rem; line-height: 1.38; }
 
 .thesis-box {
   background: var(--bg-card);
   border: 1px solid var(--border-strong);
   border-left: 3px solid var(--accent);
-  padding: 1.4rem 1.65rem;
-  margin-bottom: 1.75rem;
+  padding: 1.6rem 1.85rem;
+  margin-bottom: 2rem;
   border-radius: var(--radius-card);
 }
-.thesis-box p { font-family: var(--font-display); font-size: 1.35rem; line-height: 1.42; margin: 0; }
+.thesis-box p {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: var(--text-thesis);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  font-optical-sizing: auto;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  margin: 0;
+  max-width: 54ch;
+}
+.thesis-box p em, .thesis-box p strong { color: var(--accent); font-weight: 400; font-style: italic; }
 
-.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-.kpi { padding: 1.2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-card); }
-.kpi strong { display: block; font-family: var(--font-display); font-size: 2.2rem; line-height: 1.1; margin: 0.45rem 0 0.25rem; }
-.delta-pos { color: var(--status-ok); font-weight: 600; }
-.delta-neg { color: var(--status-warn); font-weight: 600; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); gap: 1.1rem; margin-bottom: 2rem; }
+.kpi { padding: 1.35rem 1.3rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-card); }
+.kpi strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: var(--kpi-size);
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  font-optical-sizing: auto;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  margin: 0.55rem 0 0.35rem;
+}
+.kpi .subtext { font-family: var(--font-sans); color: var(--text-secondary); font-size: var(--text-sm); line-height: 1.5; }
+.delta-pos { font-family: var(--font-mono); color: var(--status-ok); font-weight: 600; }
+.delta-neg { font-family: var(--font-mono); color: var(--status-bad); font-weight: 600; }
 
-.table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--bg-card); }
-table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
-th, td { padding: 0.7rem 0.9rem; text-align: left; border-bottom: 1px solid var(--border); }
-th { background: var(--bg-subtle); font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
-tr:hover td { background: var(--bg-subtle); }
-.num, th.num { text-align: right; font-family: var(--font-mono); }
+.table-wrap { overflow-x: auto; margin: 1.25rem 0 1.75rem; border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--bg-card); }
+table { border-collapse: collapse; width: 100%; font-size: var(--text-sm); }
+th, td { padding: 0.75rem 0.95rem; text-align: left; border-bottom: 1px solid var(--border); }
+thead th { background: var(--bg-subtle); font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); }
+tbody th { background: transparent; font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--text-primary); }
+tr:hover td, tr:hover tbody th { background: var(--bg-subtle); }
+.num, th.num { text-align: right; font-family: var(--font-mono); font-size: var(--text-sm); }
 
-details { margin: 0.85rem 0; padding: 1rem 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-card); }
-summary { cursor: pointer; font-family: var(--font-display); font-size: 1.15rem; font-weight: 400; }
-pre, code { font-family: var(--font-mono); font-size: 0.82rem; background: var(--bg-subtle); border-radius: 4px; }
+svg.chart { width: 100%; height: auto; display: block; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 0.5rem; }
+svg text { font-family: var(--font-mono); fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+details { margin: 0.9rem 0; padding: 1.1rem 1.35rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-card); }
+summary { cursor: pointer; font-family: var(--font-display); font-size: var(--text-md); font-weight: var(--display-weight); letter-spacing: -0.01em; font-optical-sizing: auto; font-feature-settings: "kern" 1, "liga" 1, "calt" 1; }
+pre, code { font-family: var(--font-mono); font-size: 0.82rem; background: var(--bg-subtle); padding: 0.14rem 0.4rem; border-radius: 4px; }
 pre { overflow-x: auto; padding: 0.85rem; }
 
 @media (max-width: 900px) {
   .report-section { grid-template-columns: 1fr; gap: 1.5rem; }
   .section-sidebar { position: static; }
+  :root[data-preset="chronicle"] .section-sidebar { grid-template-columns: 1fr; gap: 0.4rem; }
 }
 ```
 
@@ -386,7 +494,7 @@ pre { overflow-x: auto; padding: 0.85rem; }
 
 ```css
 @media print {
-  .no-print, nav, button, .toolbar, .filter-input { display: none !important; }
+  .no-print, nav, button, .filter-input, .skip { display: none !important; }
   body { background: #ffffff !important; color: #000000 !important; font-size: 10.5pt; line-height: 1.45; }
   .report-shell, main { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
   .report-section { grid-template-columns: 1fr !important; padding: 1.25rem 0 !important; gap: 0.75rem !important; }
@@ -398,7 +506,7 @@ pre { overflow-x: auto; padding: 0.85rem; }
 }
 ```
 
-## 6. Interaction Patterns (3-Preset Switcher + Table Filter + Theme)
+## 6. Interaction Patterns (Theme Toggle + Table Filter)
 
 ```js
 const root = document.documentElement;
@@ -411,43 +519,19 @@ function storageSet(key, value) {
   try { localStorage.setItem(key, value); } catch { /* file:// or privacy mode */ }
 }
 
-function applyPreset(preset) {
-  root.dataset.preset = preset;
-  document.querySelectorAll(".preset-btn").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.presetVal === preset);
-  });
-  storageSet("report-preset", preset);
-}
-
-document.querySelectorAll(".preset-btn").forEach((btn) => {
-  btn.addEventListener("click", () => applyPreset(btn.dataset.presetVal));
-});
-
-const savedPreset = storageGet("report-preset");
-if (savedPreset) applyPreset(savedPreset);
-
 const themeButton = document.getElementById("theme-toggle");
 themeButton?.addEventListener("click", () => {
   const next = root.dataset.theme === "dark" ? "light" : "dark";
   root.dataset.theme = next;
+  themeButton.setAttribute("aria-pressed", next === "dark" ? "true" : "false");
   storageSet("report-theme", next);
 });
 
 const storedTheme = storageGet("report-theme");
-if (storedTheme) root.dataset.theme = storedTheme;
-
-document.getElementById("expand-all")?.addEventListener("click", () => {
-  document.querySelectorAll("details").forEach((item) => { item.open = true; });
-});
-
-document.getElementById("collapse-all")?.addEventListener("click", () => {
-  document.querySelectorAll("details").forEach((item) => { item.open = false; });
-});
-
-document.getElementById("copy-summary")?.addEventListener("click", async () => {
-  const summary = document.querySelector("#summary")?.innerText ?? "";
-  try { await navigator.clipboard.writeText(summary); } catch { /* clipboard denied */ }
-});
+if (storedTheme) {
+  root.dataset.theme = storedTheme;
+  themeButton?.setAttribute("aria-pressed", storedTheme === "dark" ? "true" : "false");
+}
 
 function attachTableTools(table) {
   const rows = Array.from(table.tBodies[0].rows);
@@ -468,14 +552,12 @@ function attachTableTools(table) {
 document.querySelectorAll("table").forEach(attachTableTools);
 ```
 
-Use `addEventListener` only. Never write inline `onclick` attributes.
-
 ## 7. Controlled Chart.js Opt-In
 
-Use this block only when complex interactive charting is required, the user explicitly approves the CDN, the page shows an offline warning, and the tag carries an SRI hash:
+Use this block only when complex interactive charting is required, the user explicitly approves the CDN, the page shows an offline warning, and the tag carries a verified SHA-384 SRI hash:
 
 ```html
-<p class="status-warn no-print">This report loads Chart.js from a CDN. Offline viewing shows a static fallback.</p>
+<p class="no-print">This report loads Chart.js from a CDN. Offline viewing shows a static fallback.</p>
 <script
   src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
   integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4"
@@ -489,12 +571,18 @@ Run these against the generated file before delivery:
 ```bash
 test -f <report>.html
 grep -q '<!DOCTYPE html>' <report>.html
-grep -q 'data-preset="dossier"' <report>.html
-grep -q 'data-preset="zen-garden"' <report>.html
-grep -q 'data-preset="chronicle"' <report>.html
+test "$(grep -o 'data-preset="[^"]*"' <report>.html | sort -u | wc -l | tr -d ' ')" -eq 1
+! grep -q 'preset-' <report>.html
+! grep -q 'expand-' <report>.html
+! grep -q 'collapse-' <report>.html
+! grep -q 'copy-sum' <report>.html
+grep -q 'id="theme-toggle"' <report>.html
+grep -q 'fonts.googleapis.com' <report>.html
+grep -q 'display=swap' <report>.html
+grep -q 'Fraunces' <report>.html
+grep -q 'Cormorant+Garamond' <report>.html
 grep -q 'prefers-color-scheme' <report>.html
 grep -q '@media print' <report>.html
 grep -q 'tabular-nums' <report>.html
-grep -q 'Copy Summary' <report>.html
 ! grep -q 'REPLACE' <report>.html
 ```

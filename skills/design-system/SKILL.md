@@ -2,7 +2,7 @@
 name: design-system
 description: >-
   Build and maintain a 3-tier W3C DTCG design token system, dual light/dark themes,
-  Zen Minimalism visual hierarchy, component specifications, and responsive layout rules.
+  Zen Minimalism editorial typography, component specifications, and responsive layout rules.
   Use when bootstrapping a visual identity, creating or updating a design system, or
   handing design to code. Not for UX research, accessibility audits, or feature specs.
 risk: safe
@@ -12,7 +12,7 @@ date_added: "2026-10-28"
 
 # Design System Skill
 
-Own the visual contract between product intent and implementation: tokens, components, states, responsive rules, and the handoff to code, grounded in **Zen Minimalism** (*Kanso*, *Ma*, *Shibumi*).
+Own the visual contract between product intent and implementation: tokens, typography, components, states, responsive rules, and the handoff to code, grounded in **Zen Minimalism** (*Kanso*, *Ma*, *Shibumi*).
 
 ## When to Use
 - Bootstrapping a visual identity for a new product or surface.
@@ -26,7 +26,7 @@ Own the visual contract between product intent and implementation: tokens, compo
 - WCAG conformance audit and keyboard testing (`ui-accessibility`).
 - Writing production UI code (`html-report`, `plotly-dash`, `python-pro`).
 - Adversarial critique of a rendered screen (`ux-critic`).
-- Feature scoping without a visual system (`spec-driven-design`).
+- Feature scoping without a user interface (`spec-driven-design`).
 
 ## Artifact Paths
 - Design system spec: `docs/designs/YYYY-MM-DD_design-system_<topic>.md`.
@@ -36,13 +36,19 @@ Own the visual contract between product intent and implementation: tokens, compo
 
 ## Workflow
 
-### Step 1: Set the Minimalist Aesthetic Direction
+### Step 1: Set the Minimalist Aesthetic & Editorial Typography Direction
 1. Read the product brief from `ux-product-shaper`: Surface Mode, audience, and constraints.
 2. Choose one register: Swiss/Zen editorial (Mode A) or Shibumi utilitarian (Mode B).
 3. **Monochrome + 1 Accent (Warm Organic Neutrals)**: render at least 90% of the viewport from a warm organic surface ramp (such as parchment `#F7F4EE`, raked limestone `#F4F1EA`, or warm paper `#FBF9F5` in light mode; deep espresso `#141210` in dark mode) paired with warm charcoal ink (`#22201E`). Reserve one earthy accent color (muted clay `#9E583B`, Kyoto moss `#4A6B53`, or terracotta `#A65638`) for the primary CTA, chapter index, and active focus ring. Reserve status colors for live system feedback, never decorative badges.
 4. Do not default to purple-to-blue gradients, neon glows on B2B surfaces, decorative blobs, glassmorphism, icon tiles above headings, or pure untinted `#000000` and `#808080`.
-5. **Typography caps & Zen Editorial Rhythm**: at most 2 font families (an editorial serif or clean UI sans plus monospace) and at most 5 sizes. Hero metrics may reach 2.5x-3x body size. Use weight 400/600 contrast, left-aligned axes, 60ch-70ch measure, and `tabular-nums` on numeric data. Keep prose paragraphs to 2-3 sentences (`<= 60 words`) so typography breathes.
-6. **Ma (Whitespace over boxes)**: treat negative space as an active structural element. Use 3-5.5rem macro spacing between sections and 0.5-1rem micro spacing inside groups. Prefer a 1px hairline over nested bordered cards.
+5. **Typography Caps & Editorial Craft**:
+   - Declare at most 2 primary font families per active view (an expressive editorial serif display face such as `'Fraunces'` or `'Cormorant Garamond'` paired with a clean UI sans such as `'Inter'` or `'Plus Jakarta Sans'`) plus one monospace data face (`'JetBrains Mono'`). Never add a third display face.
+   - Use at most 5 size tokens for product UI, or the 9 editorial roles in the reference for reports.
+   - Always load the real webfont stylesheet (e.g., Google Fonts `<link>`) with graceful system fallbacks so editorial serifs never degrade into flat legacy system fonts when online.
+   - Use display weights `300`/`350`/`400`, body `400`, UI `500`, and emphasis `600`; never use `700`. Apply tight letter-spacing (`-0.02em`) and `font-optical-sizing: auto` on display headings, chapter indices, and hero figures.
+   - Size hero KPI figures at `2.5x-3x` body. A page-title display may reach `3x+` body; do not use `3x+` for KPI figures.
+   - Apply `font-variant-numeric: tabular-nums` and `--font-mono` to numeric columns, deltas, and SVG chart axes. Keep prose paragraphs to 2-3 sentences (`<= 60 words`, `60ch-70ch` measure, target `66ch`).
+6. **Ma (Whitespace over boxes)**: treat negative space as an active structural element. Use 3.5-5.25rem macro spacing between sections and 0.5-1rem micro spacing inside groups. Prefer a 1px hairline over nested bordered cards.
 
 ### Step 2: Build the Three-Tier Token System
 The full token and component templates are in `references/token-and-component-specs.md`.
@@ -50,7 +56,7 @@ The full token and component templates are in `references/token-and-component-sp
 | Tier | Contains | Rule |
 | :--- | :--- | :--- |
 | Primitive | Raw color ramps, 4px spacing scale, radii, durations | Never consumed directly by components |
-| Semantic | Surface, text, intent, border, focus roles | The only tier components may reference |
+| Semantic | Surface, text, intent, border, focus, typography roles | The only tier components may reference |
 | Component | Explicit bindings for hover, active, focus-visible, disabled | Scoped to one component family |
 
 Required semantic roles:
@@ -118,7 +124,7 @@ Before handoff, fail the design system if any check fails:
 - No hardcoded hex, rgb, or arbitrary pixel values outside the token files.
 - No component consumes a primitive token directly.
 - No unused token or 10-step ramp without an active caller.
-- No more than 2 font families or 5 font sizes.
+- No more than 2 primary font families plus one monospace data face; no more than 5 product sizes or 9 editorial report roles.
 - No nested bordered or shadowed cards.
 - No unrequested navigation, search, filter, account, or export chrome.
 - No boolean-prop explosion: more than three boolean mode props is a design smell.
@@ -128,9 +134,10 @@ Before handoff, fail the design system if any check fails:
 - No production UI code in this skill; hand off to the implementation skill.
 
 ## Verification Checklist
-- [ ] Aesthetic direction is recorded and justified.
+- [ ] Aesthetic direction and editorial typography pairing are recorded and justified.
 - [ ] Palette uses Monochrome + 1 Accent with warm organic surfaces; status colors are reserved for live states.
-- [ ] At most 2 font families and 5 font sizes are declared.
+- [ ] At most 2 primary font families plus one monospace data face are declared.
+- [ ] Size tokens are within the 5-product or 9-editorial-role budget.
 - [ ] Three token tiers exist with semantic roles.
 - [ ] At most 20-25 semantic tokens; every token has an active caller.
 - [ ] Light and dark parity is measured, not assumed.
