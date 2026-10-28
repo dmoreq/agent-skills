@@ -29,14 +29,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `skills/code-minimalism`: Added Anti-Weeds (Altitude Control) and an explicit Root Cause versus Local Band-Aid rule.
 - `skills/tech-research`: Added the handoff boundary to `spec-driven-design` and `technical-reporting`.
 - `skills/technical-reporting`: Added spec, drift-report, and decision-lock handoffs; related skills raised to six.
-- `skills/code-review`: Added the `codebase-contracts` drift check for documented behavior, explicit async-Rust review handoff, risk-based 3-tier Goldfish dispatch, and the multi-agent reconciliation verdict.
-- `bots/seven-bots/critic.md` and `scout.md`: Critic runs correctness plus mechanism lenses; scout runs the repo-wide reuse and caller-impact lens.
+- `skills/code-review`: Added the `codebase-contracts` drift check for documented behavior, explicit async-Rust review handoff, risk-based Goldfish dispatch, and the multi-agent reconciliation verdict.
 - `skills/technical-reporting`, `data-visualization`, `plotly-dash`, `data-storytelling`, `algorithm-optimization`, and `code-review`: Added `html-report` handoffs and resolved the Markdown/HTML, static/server, and chart/report boundaries.
-- `rules/AGENTS.md`, `README.md`, and `bots/seven-bots/`: Documented single-file HTML report ownership and routing.
-- All 25 skills: Completed the bidirectional `## Related Skills` graph with at least two inbound and two outbound handoffs per skill.
+- `rules/AGENTS.md` and `README.md`: Documented single-file HTML report ownership and routing.
+- All 26 skills: Completed the bidirectional `## Related Skills` graph with at least two inbound and two outbound handoffs per skill.
 - `README.md`: Added both new skills to the structure tree and catalog, extended the ownership map and relationship table, added the six-invariant spec gate, and raised the `code-review` reference count to three.
-- `bots/seven-bots/`: Conductor requires spec approval, critic runs the five-lens review, scout owns contract bootstrap and drift, and the shared contract mandates ISO-dated artifact paths.
-- `tests/test_skills_schema.py`: Raised the expected skill count from 23 to 25, then to 26 with the `html-report` addition.
+- `tests/test_skills_schema.py`: Removed the hardcoded skill count; the README catalog now defines the expected skill set.
+- `setup.sh` and `README.md`: Made the 23-of-26 default explicit; the three Rust skills remain opt-in.
+- `.github/workflows/ci.yml`: Added a CI workflow for pytest and the setup script tests.
+- `.gitignore`: Ignored `.zcode/` session state.
+
+### Removed
+- Hermes host support: deleted `rules/hermes-preamble.md`, `bots/seven-bots/`, and `tests/verify-profiles.sh`; removed Hermes detection, SOUL composition, host routing, and summary output from `setup.sh`.
+- Hermes references from the spec, plan, and code-review dispatch contracts; those skills now use native parallel subagents or a sequential cold read.
+- Hermes entries from `README.md` and the active test suite. Historical release notes remain unchanged.
 
 ## [2.2.0] - 2026-10-25
 

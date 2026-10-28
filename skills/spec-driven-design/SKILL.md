@@ -56,8 +56,7 @@ Dispatch one read-only Goldfish subagent per lens. Use the prompt cards in `refe
 
 Dispatch by host capability:
 - Tier 1, native parallel subagents: Antigravity `invoke_subagent`, Codex `spawn_agent`, OpenCode `Task`.
-- Tier 2, Hermes: `conductor` delegates to `critic` and `scout`.
-- Tier 3, sequential cold read: save the hypothesis to disk, then evaluate each lens card in order.
+- Tier 2, sequential cold read: save the hypothesis to disk, then evaluate each lens card in order.
 
 Pass only the lens card, the artifact path, and readable source paths. Never pass conversation history.
 

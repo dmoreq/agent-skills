@@ -1,6 +1,6 @@
 # Agent Skills
 
-A curated, token-efficient collection of **Global Agent Rules** and **Custom Skills** designed for the **Google Antigravity**, **Zed**, **Grok**, **OpenAI Codex**, **Hermes**, **OpenCode**, and **ZCode Desktop** coding assistant environments.
+A curated, token-efficient collection of **Global Agent Rules** and **Custom Skills** designed for the **Google Antigravity**, **Zed**, **Grok**, **OpenAI Codex**, **OpenCode**, and **ZCode Desktop** coding assistant environments.
 
 ---
 
@@ -9,8 +9,7 @@ A curated, token-efficient collection of **Global Agent Rules** and **Custom Ski
 ```text
 agent-skills/
 ├── rules/
-│   ├── AGENTS.md                    # Global agent behavioral directives & kernel standards
-│   └── hermes-preamble.md           # Hermes SOUL.md preamble
+│   └── AGENTS.md                    # Global agent behavioral directives & kernel standards
 ├── skills/
 │   ├── algorithm-optimization/      # Systematic KPI & algorithm improvement loop (+ 3 references)
 │   ├── code-minimalism/             # YAGNI-first minimalist code generation (+ 2 references)
@@ -286,13 +285,12 @@ Skills are installed into the portable Agent Skills root (`~/.agents/skills`) an
 | Zed | `~/.config/zed/AGENTS.md` | `~/.agents/skills` |
 | OpenCode | `~/.config/opencode/AGENTS.md` | `~/.agents/skills`, `<project>/.opencode/skills` |
 | ZCode Desktop | `~/.zcode/AGENTS.md` | `~/.zcode/skills`, `~/.agents/skills`, `<repo>/.zcode/skills` |
-| Hermes | `~/.hermes/SOUL.md` (`rules/hermes-preamble.md` + `rules/AGENTS.md`) | repo `skills/` via `skills.external_dirs` (or native `~/.hermes/skills` with `--mirror-native`) |
 
 ### Automated Setup Script
 
 ```bash
 chmod +x setup.sh
-./setup.sh              # Installs core, arch, data, Python (skips Rust by default)
+./setup.sh              # Installs 23 of 26 skills (skips the three Rust skills)
 ./setup.sh --with-rust  # Includes Rust skills (rust-pro, rust-async-patterns, pyo3-maturin)
 ```
 
@@ -303,7 +301,6 @@ Useful flags:
 ./setup.sh --all                    # enable --with-rust and install to all detected hosts
 ./setup.sh --dry-run                # print destinations only
 ./setup.sh --host zed,codex         # subset of hosts
-./setup.sh --host hermes            # compose ~/.hermes/SOUL.md; do not copy skills
 ./setup.sh --project                # current repo: .agents/skills + AGENTS.md
 ./setup.sh --link                   # symlink skills from this clone (dev)
 ./setup.sh --mirror-native          # also copy into native host skills dirs

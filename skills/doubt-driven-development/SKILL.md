@@ -81,8 +81,7 @@ Find one boundary header: `## Detailed Implementation Plan`, `## Implementation 
 
 ### Dispatch
 - Tier 1, native parallel subagents: Antigravity `invoke_subagent`, Codex `spawn_agent`, OpenCode `Task`.
-- Tier 2, Hermes: `critic` handles design and readiness; `scout` handles codebase details and drift probes.
-- Tier 3, sequential cold read: save the artifact, then run each lens card in order.
+- Tier 2, sequential cold read: save the artifact, then run each lens card in order.
 
 Pass only the lens card, artifact path, line range, and readable source paths. Never pass conversation history or a prior verdict.
 

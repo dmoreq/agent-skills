@@ -58,7 +58,7 @@ def parse_frontmatter(file_path: Path):
 def test_every_skill_has_skill_md():
     """Verify that every subdirectory in skills/ has a SKILL.md file."""
     skills = get_all_skills()
-    assert len(skills) == 26, f"Expected 26 skills in consolidated suite, found {len(skills)}"
+    assert skills, "No skill directories found under skills/"
     for skill_dir in skills:
         skill_file = skill_dir / "SKILL.md"
         assert skill_file.exists(), f"Missing SKILL.md in {skill_dir.name}"

@@ -20,8 +20,7 @@ Every card inherits these rules:
 | Tier | Hosts | Review Dispatch |
 | :--- | :--- | :--- |
 | 1 | Antigravity, Codex, OpenCode | Five parallel read-only subagents, one per lens |
-| 2 | Hermes | `critic` for Zoom-Out, Comprehension, Design Critic, and Readiness; `scout` for Codebase Details |
-| 3 | Zed, Grok, ZCode, single-thread CLI | Save the artifact, then run five sequential cold-read passes |
+| 2 | Zed, Grok, ZCode, single-thread CLI | Save the artifact, then run five sequential cold-read passes |
 
 Context isolation contract:
 

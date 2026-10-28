@@ -150,11 +150,15 @@ def test_related_skills_graph_degrees():
 
 
 def test_readme_covers_every_skill():
-    """Verify every skill appears in the README catalog."""
+    """Verify the README catalog matches the skill directories exactly."""
     readme = (REPO_DIR / "README.md").read_text(encoding="utf-8")
     skill_names = {d.name for d in SKILLS_DIR.iterdir() if d.is_dir()}
-    for name in sorted(skill_names):
-        assert f"**`{name}`**" in readme, f"Skill '{name}' is missing from the README catalog."
+    catalog = readme.split("## Skills Catalog", 1)[1].split("\n## ", 1)[0]
+    catalog_names = set(re.findall(r"\|\s*\*\*`([a-z0-9-]+)`\*\*\s*\|", catalog))
+    assert catalog_names == skill_names, (
+        f"README catalog mismatch. Missing: {sorted(skill_names - catalog_names)}; "
+        f"extra: {sorted(catalog_names - skill_names)}"
+    )
 
 
 def test_artifact_paths_use_iso_dates():
@@ -180,12 +184,21 @@ def test_no_claude_or_plugin_escape_hatches():
     targets = list(SKILLS_DIR.rglob("*.md")) + [
         RULES_FILE,
         REPO_DIR / "README.md",
-        *(REPO_DIR / "bots").rglob("*.md"),
     ]
     for path in targets:
         content = path.read_text(encoding="utf-8")
         for snippet in forbidden:
             assert snippet not in content, f"Legacy host escape hatch '{snippet}' found in {path}"
+
+
+def test_no_hermes_host_support():
+    """Verify Hermes host support and its multi-profile bot specs are fully removed."""
+    forbidden = ("hermes", "seven-bots", "seven_bots")
+    targets = [RULES_FILE, REPO_DIR / "README.md", REPO_DIR / "setup.sh", *SKILLS_DIR.rglob("*.md")]
+    for path in targets:
+        content = path.read_text(encoding="utf-8").lower()
+        for snippet in forbidden:
+            assert snippet not in content, f"Removed Hermes reference '{snippet}' found in {path}"
 
 
 def test_code_review_goldfish_lenses_integrity():

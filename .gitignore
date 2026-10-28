@@ -22,3 +22,6 @@ __pycache__/
 # Transient scratch and temporary files
 .tmp/
 .scratch/
+
+# ZCode session state
+.zcode/
