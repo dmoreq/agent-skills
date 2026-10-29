@@ -29,7 +29,7 @@ Deliver findings as one offline-capable HTML file. HTML is a presentation format
 - Editable Markdown reports and Mermaid diagrams (`technical-reporting`).
 
 ## Artifact Path
-- Persistent report: `docs/reports/YYYY-MM-DD_<topic>.html`.
+- Persistent report: `docs/reports/YYYY-MM-DD_<topic>.html`. Topic slugs follow the artifact slug and containment rule in `rules/AGENTS.md` §4.
 - Session fallback: the host artifact directory, with the same ISO date prefix.
 - Emit one file. Inline CSS, JavaScript, SVG, and data. Do not create a sidecar asset folder.
 - Keep the file under 1 MB. Aggregate or downsample embedded data.
@@ -40,7 +40,7 @@ Deliver findings as one offline-capable HTML file. HTML is a presentation format
 
 Exactly one preset is fixed at generation time via `data-preset` on `<html>`; never expose a runtime preset switcher. Route **`dossier`** to audits, engineering reports, and decision memos; **`zen-garden`** to contemplative deep dives; **`chronicle`** to executive narratives and QBRs. Default to `dossier`.
 
-Load the Google Fonts stylesheet with `display=swap` and local fallbacks; it is the only permitted network request. Use a 60ch-70ch measure, body prose `>=0.9375rem`, labels `>=0.75rem`, and code `>=0.82rem`. The palette, type pairings, nine editorial roles, and per-preset layout live in `references/html-report-scaffold.md`.
+Load the Google Fonts stylesheet with `display=swap` and local fallbacks; it is the only default network request. The approved Chart.js exception in Step 2 is the sole additional request. Use a 60ch-70ch measure, body prose `>=0.9375rem`, labels `>=0.75rem`, and code `>=0.82rem`. The palette, type pairings, nine editorial roles, and per-preset layout live in `references/html-report-scaffold.md`.
 
 ## Chart Interaction Contract
 - Use native SVG, not a library: hover/focus tooltip, legend dimming, and chart/table cross-highlight.
@@ -60,7 +60,7 @@ Judge rendered output, never source alone. Render matrix, hard-fail list, craft 
 
 - Render the chosen preset at desktop 1440x900, mobile 390x844, 320px reflow, and print/PDF in light and dark.
 - Any overlap, clipping, horizontal scroll, contrast failure, broken control, console error, external request outside the font stylesheet, or unexpanded print detail blocks delivery.
-- Missing screenshots block delivery; screenshots are review evidence, not report assets.
+- Missing screenshots block delivery; keep the screenshots the review record links, and delete only unreferenced captures.
 
 ## Workflow
 
@@ -68,12 +68,12 @@ Judge rendered output, never source alone. Render matrix, hard-fail list, craft 
 Choose one preset from the routing table. Honor user instructions, then project tokens from **design-system**, then preset defaults. Ban cold slate/blue defaults, purple gradients, neon dashboards, rainbow charts, emoji headers, and nested cards; never use pure `#FFFFFF` or `#000000` in light mode.
 
 ### Step 2: Enforce a Self-Contained and Secure Architecture
-- Emit `<!DOCTYPE html>` with `meta charset`, `meta viewport`, the Google Fonts `<link>`, inline `<style>`, and inline `<script>`.
-- Never call `fetch()` or a live API. The font stylesheet is the only network request; keep local fallbacks. Never load Tailwind.
-- Redact credential-shaped strings, HTML-escape interpolated text, and allow the controlled Chart.js exception only when the user explicitly approves, the page shows an offline warning, and the script tag carries a verified SRI hash.
+- Emit `<!DOCTYPE html>` with `meta charset`, `meta viewport`, a restrictive `Content-Security-Policy` meta, the Google Fonts `<link>`, inline `<style>`, and inline `<script>`.
+- Never call `fetch()` or a live API. The font stylesheet and the approved Chart.js block are the only network requests; keep local fallbacks. Never load Tailwind.
+- Redact credential-shaped strings, HTML-escape interpolated text, and allow the controlled Chart.js exception only when the user explicitly approves, the page shows an offline warning, and the script tag carries a verified SRI hash. When approved, add `https://cdn.jsdelivr.net` to the CSP `script-src`.
 
 ### Step 3: Implement Dual-Theme Tokens and Responsive Typography
-- Define per-preset tokens on `:root` with `prefers-color-scheme` and manual `data-theme` overrides; keep exactly one preset token block.
+- Define per-preset tokens on `:root` with `prefers-color-scheme` and manual `data-theme` overrides; keep exactly one `:root[data-preset="..."] { ... }` token block. Preset-scoped layout overrides may remain.
 - Use `rem` units. Body prose `>=0.9375rem`, labels `>=0.75rem`, code `>=0.82rem`. Use the nine editorial roles and print rules in `references/html-report-scaffold.md`.
 
 ### Step 4: Structure for Scanning and Progressive Disclosure
@@ -92,17 +92,19 @@ This review gate is blocking. Do not call the report complete until every profil
 | Report profile | Required gates, in order |
 | :--- | :--- |
 | Internal | Structural self-check -> rendered visual inspection -> `verify-and-stop` |
-| Shared or print | Structural self-check -> rendered visual inspection -> `ui-accessibility` -> `verify-and-stop` |
+| Shared | Structural self-check -> rendered visual inspection -> `ui-accessibility` -> `verify-and-stop` |
+| Print | Structural self-check -> rendered visual inspection -> `ui-accessibility` -> `verify-and-stop` |
 | Executive | Structural self-check -> rendered visual inspection -> `ui-accessibility` -> `ux-critic` -> `verify-and-stop` |
 
 - **Classify by consumption**: Internal is session-only, unshared, and unprinted; Shared is persisted, attached, or read by others; Print is any print/PDF intent; Executive is a decision or leadership audience. If two profiles fit, choose the stricter one; when uncertain, default to Shared.
 - **Structural check**: run `scripts/check_html_report.py` from this skill directory; it must exit 0 with `PASS`.
 - **Visual check**: render the chosen preset at desktop 1440x900, mobile 390x844, 320px reflow, and print/PDF in light and dark. Fix Critical and Important findings and re-render; bound the loop to 2 cycles.
-- **Shared or print**: `ui-accessibility` must return `Pass`.
+- **Shared**: `ui-accessibility` must return `Pass`.
+- **Print**: same as Shared, with the print/PDF layout check.
 - **Executive**: `ux-critic` must return `Ship` or `Ship with fixes` with zero Critical findings.
 - **Record**: write `docs/reports/YYYY-MM-DD_<topic>_review.md` and link screenshots and audits.
 - Missing screenshots, an unrun audit, or `Not tested` blocks delivery. Do not claim visual verification from source.
-- `verify-and-stop` remains the final decisive check: one file, one preset, the font stylesheet as the only request, both themes render, print expands details.
+- `verify-and-stop` remains the final decisive check: one file, one preset, no request outside the font stylesheet or approved Chart.js exception, both themes render, print expands details.
 
 ## Verification Checklist
 
@@ -114,11 +116,13 @@ Delivery is blocked until every checked item is true.
 - [ ] Header contains only the title, one provenance line, and the Theme button.
 - [ ] Display serifs use light/regular weights, optical sizing, and tight tracking.
 - [ ] Prose follows the 2-3 sentence, <= 60 word, 60ch-70ch budget.
-- [ ] No Tailwind CDN and no live `fetch()`; the font stylesheet is the only network request.
+- [ ] No Tailwind CDN and no live `fetch()`; the font stylesheet and the approved Chart.js block are the only allowed requests.
+- [ ] CSP meta is present and restricts `default-src`, `connect-src`, `object-src`, `base-uri`, and `form-action` to `'none'`.
+- [ ] No credential-shaped strings remain; the validator secret patterns pass.
 - [ ] Light and dark themes work; print expands details and hides the Theme button.
 - [ ] Desktop, mobile, 320px reflow, and print were rendered and inspected.
 - [ ] Zero hard-fail defects; Critical and Important findings fixed within 2 cycles.
-- [ ] Shared/print passed `ui-accessibility`; executive passed `ux-critic`.
+- [ ] Shared and Print reports passed `ui-accessibility`; executive reports passed `ux-critic`.
 - [ ] The review record exists and links every screenshot and audit.
 - [ ] No gate is unrun, `Not tested`, or `Fail`.
 

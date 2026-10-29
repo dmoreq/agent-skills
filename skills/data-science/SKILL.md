@@ -36,7 +36,7 @@ Load `references/ab-testing-and-causal.md` when designing or analyzing A/B exper
 
 ## 1. Automated EDA & Data Quality Protocol
 
-Before fitting any model or running a hypothesis test, execute a deterministic profile of the dataset (use `python skills/data-science/scripts/eda_profile.py <path>` for quick tabular diagnostics):
+Before fitting any model or running a hypothesis test, execute a deterministic profile of the dataset (use `python3 <skill-dir>/scripts/eda_profile.py <path>`, where `<skill-dir>` is the installed skill directory, for quick tabular diagnostics):
 
 1. **Grain & Identity Check**: Confirm what one row represents (e.g., `user_id`, `(order_id, item_id)`), verify primary-key uniqueness, and check date spans for gaps or truncation.
 2. **Missingness Mechanism Diagnosis**:

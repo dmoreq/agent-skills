@@ -9,6 +9,7 @@ import math
 from collections import Counter
 from pathlib import Path
 import sys
+from typing import Any
 
 
 def _try_float(val: str) -> float | None:
@@ -31,11 +32,22 @@ def _quantile(sorted_vals: list[float], q: float) -> float:
 
 
 def _sanitize_md(val: str) -> str:
-    """Escape pipes, newlines, and backticks for safe Markdown table cells."""
-    return val.replace("\r", " ").replace("\n", " ").replace("|", "\\|").replace("`", "'").strip()
+    """Escape HTML and Markdown control characters for safe table cells."""
+    return (
+        val.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\r", " ")
+        .replace("\n", " ")
+        .replace("|", "\\|")
+        .replace("`", "'")
+        .strip()
+    )
 
 
-def _read_jsonl_sample(handle: Any, max_rows: int) -> tuple[list[str], list[dict[str, str]], int]:
+def _read_jsonl_sample(
+    handle: Any, max_rows: int
+) -> tuple[list[str], list[dict[str, str]], int | None]:
     rows: list[dict[str, str]] = []
     cols_seen: dict[str, None] = {}
     for line in handle:
@@ -43,7 +55,7 @@ def _read_jsonl_sample(handle: Any, max_rows: int) -> tuple[list[str], list[dict
         if not line:
             continue
         if len(rows) >= max_rows:
-            break
+            return list(cols_seen.keys()), rows, None
         obj = json.loads(line)
         for k in obj:
             cols_seen[str(k)] = None
@@ -53,18 +65,20 @@ def _read_jsonl_sample(handle: Any, max_rows: int) -> tuple[list[str], list[dict
 
 def _read_delimited_sample(
     handle: Any, delimiter: str, max_rows: int
-) -> tuple[list[str], list[dict[str, str]], int]:
+) -> tuple[list[str], list[dict[str, str]], int | None]:
     rows: list[dict[str, str]] = []
     reader = csv.DictReader(handle, delimiter=delimiter)
     cols = [c for c in (reader.fieldnames or []) if c is not None]
     for row in reader:
         if len(rows) >= max_rows:
-            break
+            return cols, rows, None
         rows.append({k: ("" if v is None else str(v)) for k, v in row.items() if k is not None})
     return cols, rows, len(rows)
 
 
-def load_rows_stdlib(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int]:
+def load_rows_stdlib(
+    path: Path, max_rows: int
+) -> tuple[list[str], list[dict[str, str]], int | None]:
     """Load up to max_rows bounded sample using Python stdlib for CSV/TSV/JSONL."""
     suffix = path.suffix.lower()
     if suffix in (".jsonl", ".ndjson"):
@@ -86,14 +100,14 @@ def _extract_batch_rows(
     ]
 
 
-def _load_parquet_pyarrow(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int]:
+def _load_parquet_pyarrow(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int | None]:
     import pyarrow.parquet as pq
 
     pf = pq.ParquetFile(path)
     total_rows = pf.metadata.num_rows
     cols = pf.schema_arrow.names
     rows: list[dict[str, str]] = []
-    for batch in pf.iter_batches(batch_size=min(max_rows, 65536)):
+    for batch in pf.iter_batches(batch_size=max(1, min(max_rows, 65536))):
         remaining = max_rows - len(rows)
         if remaining <= 0:
             break
@@ -101,7 +115,7 @@ def _load_parquet_pyarrow(path: Path, max_rows: int) -> tuple[list[str], list[di
     return cols, rows, total_rows
 
 
-def _load_parquet_duckdb(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int]:
+def _load_parquet_duckdb(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int | None]:
     import duckdb
 
     total_rows = duckdb.execute("SELECT count(*) FROM read_parquet(?)", [str(path)]).fetchone()[0]
@@ -112,7 +126,7 @@ def _load_parquet_duckdb(path: Path, max_rows: int) -> tuple[list[str], list[dic
     return cols, rows, total_rows
 
 
-def _load_parquet(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int]:
+def _load_parquet(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int | None]:
     """Load up to max_rows from a Parquet file using pyarrow or duckdb fallback."""
     try:
         return _load_parquet_pyarrow(path, max_rows)
@@ -131,7 +145,7 @@ def _load_parquet(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, 
     raise SystemExit(1)
 
 
-def load_rows(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int]:
+def load_rows(path: Path, max_rows: int) -> tuple[list[str], list[dict[str, str]], int | None]:
     """Route tabular dataset loading by file extension."""
     suffix = path.suffix.lower()
     if suffix == ".parquet":
@@ -144,14 +158,18 @@ def profile_table(path: Path, max_rows: int = 100_000) -> None:
     if not path.is_file():
         sys.stderr.write(f"ERROR: File not found: {path}\n")
         raise SystemExit(1)
+    if max_rows < 1:
+        sys.stderr.write("ERROR: max_rows must be greater than zero\n")
+        raise SystemExit(1)
 
     cols, rows, total_rows = load_rows(path, max_rows)
     n_sampled = len(rows)
     row_hashes = Counter(tuple(r.get(c, "") for c in cols) for r in rows)
     n_dups = sum(cnt - 1 for cnt in row_hashes.values() if cnt > 1)
 
-    print(f"# EDA Profile: `{path.name}`")
-    print(f"- **Total Rows**: {total_rows:,} (Profiled sample: {n_sampled:,})")
+    total_text = f"{total_rows:,}" if total_rows is not None else "unknown (sample-capped)"
+    print(f"# EDA Profile: `{_sanitize_md(path.name)}`")
+    print(f"- **Total Rows**: {total_text} (Profiled sample: {n_sampled:,})")
     print(f"- **Columns**: {len(cols)}")
     print(f"- **Exact Duplicate Rows (in sample)**: {n_dups:,} ({(n_dups / max(n_sampled, 1)) * 100:.2f}%)\n")
 
@@ -161,6 +179,7 @@ def profile_table(path: Path, max_rows: int = 100_000) -> None:
 
     sentinels = {"", "null", "none", "nan", "n/a", "na"}
     for col in cols:
+        safe_col = _sanitize_md(str(col))
         raw_vals = [r.get(col, "").strip() for r in rows]
         non_null = [v for v in raw_vals if v.lower() not in sentinels]
         n_null = n_sampled - len(non_null)
@@ -188,19 +207,31 @@ def profile_table(path: Path, max_rows: int = 100_000) -> None:
         else:
             col_type = "categorical/text"
             top_val, top_cnt = Counter(non_null).most_common(1)[0] if non_null else ("<all null>", 0)
-            safe_top = _sanitize_md(top_val[:24])
+            safe_top = _sanitize_md(str(top_val)[:24])
             summary = f"`{safe_top}` ({top_cnt:,})"
             out_str = "-"
 
         print(
-            f"| `{col}` | {col_type} | {n_null:,} ({null_pct:.1f}%) | {n_distinct:,} | {summary} | {out_str} |"
+            f"| `{safe_col}` | {col_type} | {n_null:,} ({null_pct:.1f}%) | {n_distinct:,} | {summary} | {out_str} |"
         )
+
+
+def _positive_int(value: str) -> int:
+    try:
+        number = int(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("must be an integer") from error
+    if number < 1:
+        raise argparse.ArgumentTypeError("must be >= 1")
+    return number
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Deterministic EDA profiler for CSV, TSV, JSONL, and Parquet files.")
     parser.add_argument("path", type=Path, help="Path to input dataset (.csv, .tsv, .jsonl, .parquet)")
-    parser.add_argument("--max-rows", type=int, default=100_000, help="Max rows to profile (default: 100000)")
+    parser.add_argument(
+        "--max-rows", type=_positive_int, default=100_000, help="Max rows to profile (default: 100000)"
+    )
     args = parser.parse_args()
     profile_table(args.path, args.max_rows)
 

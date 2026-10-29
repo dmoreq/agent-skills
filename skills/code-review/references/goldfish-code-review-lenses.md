@@ -78,7 +78,7 @@ Audit vectors:
    parameterized pure function.
 4. YAGNI and complexity ceiling: flag single-implementation ABCs or registries,
    nesting depth >= 4, cyclomatic complexity > 10 (Critical above 20), cognitive
-   complexity > 15, or a function longer than 50 effective lines.
+   complexity > 15, or a function past the hard length threshold in `rules/AGENTS.md` §3.
 
 Use the Three-Bucket Taxonomy from the code-minimalism generalization audit:
 general mechanism, domain heuristic, entity exception. A rule framework that only
@@ -232,4 +232,4 @@ Rules:
 - Never change a finding's severity while contesting it. State the reason and let the owner decide.
 - Do not contest a comprehension gap. A fresh reader who cannot follow the code is a documentation defect.
 - Re-read the changed file after a fix before closing the finding.
-- Stop after two fix-review cycles. Escalate unresolved Critical or Important findings.
+- Stop after the diff/code review bound in `rules/AGENTS.md` §1. Escalate unresolved Critical or Important findings.

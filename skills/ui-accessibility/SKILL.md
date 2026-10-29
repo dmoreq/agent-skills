@@ -29,7 +29,7 @@ Verify that an interface works for keyboard, screen-reader, low-vision, and redu
 - Chart form or palette selection (`data-visualization`); this skill audits the chart's accessible alternative and contrast.
 
 ## Artifact Path
-- Audit report: `docs/reports/YYYY-MM-DD_a11y-audit_<topic>.md`.
+- Audit report: `docs/reports/YYYY-MM-DD_a11y-audit_<topic>.md`. Topic slugs follow the artifact slug and containment rule in `rules/AGENTS.md` §4.
 - Session fallback: the host artifact directory with the same ISO date prefix.
 - Never write an undated file at the repository root.
 

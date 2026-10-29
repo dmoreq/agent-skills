@@ -26,10 +26,15 @@ Load this reference when proving whether legacy symbols, `**kwargs` shims, dupli
    - Adding an already-tracked directory to `.gitignore` does nothing until `git rm -r --cached <dir>` removes it from the index. Because the files remain in the local working copy, local `pytest` runs stay green while a fresh clone breaks.
    - Always measure what a fresh clone loses before untracking:
      ```bash
-     mkdir -p /tmp/clone_probe
-     git archive HEAD | tar -x -C /tmp/clone_probe
-     rm -rf /tmp/clone_probe/<dir_to_untrack>
-     pytest /tmp/clone_probe --collect-only
+     probe="$(mktemp -d "${TMPDIR:-/tmp}/clone_probe.XXXXXX")"
+     trap 'rm -rf -- "$probe"' EXIT
+     git archive HEAD | tar -x -C "$probe"
+     target="<dir_to_untrack>"   # relative path only
+     case "$target" in
+         ""|/*|*..*) echo "refusing unsafe path: $target" >&2; exit 1 ;;
+     esac
+     rm -rf -- "$probe/$target"
+     pytest "$probe" --collect-only
      ```
    - Report collected vs. expected test counts and convert hard fixture assertions (`assert DATA.is_file()`) to `pytest.skip(...)` or `conftest.py` `collect_ignore` rules before untracking.
 3. **Low-to-High Risk Cleanup Batches**:

@@ -29,7 +29,7 @@ Turn an approved feature intent into a product brief that UI work can execute. F
 - Feature scoping without a user interface (`spec-driven-design`).
 
 ## Artifact Path
-- Product brief (`PRODUCT.md`): `docs/designs/YYYY-MM-DD_product-brief_<topic>.md`.
+- Product brief (`PRODUCT.md`): `docs/designs/YYYY-MM-DD_product-brief_<topic>.md`. Topic slugs follow the artifact slug and containment rule in `rules/AGENTS.md` §4.
 - Session fallback: the host artifact directory with the same ISO date prefix.
 - Never write an undated file at the repository root.
 

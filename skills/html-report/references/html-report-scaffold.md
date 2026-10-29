@@ -20,6 +20,7 @@ The reference defines all three presets. A generated report keeps exactly one pr
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Report Title</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -696,7 +697,7 @@ document.querySelectorAll("tr[data-day]").forEach((row) => {
 
 ## 8. Controlled Chart.js Opt-In
 
-Use this block only when complex interactive charting is required, the user explicitly approves the CDN, the page shows an offline warning, and the tag carries a verified SHA-384 SRI hash:
+Use this block only when complex interactive charting is required, the user explicitly approves the CDN, the page shows an offline warning, and the tag carries a verified SHA-384 SRI hash. When approved, also add `https://cdn.jsdelivr.net` to the CSP `script-src` directive:
 
 ```html
 <p class="no-print">This report loads Chart.js from a CDN. Offline viewing shows a static fallback.</p>
@@ -716,9 +717,9 @@ python3 <skill-dir>/scripts/check_html_report.py <report>.html
 
 `<skill-dir>` is the directory containing this skill, for example `~/.agents/skills/html-report`.
 
-The validator checks the document skeleton, exactly one preset with no switcher, the Theme control, the Google Fonts stylesheet, dual-theme and reduced-motion CSS, print rules, optical sizing, `tabular-nums`, focus visibility, table headers, button types, duplicate IDs, inline event handlers, inline network calls, external or sidecar assets, unresolved placeholders, and chart interaction markers when charts exist. It does not judge visual quality; run the render matrix in `references/review-gate.md`.
+The validator checks the document skeleton, exactly one preset token block with no switcher, the Theme control, the Google Fonts stylesheet, CSP directives, dual-theme and reduced-motion CSS, print rules, optical sizing, `tabular-nums`, focus visibility, table headers, button types, duplicate IDs, inline event handlers, URL schemes, inline network calls, exact-origin external assets, sidecar paths, secret patterns, unresolved placeholders, and chart interaction markers when charts exist. It does not judge visual quality; run the render matrix in `references/review-gate.md`.
 
-Keep this manual grep block as a fallback when the script cannot run:
+Keep this manual grep block as a fallback when the script cannot run. It cannot prove exact origins or size bounds; use the validator for the blocking verdict.
 
 ```bash
 test -f <report>.html
@@ -729,6 +730,10 @@ test "$(grep -o 'data-preset="[^"]*"' <report>.html | sort -u | wc -l | tr -d ' 
 ! grep -q 'collapse-' <report>.html
 ! grep -q 'copy-sum' <report>.html
 grep -q 'id="theme-toggle"' <report>.html
+grep -q 'Content-Security-Policy' <report>.html
+grep -q "connect-src 'none'" <report>.html
+grep -q "base-uri 'none'" <report>.html
+grep -q "form-action 'none'" <report>.html
 grep -q 'fonts.googleapis.com' <report>.html
 grep -q 'display=swap' <report>.html
 # Check the font family for the chosen preset:
@@ -737,10 +742,15 @@ grep -q 'Fraunces' <report>.html          # dossier
 grep -q 'prefers-color-scheme' <report>.html
 grep -q 'prefers-reduced-motion' <report>.html
 grep -q 'focus-visible' <report>.html
+grep -q 'font-optical-sizing' <report>.html
 grep -q '@media print' <report>.html
 grep -q 'tabular-nums' <report>.html
-! grep -q 'fetch(' <report>.html
-! grep -q 'onclick=' <report>.html
+! grep -Eq ' on[a-z]+=' <report>.html
+! grep -q 'sendBeacon' <report>.html
+! grep -q 'http-equiv="refresh"' <report>.html
+! grep -q '<base ' <report>.html
+! grep -q 'javascript:' <report>.html
+! grep -q 'fetch' <report>.html
 ! grep -q 'REPLACE' <report>.html
 ```
 
@@ -758,7 +768,7 @@ npx playwright pdf "file://$PWD/<report>.html" .tmp/report-review/report-print.p
 
 If Playwright is unavailable, use the host browser's headless screenshot and print-to-PDF modes. If neither exists, stop the gate and request screenshots from the user. Do not substitute source inspection for rendered evidence.
 
-Delete the evidence directory after the review record is complete unless the user wants to keep it.
+Delete only captures that the review record does not link. Keep the screenshots referenced by the record.
 
 ## 11. Review Record
 

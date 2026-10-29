@@ -24,7 +24,7 @@ Create a saved technical markdown document when the user asked for a durable rep
 - Interactive dashboards (`plotly-dash`)
 
 ## Spec and Contract Handoffs
-- A design spec is not a report. Use **spec-driven-design** for `docs/designs/YYYY-MM-DD_<feature>.md`; keep reports in `docs/reports/`.
+- A design spec is not a report. Use **spec-driven-design** for `docs/designs/YYYY-MM-DD_<feature>.md`; keep reports in `docs/reports/`. Topic and feature slugs follow the artifact slug and containment rule in `rules/AGENTS.md` §4.
 - A drift report follows **codebase-contracts**. State the audited revision and name the drift vector for each row.
 - When a report claims current behavior, cite a contract path or a probe. A claim with neither is unverified.
 - When a report locks an architectural decision, run **doubt-driven-development** on the decision before publishing.
@@ -49,6 +49,7 @@ Create a saved technical markdown document when the user asked for a durable rep
 
 ## 2. File Organization & Naming
 - Prefix persistent files with ISO date: `YYYY-MM-DD_<topic>.md`.
+- Topic slugs follow the artifact slug and containment rule in `rules/AGENTS.md` §4.
 - Workspace default: match existing docs layout, else `docs/reports/YYYY-MM-DD_<topic>.md`.
 - Session default: host artifact directory if the environment provides one; otherwise `docs/reports/`.
 - Assets: `docs/reports/assets/YYYY-MM-DD_<topic>/` or beside the report. Always relative paths.

@@ -26,7 +26,7 @@ Move from an unproven idea to an owner-approved design spec before code exists.
 - Codebase facts are unknown; ground them first with `codebase-contracts`.
 
 ## Artifact Paths
-- Concepts brief: `docs/designs/YYYY-MM-DD_concepts-brief_<topic>.md`.
+- Concepts brief: `docs/designs/YYYY-MM-DD_concepts-brief_<topic>.md`. Topic and feature slugs follow the artifact slug and containment rule in `rules/AGENTS.md` §4.
 - Approved spec: `docs/designs/YYYY-MM-DD_<feature>.md`.
 - Session fallback: the host artifact directory, or `.tmp/`, with the same date prefix.
 - Never write an undated file at the repository root.
@@ -84,7 +84,7 @@ Default cadence is the two gates above. Pause section by section only when the o
 - Never present large drafts in chat. Write the artifact and link it.
 - Plain English. No promotional adjectives, no flattery, no apologies.
 - Reviewers are read-only and stateless. A same-context review is not a Goldfish review.
-- Cap re-audits at one per stage and review cycles at three.
+- Cap re-audits at one per stage and follow the spec/design review bound in `rules/AGENTS.md` §1.
 
 ## Related Skills
 - Hand off the approved spec to **doubt-driven-development** for the consolidated five-lens review.

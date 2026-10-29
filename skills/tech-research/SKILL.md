@@ -100,7 +100,7 @@ Keep only the 3–5 most relevant options.
 
 ## Handoff to Spec and Report
 - When the survey hardens into a direction, hand the constraints, rejected options, and evidence rows to **spec-driven-design**. Do not restate the survey inside the spec.
-- When the owner asks for a durable file, hand the same evidence to **technical-reporting** with a `docs/reports/YYYY-MM-DD_<topic>.md` path.
+- When the owner asks for a durable file, hand the same evidence to **technical-reporting** with a `docs/reports/YYYY-MM-DD_<topic>.md` path. Topic slugs follow the artifact slug and containment rule in `rules/AGENTS.md` §4.
 - A survey that ends in no decision stays in chat. Do not create a spec or report by default.
 
 ## Related Skills

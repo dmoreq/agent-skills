@@ -29,7 +29,7 @@ Review the rendered interface as a hostile design director. Find what is weak, m
 - Code correctness, security, or performance (`code-review`).
 
 ## Artifact Path
-- Critique report: `docs/reports/YYYY-MM-DD_ux-critique_<topic>.md`.
+- Critique report: `docs/reports/YYYY-MM-DD_ux-critique_<topic>.md`. Topic slugs follow the artifact slug and containment rule in `rules/AGENTS.md` §4.
 - Screenshots live beside the report or in the host artifact directory.
 - Never write an undated file at the repository root.
 

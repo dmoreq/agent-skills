@@ -29,7 +29,7 @@ Own the visual contract between product intent and implementation: tokens, typog
 - Feature scoping without a user interface (`spec-driven-design`).
 
 ## Artifact Paths
-- Design system spec: `docs/designs/YYYY-MM-DD_design-system_<topic>.md`.
+- Design system spec: `docs/designs/YYYY-MM-DD_design-system_<topic>.md`. Topic slugs follow the artifact slug and containment rule in `rules/AGENTS.md` §4.
 - Token export: `docs/designs/YYYY-MM-DD_tokens_<topic>.css` and `.json`.
 - Session fallback: the host artifact directory with the same ISO date prefix.
 - Never write an undated file at the repository root.
