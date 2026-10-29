@@ -151,7 +151,7 @@ Minimalism removes decoration, never access. Fail the audit when any of these ar
 - [ ] The gate verdict is explicit.
 
 ## Related Skills
-- Use **html-report** when the audited artifact is a single-file report; check contrast, keyboard path, `<details>` disclosure, table headers, and print layout.
+- Use **html-report** when the audited artifact is a single-file report; this audit is a blocking gate for shared, interactive, or print reports, so record measured contrast and keyboard evidence and return `Pass` or `Fail`.
 - Use **design-system** for token changes that affect contrast, focus, or motion.
 - Use **ux-critic** for heuristic and visual critique after accessibility passes.
 - Use **data-visualization** for chart form and palette; audit the accessible alternative here.

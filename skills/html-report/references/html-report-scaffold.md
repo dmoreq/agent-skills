@@ -84,7 +84,7 @@ The reference defines all three presets. A generated report keeps exactly one pr
         <div class="section-content">
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Category</th><th class="num">Current</th><th class="num">Baseline</th><th class="num">Delta</th></tr></thead>
+              <thead><tr><th scope="col">Category</th><th scope="col" class="num">Current</th><th scope="col" class="num">Baseline</th><th scope="col" class="num">Delta</th></tr></thead>
               <tbody><!-- rows --></tbody>
             </table>
           </div>
@@ -706,9 +706,19 @@ Use this block only when complex interactive charting is required, the user expl
   crossorigin="anonymous"></script>
 ```
 
-## 9. Self-Check
+## 9. Structural Self-Check
 
-Run these against the generated file before delivery:
+Run the validator against the generated file. A non-zero exit blocks delivery:
+
+```bash
+python3 <skill-dir>/scripts/check_html_report.py <report>.html
+```
+
+`<skill-dir>` is the directory containing this skill, for example `~/.agents/skills/html-report`.
+
+The validator checks the document skeleton, exactly one preset with no switcher, the Theme control, the Google Fonts stylesheet, dual-theme and reduced-motion CSS, print rules, optical sizing, `tabular-nums`, focus visibility, table headers, button types, duplicate IDs, inline event handlers, inline network calls, external or sidecar assets, unresolved placeholders, and chart interaction markers when charts exist. It does not judge visual quality; run the render matrix in `references/review-gate.md`.
+
+Keep this manual grep block as a fallback when the script cannot run:
 
 ```bash
 test -f <report>.html
@@ -719,17 +729,37 @@ test "$(grep -o 'data-preset="[^"]*"' <report>.html | sort -u | wc -l | tr -d ' 
 ! grep -q 'collapse-' <report>.html
 ! grep -q 'copy-sum' <report>.html
 grep -q 'id="theme-toggle"' <report>.html
-# If the report has charts:
-grep -q 'chart-tooltip' <report>.html
-grep -q 'data-label' <report>.html
-grep -q 'data-chart-point' <report>.html
 grep -q 'fonts.googleapis.com' <report>.html
 grep -q 'display=swap' <report>.html
-# Check the font families for the chosen preset:
+# Check the font family for the chosen preset:
 grep -q 'Fraunces' <report>.html          # dossier
 # grep -q 'Cormorant+Garamond' <report>.html  # zen-garden / chronicle
 grep -q 'prefers-color-scheme' <report>.html
+grep -q 'prefers-reduced-motion' <report>.html
+grep -q 'focus-visible' <report>.html
 grep -q '@media print' <report>.html
 grep -q 'tabular-nums' <report>.html
+! grep -q 'fetch(' <report>.html
+! grep -q 'onclick=' <report>.html
 ! grep -q 'REPLACE' <report>.html
 ```
+
+## 10. Render Evidence
+
+Capture the views required by the Visual Quality Bar in `references/review-gate.md`. Use browser automation already available in the environment; do not install a new browser stack without approval.
+
+```bash
+mkdir -p .tmp/report-review
+# Playwright CLI, when already installed
+npx playwright screenshot --viewport-size=1440,900 --full-page --color-scheme=light "file://$PWD/<report>.html" .tmp/report-review/desktop-light.png
+npx playwright screenshot --viewport-size=390,844 --full-page --color-scheme=dark "file://$PWD/<report>.html" .tmp/report-review/mobile-dark.png
+npx playwright pdf "file://$PWD/<report>.html" .tmp/report-review/report-print.pdf
+```
+
+If Playwright is unavailable, use the host browser's headless screenshot and print-to-PDF modes. If neither exists, stop the gate and request screenshots from the user. Do not substitute source inspection for rendered evidence.
+
+Delete the evidence directory after the review record is complete unless the user wants to keep it.
+
+## 11. Review Record
+
+Use the template in `references/review-gate.md` section 6. Write the record beside the report, or in the host artifact directory for a session-only report.

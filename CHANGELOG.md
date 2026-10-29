@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `skills/html-report`: Replaced the advisory review gate with a blocking delivery gate. Profile classification is deterministic, uncertain reports default to Shared, and delivery is blocked when any gate is unrun, `Not tested`, or `Fail`.
+- `skills/html-report`: Added a blocking Visual Quality Bar with a desktop/mobile/reflow/print render matrix, a zero-tolerance hard-fail list, measured contrast and layout checks, and a bounded 2-cycle fix loop.
+- `skills/html-report/references/html-report-scaffold.md`: Added table header scopes, extended the structural self-check, added render-evidence commands, and added the ISO-dated review record template.
+- `skills/html-report/scripts/check_html_report.py`: Added a stdlib structural validator for the document skeleton, one preset with no switcher, theme and print CSS, focus visibility, table headers, inline handlers, network calls, allowed font and asset policy, duplicate IDs, placeholders, and chart interaction markers.
+- `skills/ui-accessibility` and `skills/ux-critic`: Declared their report audits as blocking gates for shared/print and executive HTML reports.
+- `tests/test_invariants.py`: Extended `test_html_report_skill_integrity` to lock the blocking gate, render matrix, review record, type floors, and cross-skill blocking handoffs; added `test_html_report_validator_blocks_structural_drift`.
+- `README.md`: Updated the `html-report` structure, catalog, and HTML Output pipeline entries to describe the blocking structural and visual gates.
+
 ### Added
 - `rules/AGENTS.md`: Added mandatory **Progress Visibility for Long Tasks** under §4 Safety & Workspace Hygiene. Requires scripts running >5 seconds or >100 iterations to output progress indicators (`tqdm` or structured interval logging with rate and completion estimates).
 - `skills/python-pro`: Documented progress visibility and throttling standards for batch iterations and CLI scripts.
