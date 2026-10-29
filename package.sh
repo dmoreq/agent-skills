@@ -87,19 +87,21 @@ for archive in "${BUILT[@]}"; do
 done
 
 if $BUILD_BUNDLE; then
+    TAR_LIST="$(tar -tzf "$STAGE/agent-skills.tar.gz")"
+    ZIP_LIST="$(unzip -Z1 "$STAGE/agent-skills.zip")"
     for forbidden in '/.zcode/' '/docs/' '/.git/' '/.env' '/.tmp/' '/dist/'; do
-        if tar -tzf "$STAGE/agent-skills.tar.gz" | grep -Fq "$forbidden"; then
-            matches="$(tar -tzf "$STAGE/agent-skills.tar.gz" | grep -F "$forbidden" | head -3 | tr '\n' ' ')"
+        if [[ "$TAR_LIST" == *"$forbidden"* ]]; then
+            matches="$(printf '%s\n' "$TAR_LIST" | grep -F "$forbidden" | head -3 | tr '\n' ' ')"
             echo "ERROR: bundle contains forbidden path: $forbidden ($matches)" >&2
             exit 1
         fi
-        if unzip -Z1 "$STAGE/agent-skills.zip" | grep -Fq "$forbidden"; then
+        if [[ "$ZIP_LIST" == *"$forbidden"* ]]; then
             echo "ERROR: bundle contains forbidden path: $forbidden" >&2
             exit 1
         fi
     done
     for required in "$NAME/skills/html-report/SKILL.md" "$NAME/rules/AGENTS.md" "$NAME/setup.sh" "$NAME/README.md"; do
-        if ! tar -tzf "$STAGE/agent-skills.tar.gz" | grep -Fqx "$required"; then
+        if ! grep -Fqx "$required" <<< "$TAR_LIST"; then
             echo "ERROR: bundle is missing required path: $required" >&2
             exit 1
         fi
