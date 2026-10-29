@@ -93,7 +93,7 @@ if $BUILD_BUNDLE; then
             echo "ERROR: bundle contains forbidden path: $forbidden ($matches)" >&2
             exit 1
         fi
-        if unzip -l "$STAGE/agent-skills.zip" | grep -Fq "$forbidden"; then
+        if unzip -Z1 "$STAGE/agent-skills.zip" | grep -Fq "$forbidden"; then
             echo "ERROR: bundle contains forbidden path: $forbidden" >&2
             exit 1
         fi

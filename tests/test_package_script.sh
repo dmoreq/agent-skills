@@ -35,7 +35,7 @@ DIST_DIR="$DIST" "$REPO_DIR/package.sh" --bundle-only >/dev/null
 [[ ! -e "$DIST/skills.tar.gz" ]] || fail "--bundle-only created a skills archive"
 
 TAR_LIST="$(tar -tzf "$DIST/agent-skills.tar.gz")"
-ZIP_LIST="$(unzip -l "$DIST/agent-skills.zip")"
+ZIP_LIST="$(unzip -Z1 "$DIST/agent-skills.zip")"
 for forbidden in '.zcode' 'docs/' '.env'; do
     if printf '%s' "$TAR_LIST" | grep -Fq "$forbidden"; then
         fail "bundle tar contains $forbidden"
