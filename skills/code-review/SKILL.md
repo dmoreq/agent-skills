@@ -46,6 +46,8 @@ Keep review-only requests read-only. Implement fixes through the language skill 
 - Use **ui-accessibility** for UI and WCAG review.
 - Use **technical-reporting** for a Markdown audit handoff, or **html-report** for a single-file HTML audit page.
 
+- Use **dart-modern-idioms** when reviewing a Dart or Flutter diff for idiom, exhaustiveness, or async-safety compliance.
+- Use **flutter-testing-verification** when a Flutter diff changed behavior without widget or integration tests.
 ## Review Workflow & Gates
 
 Select the review mode first: diff review (below), package export audit (`references/public-api-audits.md`), repo snapshot review (`references/repo-snapshot-review.md`), or declarative skill-bundle review (`references/repo-snapshot-review.md` §5).

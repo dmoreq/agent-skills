@@ -76,14 +76,14 @@ fi
 assert_contains "$OUT_MISSING" "requires a comma-separated host list" "missing --host value did not report a usage error"
 echo "  Invalid host values are rejected"
 
-# Test 5: Non-dry portable install writes 27 skills and no Rust skills.
+# Test 5: Non-dry portable install writes 35 skills and no Rust skills.
 INSTALL_HOME="$TEST_HOME/install"
 HOME="$INSTALL_HOME" "$REPO_DIR/setup.sh" --host portable >/dev/null
 SKILL_COUNT="$(find "$INSTALL_HOME/.agents/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
-[[ "$SKILL_COUNT" == "27" ]] || fail "portable install wrote $SKILL_COUNT skills, expected 27"
+[[ "$SKILL_COUNT" == "35" ]] || fail "portable install wrote $SKILL_COUNT skills, expected 35"
 [[ -f "$INSTALL_HOME/.agents/skills/.agent-skills-managed" ]] || fail "portable install did not write a manifest"
 [[ ! -d "$INSTALL_HOME/.agents/skills/rust-pro" ]] || fail "portable install included rust-pro"
-echo "  Non-dry portable install writes 27 skills and a manifest"
+echo "  Non-dry portable install writes 35 skills and a manifest"
 
 # Test 6: --host codex installs portable skills and does not create native skills.
 CODEX_HOME="$TEST_HOME/codex"

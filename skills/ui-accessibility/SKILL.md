@@ -157,3 +157,5 @@ Minimalism removes decoration, never access. Fail the audit when any of these ar
 - Use **data-visualization** for chart form and palette; audit the accessible alternative here.
 - Use **code-review** for the merge gate and regression review.
 - Use **verify-and-stop** for the decisive final check.
+- Use **code-review** for the merge gate and regression review.
+- Use **flutter-ui-responsive-a11y** when the target platform is Flutter; implement Semantics, responsive breakpoints, and Material 3 theming there, then audit here.

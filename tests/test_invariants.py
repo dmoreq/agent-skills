@@ -818,6 +818,14 @@ def test_readme_reference_counts_match_directories():
         "ux-critic": 1,
         "ux-product-shaper": 1,
         "verify-and-stop": 1,
+        "dart-modern-idioms": 1,
+        "flutter-architecture-data": 1,
+        "flutter-codegen-release": 1,
+        "flutter-navigation-routing": 1,
+        "flutter-performance-optimization": 1,
+        "flutter-state-management": 1,
+        "flutter-testing-verification": 1,
+        "flutter-ui-responsive-a11y": 1,
     }
     for name, count in expected.items():
         line = next(
@@ -829,7 +837,7 @@ def test_readme_reference_counts_match_directories():
         assert int(match.group(1)) == count, (
             f"README annotation for {name} is {match.group(1)}, expected {count}"
         )
-        actual = len(list((SKILLS_DIR / name / "references").glob("*.md")))
+        actual = len([f for f in (SKILLS_DIR / name / "references").iterdir() if f.is_file()])
         assert actual == count, f"{name} has {actual} references, expected {count}"
     assert "`AGENTS.md` §5 stub" not in readme
 

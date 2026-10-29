@@ -1,0 +1,125 @@
+# Production GitHub Actions CI & build.yaml Reference
+
+## 1. Scoped `build.yaml` to Speed Up `build_runner`
+
+Place `build.yaml` at the root of your Flutter project to restrict code generators to the directories that actually use them:
+
+```yaml
+targets:
+  $default:
+    builders:
+      json_serializable:
+        generate_for:
+          include:
+            - lib/features/**/models/**.dart
+            - lib/core/models/**.dart
+        options:
+          explicit_to_json: true
+          field_rename: snake
+      freezed:
+        generate_for:
+          include:
+            - lib/features/**/models/**.dart
+            - lib/features/**/ui/**.dart
+            - lib/core/models/**.dart
+      riverpod_generator:
+        generate_for:
+          include:
+            - lib/features/**/ui/**.dart
+            - lib/features/**/data/**.dart
+            - lib/core/**.dart
+```
+
+## 2. Production `main.dart` Bootstrap Template
+
+```dart
+import 'dart:ui';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 1. Catch synchronous Flutter framework errors (build, layout, paint)
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    // TODO: Forward to Crashlytics / Sentry in production
+    debugPrint('FlutterError: ${details.exceptionAsString()}');
+  };
+
+  // 2. Catch asynchronous errors not handled by the Flutter framework
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    // TODO: Forward to Crashlytics / Sentry in production
+    debugPrint('Uncaught Async Error: $error\n$stack');
+    return true;
+  };
+
+  // 3. Friendly fallback UI in release mode instead of red/grey error box
+  if (kReleaseMode) {
+    ErrorWidget.builder = (FlutterErrorDetails details) {
+      return const Material(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'Something went wrong while rendering this section.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    };
+  }
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Scaffold(body: Center(child: Text('Ready'))),
+    );
+  }
+}
+```
+
+## 3. GitHub Actions CI Gate (`.github/workflows/flutter_ci.yml`)
+
+```yaml
+name: Flutter CI Gate
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Run static analysis
+        run: flutter analyze --fatal-infos
+
+      - name: Run unit and widget tests
+        run: flutter test --coverage --randomize-ordering-seed=random
+```
