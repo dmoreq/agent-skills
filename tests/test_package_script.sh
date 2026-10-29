@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TMP="$(mktemp -d)"
+TMP="$(mktemp -d "${TMPDIR:-/tmp}/agent-skills-test.XXXXXX")"
 cleanup() {
     rm -rf -- "$TMP"
     rm -f "$REPO_DIR/.zcode/secret.md" "$REPO_DIR/docs/reports/secret.html"

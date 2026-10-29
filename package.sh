@@ -89,7 +89,8 @@ done
 if $BUILD_BUNDLE; then
     for forbidden in '/.zcode/' '/docs/' '/.git/' '/.env' '/.tmp/' '/dist/'; do
         if tar -tzf "$STAGE/agent-skills.tar.gz" | grep -Fq "$forbidden"; then
-            echo "ERROR: bundle contains forbidden path: $forbidden" >&2
+            matches="$(tar -tzf "$STAGE/agent-skills.tar.gz" | grep -F "$forbidden" | head -3 | tr '\n' ' ')"
+            echo "ERROR: bundle contains forbidden path: $forbidden ($matches)" >&2
             exit 1
         fi
         if unzip -l "$STAGE/agent-skills.zip" | grep -Fq "$forbidden"; then
