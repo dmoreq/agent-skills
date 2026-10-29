@@ -27,8 +27,10 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
   - **Delegation Threshold**: Handle localized, linear, or small tasks (< ~100 lines) directly in the main thread. Delegate to subagents only when work is non-trivial, modular, or benefits from parallel execution / broad context isolation.
   - **Planning & Decomposition**: In the planning phase, decompose work into decoupled streams along clean architectural boundaries (distinct files/modules). Avoid micro-tasking to prevent merge contention and context overhead.
   - **Context Economy**: Supply subagents with strictly minimal context: isolated task spec, target file paths, and explicit acceptance criteria. Never dump conversation transcripts.
+  - **Task-Skill Handoff**: Before spawning a subagent, resolve the skill that owns the delegated task domain. Pass the skill name and `SKILL.md` path, or use the host's automatic skill loading. Never paste the full skill body. The subagent must follow that skill's gates and references. When a task spans domains, pass at most the 2-3 skills that own the primary decisions.
   - **Peer-Review Gate**:
     - Non-trivial subagent deliverables (code diffs, architecture, decisions) require an independent peer-review before acceptance.
+    - Confirm the reviewer has the owning review skill or persona card, or an explicit instruction to load it.
     - Feed the reviewer only the isolated deliverable + contract/criteria (strip author reasoning).
     - Run review passes concurrently as streams complete. Canonical fix-review bounds: diff/code review `<= 2` cycles; spec/design review `<= 3` cycles. Skills must reference these bounds, not restate them.
     - Reconcile and resolve all Critical and Important findings before declaring completion.

@@ -27,6 +27,7 @@ Context isolation contract:
 - Pass one lens card per reviewer. Do not combine lenses in one subagent.
 - Pass the target path and line range. Add source paths only when the lens needs code evidence.
 - Strip the author's rationale and any prior review conclusions.
+- Include a `Skill context:` line naming the owning review skill and its `SKILL.md` path when the lens depends on that skill's gates.
 - If isolation is unavailable, label the result a sequential cold read. Never present a same-context review as a Goldfish review.
 
 ## Lens 1: Zoom-Out (Full Document)

@@ -867,3 +867,20 @@ def test_setup_flags_and_hosts_are_documented():
         assert flag in usage, f"setup.sh usage does not document {flag}"
     assert "eval " not in setup, "setup.sh still contains an eval helper"
     assert "maybe_remove_old_rules" not in setup, "setup.sh still contains dead helper"
+
+
+def test_dispatch_contracts_include_skill_context():
+    """Every Goldfish dispatch contract names the owning skill context."""
+    rules = RULES_FILE.read_text(encoding="utf-8")
+    assert "Task-Skill Handoff" in rules
+    assert "owning review skill or persona card" in rules
+
+    references = (
+        SKILLS_DIR / "spec-driven-design" / "references" / "spec-templates-and-standards.md",
+        SKILLS_DIR / "code-review" / "references" / "goldfish-code-review-lenses.md",
+        SKILLS_DIR / "doubt-driven-development" / "references" / "goldfish-review-lenses.md",
+    )
+    for path in references:
+        content = path.read_text(encoding="utf-8")
+        assert "Skill context:" in content, f"{path} is missing the Skill context handoff"
+        assert "SKILL.md" in content, f"{path} must name the SKILL.md path"

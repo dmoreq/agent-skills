@@ -8,6 +8,7 @@ A Goldfish reviewer runs in a fresh context with no conversation history. It is 
 
 - Pass only: the lens prompt card, the artifact path (and line range when given), and the source paths the reviewer may read.
 - Never pass: conversation history, the author's rationale, prior review conclusions, or a desired verdict.
+- Include a `Skill context:` line naming the owning review skill and its `SKILL.md` path when the lens depends on that skill's gates.
 - The caller deduplicates findings and writes one report. Each reviewer returns raw findings only.
 - If the host cannot isolate context, run a sequential cold-read pass. State plainly that isolation was simulated, not native.
 
