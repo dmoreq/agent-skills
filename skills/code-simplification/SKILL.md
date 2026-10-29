@@ -53,7 +53,7 @@ Simplify code for clarity and maintainability without changing behavior. Focus o
    - Replace long `if/elif/else` ladders with dictionary or match-case lookups for discrete keys.
 3. **Pipeline and Decomposition (Reduces Function Volume and Coupling)**:
    - Extract multi-step sequences into private helper functions or generator pipelines.
-   - Keep function bodies <= 50 effective lines.
+   - Keep function bodies within the hard length threshold in `rules/AGENTS.md` §3.
 
 ## Do Not
 - Change behavior to make code "nicer"

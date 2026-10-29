@@ -15,7 +15,7 @@ A report is not done when the HTML validates. It is done when the rendered pages
 | Narrow reflow | 320px wide | Chosen preset | No clipped content and no horizontal page scroll |
 | Print/PDF | A4 | Chosen preset | Details expanded, chrome hidden, no clipped text, no break inside cards or tables |
 
-Capture every required view before judging it. Screenshots are review evidence, not report assets: keep them in `.tmp/` or the host artifact directory and delete them after the review record is complete.
+Capture every required view before judging it. Screenshots are review evidence, not report assets: keep the screenshots the record links, and delete only unreferenced captures after the review record is complete.
 
 ### Hard Fails
 
@@ -28,6 +28,8 @@ Any one of these blocks delivery:
 - A broken theme toggle, table filter, chart tooltip, legend dimming, or cross-highlight control.
 - Placeholder text, empty charts, dead controls, or a browser console error.
 - A network request outside the Google Fonts stylesheet or the approved Chart.js exception.
+- A missing or invalid Content-Security-Policy meta, or a CSP directive that permits an unapproved origin.
+- A credential-shaped string in the report; report the pattern class only, never the value.
 - Print output with clipped content, visible chrome, or collapsed `<details>`.
 - More than two non-monospace font families, or more than one decorative accent outside status and chart palettes.
 - Nested bordered or shadowed cards, more than one card radius, or KPI cards in one row with visibly unequal heights.
@@ -63,7 +65,8 @@ Every profile runs these gates in order:
 ## 4. Profile Gates
 
 - **Internal**: universal gates plus `verify-and-stop`.
-- **Shared or print**: universal gates, then `ui-accessibility`, then `verify-and-stop`. Require a `Pass` verdict with measured contrast, keyboard order, visible focus, `<details>` disclosure, table headers, 24x24px targets, 320px reflow, and print layout. A `Fail`, `Not tested`, or missing verdict blocks delivery.
+- **Shared**: universal gates, then `ui-accessibility`, then `verify-and-stop`. Require a `Pass` verdict with measured contrast, keyboard order, visible focus, `<details>` disclosure, table headers, 24x24px targets, 320px reflow, and print layout. A `Fail`, `Not tested`, or missing verdict blocks delivery.
+- **Print**: same as Shared, with the print/PDF layout check explicitly required.
 - **Executive**: universal gates, then `ui-accessibility`, then `ux-critic`, then `verify-and-stop`. Require `Ship` or `Ship with fixes` and zero Critical findings. `Do not ship` blocks delivery.
 
 ## 5. Blocking Rules
@@ -74,7 +77,7 @@ Every profile runs these gates in order:
 - Do not deliver while a gate is `Fail` or blocked. State the blocker and the exact evidence needed.
 - Never publish or upload the file to an external service without explicit confirmation.
 - Save the `.html` file, give the path, and return a concise executive summary in chat. Do not dump raw HTML.
-- `verify-and-stop` remains the final decisive check: one file, one preset, the Google Fonts stylesheet as the only request, both themes render, print preview expands details. It does not replace the visual gate.
+- `verify-and-stop` remains the final decisive check: one file, one preset, no request outside the Google Fonts stylesheet or approved Chart.js exception, both themes render, print preview expands details. It does not replace the visual gate.
 
 ## 6. Review Record Template
 

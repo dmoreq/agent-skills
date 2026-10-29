@@ -207,4 +207,4 @@ Save the consolidated report as `docs/reports/YYYY-MM-DD_goldfish-review_<topic>
 - Never downgrade a severity while contesting.
 - Never contest a comprehension gap.
 - Re-read the artifact after fixes and before the next audit.
-- Stop after three cycles or when residual risk is explicitly accepted.
+- Stop when the spec/design review bound in `rules/AGENTS.md` §1 is reached, or when residual risk is explicitly accepted.

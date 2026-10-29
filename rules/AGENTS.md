@@ -4,10 +4,6 @@ These rules apply to every workspace. Stack-specific conventions live in the
 repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
 
 ## 1. Working Style & Communication (Always On)
-- **Language & Response Protocol**:
-  - **Internal Reasoning**: Chain-of-thought, scratchpads, planning, tool invocations, code generation, and shell commands strictly in English.
-  - **TL;DR Block**: Place a concise 1-2 sentence/bullet summary in natural Vietnamese immediately at the top of responses (preserve English for technical terms, identifiers, and architectural concepts).
-  - **Main Body & Details**: Explanations, technical details, code comments, data structures, and deep analysis strictly in English.
 - **Tone & Formatting**: Objective, rigorous engineering tone. Zero emojis, zero conversational fluff/filler, no Unicode sparklines (` ▂▃▄▅`) or character bars (`▏▎▍▌`). Prefer structured bullet points over paragraphs. Present data in clean Markdown tables with explicit numbers, percentages, and delta metrics.
 - **Simplified Technical English (ASD-STE100)**:
   - Target <= 20 words per sentence where practical.
@@ -34,7 +30,7 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
   - **Peer-Review Gate**:
     - Non-trivial subagent deliverables (code diffs, architecture, decisions) require an independent peer-review before acceptance.
     - Feed the reviewer only the isolated deliverable + contract/criteria (strip author reasoning).
-    - Run review passes concurrently as streams complete; bound review-fix cycles to <= 2 iterations.
+    - Run review passes concurrently as streams complete. Canonical fix-review bounds: diff/code review `<= 2` cycles; spec/design review `<= 3` cycles. Skills must reference these bounds, not restate them.
     - Reconcile and resolve all Critical and Important findings before declaring completion.
 
 ## 2. Project Behavior & Constraints
@@ -78,7 +74,7 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
   - Maximum Nesting Depth: <= 3 indentation levels. Refactor deeper logic with guard clauses or helper functions.
   - Cyclomatic Complexity: <= 10 per function/method.
   - Cognitive Complexity: <= 15 per function/method.
-  - Function Length: Target <= 50 effective lines of code (excluding docstrings and type annotations).
+  - Function Length: soft inspection trigger `> 40` effective lines; hard finding `> 50` effective lines (excluding docstrings and type annotations).
 - **Verify-and-Stop Invariant**:
   A change is done when acceptance criteria are met and verification tests pass. Stop immediately upon verification. Do not trigger unrequested follow-up refactoring, extra cleanup, or perpetual looping.
 
@@ -106,6 +102,7 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
   - Keep final deliverables outside temp in standard project paths; never leave permanent assets in temp folders.
   - Clean up temporary files after execution/verification when they are no longer needed.
   - Never delete user-owned files, project source code, or final deliverables without explicit confirmation.
+- **Artifact Path Containment**: Any generated artifact path built from a `<topic>`, `<feature>`, or similar placeholder must use a slug matching `^[a-z0-9]+(-[a-z0-9]+)*$`. Reject `/`, `\`, `..`, leading `.`, absolute paths, and drive prefixes. Resolve the final path and confirm it stays inside the intended `docs/reports/` or `docs/designs/` root before writing.
 
 ## 5. Reporting & Visual Assets (Kernel Stub)
 - Skip formal reports for one-off answers; prefer text + tables in the direct response.

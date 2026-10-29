@@ -13,6 +13,8 @@ DRY_RUN=false
 FORCE=false
 MIRROR_NATIVE=false   # also copy skills into native host dirs (duplicates ~/.agents)
 HOSTS_FILTER=""       # empty = auto-detect
+HOSTS_FILTER_SET=false
+SUPPORTED_HOSTS=("portable" "antigravity" "grok" "opencode" "codex" "zed" "zcode")
 WITH_RUST=false       # skip Rust skills by default
 
 # Rust skills skipped by default unless --with-rust is passed
@@ -30,10 +32,11 @@ Options:
   --host LIST        Comma-separated: antigravity,grok,opencode,codex,zed,zcode,portable
                      Default: portable + antigravity always; grok/opencode/codex/zed/zcode if detected
   --with-rust        Include Rust skills (rust-pro, rust-async-patterns, pyo3-maturin). Default: skipped.
-  --all              Enable --with-rust and install to all detected hosts.
+  --without-rust     Skip Rust skills (default).
+  --all              Alias for --with-rust. The default already targets every detected host.
   --link             Symlink skill folders from this repo (dev). Default is copy.
   --mirror-native    Also copy skills into native host dirs (duplicates ~/.agents/skills; for old hosts)
-  --force            Create host dirs even if the product is not detected
+  --force            Replace unmanaged same-name skill dirs and create host dirs even if the product is not detected
   --dry-run          Print destinations; do not write
   -h, --help         Show this help
 
@@ -48,13 +51,6 @@ EOF
 }
 
 log() { printf '%s\n' "$*"; }
-run() {
-    if $DRY_RUN; then
-        log "  dry-run: $*"
-        return 0
-    fi
-    eval "$@"
-}
 
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
 
@@ -92,9 +88,17 @@ is_rust_skill() {
 
 host_wanted() {
     local name="$1"
-    if [[ -n "$HOSTS_FILTER" ]]; then
-        [[ ",$HOSTS_FILTER," == *",$name,"* ]]
-        return
+    if $HOSTS_FILTER_SET; then
+        case ",$HOSTS_FILTER," in
+            *",$name,"*) return 0 ;;
+        esac
+        # These hosts read ~/.agents/skills and have no native skill root.
+        if [[ "$name" == "portable" ]]; then
+            case ",$HOSTS_FILTER," in
+                *",grok,"*|*",opencode,"*|*",codex,"*|*",zed,"*) return 0 ;;
+            esac
+        fi
+        return 1
     fi
     case "$name" in
         portable|antigravity) return 0 ;;
@@ -107,60 +111,144 @@ host_wanted() {
     esac
 }
 
+# Resolve a path, including a symlink target, without requiring the file to exist.
+resolve_path() {
+    local path="$1"
+    if [[ -e "$path" || -L "$path" ]]; then
+        python3 - "$path" <<'PY'
+import pathlib, sys
+print(pathlib.Path(sys.argv[1]).resolve())
+PY
+        return 0
+    fi
+    local parent
+    parent="$(dirname "$path")"
+    if [[ -d "$parent" ]]; then
+        printf '%s/%s\n' "$(cd "$parent" && pwd -P)" "$(basename "$path")"
+    else
+        printf '%s\n' "$path"
+    fi
+}
+
+assert_not_source_tree() {
+    local dest="$1"
+    [[ -e "$dest" || -L "$dest" ]] || return 0
+    local dest_real repo_real
+    dest_real="$(resolve_path "$dest")"
+    repo_real="$(cd "$SKILLS_DIR" && pwd -P)"
+    case "$dest_real/" in
+        "$repo_real"/*)
+            log "ERROR: refusing to write into the source tree: $dest_real"
+            exit 1
+            ;;
+    esac
+}
+
+manifest_has() {
+    local manifest="$1" name="$2"
+    [[ -f "$manifest" ]] && grep -qxF "$name" "$manifest"
+}
+
+# True when an existing skill dir is an unmodified copy from this repo.
+is_managed_copy() {
+    local skill="$1" dest_skill="$2"
+    [[ -f "$dest_skill/SKILL.md" ]] && cmp -s "$skill/SKILL.md" "$dest_skill/SKILL.md"
+}
+
 # Remove this repo's skill names from a dest (keeps unrelated user skills).
 prune_our_skills() {
     local dest="$1"
     [[ -d "$dest" ]] || return 0
-    local skill name
+    assert_not_source_tree "$dest"
+    local manifest="$dest/.agent-skills-managed"
+    local skill name dest_skill
     for skill in "$SKILLS_DIR"/*; do
         [[ -d "$skill" ]] || continue
         name="$(basename "$skill")"
-        if $DRY_RUN; then
-            log "  prune $dest/$name"
-            continue
+        dest_skill="$dest/$name"
+        [[ -e "$dest_skill" || -L "$dest_skill" ]] || continue
+        if manifest_has "$manifest" "$name" || is_managed_copy "$skill" "$dest_skill" || $FORCE; then
+            if $DRY_RUN; then
+                log "  prune $dest_skill"
+            else
+                rm -rf -- "$dest_skill"
+            fi
+        else
+            log "  skip unmanaged $dest_skill (not installed by this repo; use --force)"
         fi
-        rm -rf "$dest/$name"
     done
+    if ! $DRY_RUN && [[ -f "$manifest" ]]; then
+        local tmp="$manifest.tmp.$$"
+        : > "$tmp"
+        while IFS= read -r name; do
+            [[ -e "$dest/$name" || -L "$dest/$name" ]] && printf '%s\n' "$name" >> "$tmp"
+        done < "$manifest"
+        sort -u "$tmp" -o "$tmp"
+        mv -f "$tmp" "$manifest"
+    fi
 }
 
 # Overwrite only skill folders shipped by this repo. Other skills stay.
 sync_skills() {
     local dest="$1"
+    assert_not_source_tree "$dest"
     if ! $DRY_RUN; then
         mkdir -p "$dest"
     fi
-    local skill name dest_skill
+    local manifest="$dest/.agent-skills-managed"
+    local manifest_tmp="$dest/.agent-skills-managed.tmp.$$"
+    if ! $DRY_RUN; then
+        : > "$manifest_tmp"
+    fi
+    local skill name dest_skill stage
     for skill in "$SKILLS_DIR"/*; do
         [[ -d "$skill" ]] || continue
         name="$(basename "$skill")"
         dest_skill="$dest/$name"
 
         if ! $WITH_RUST && is_rust_skill "$name"; then
-            # Clean up previously installed Rust skill if now skipping
-            if [[ -e "$dest_skill" ]] || [[ -L "$dest_skill" ]]; then
-                if $DRY_RUN; then
-                    log "  prune skipped rust skill $name from $dest"
-                else
-                    rm -rf "$dest_skill"
+            if [[ -e "$dest_skill" || -L "$dest_skill" ]]; then
+                if manifest_has "$manifest" "$name" || is_managed_copy "$skill" "$dest_skill" || $FORCE; then
+                    if $DRY_RUN; then
+                        log "  prune skipped rust skill $name from $dest"
+                    else
+                        rm -rf -- "$dest_skill"
+                    fi
                 fi
             fi
             continue
+        fi
+
+        if [[ -e "$dest_skill" || -L "$dest_skill" ]]; then
+            if ! manifest_has "$manifest" "$name" && ! is_managed_copy "$skill" "$dest_skill" && ! $FORCE; then
+                log "  skip unmanaged $dest_skill (not installed by this repo; use --force)"
+                continue
+            fi
         fi
 
         if $DRY_RUN; then
             log "  skill $name -> $dest_skill"
             continue
         fi
-        rm -rf "$dest_skill"
+
+        stage="$dest/.$name.tmp.$$"
+        rm -rf -- "$stage"
         if [[ "$MODE" == "link" ]]; then
-            ln -s "$skill" "$dest_skill"
+            ln -s "$skill" "$stage" || { rm -rf -- "$stage"; exit 1; }
         else
-            cp -R "$skill" "$dest_skill"
+            cp -R "$skill" "$stage" || { rm -rf -- "$stage"; exit 1; }
         fi
+        rm -rf -- "$dest_skill"
+        mv "$stage" "$dest_skill"
+        printf '%s\n' "$name" >> "$manifest_tmp"
     done
+    if ! $DRY_RUN; then
+        sort -u "$manifest_tmp" -o "$manifest_tmp"
+        mv -f "$manifest_tmp" "$manifest"
+    fi
 }
 
-write_file() {
+install_rules_file() {
     local dest="$1"
     local src="$2"
     if $DRY_RUN; then
@@ -168,30 +256,32 @@ write_file() {
         return 0
     fi
     mkdir -p "$(dirname "$dest")"
-    cp "$src" "$dest"
-}
-
-write_zed_rules() {
-    local dest="$HOME/.config/zed/AGENTS.md"
-    if $DRY_RUN; then
-        log "  file -> $dest"
+    local target
+    target="$(resolve_path "$dest")"
+    local custom=""
+    if [[ -f "$target" ]]; then
+        custom="$(awk 'NR==FNR { if ($0 ~ /^## /) seen[$0]=1; next } /^## / { keep = !($0 in seen) } keep' "$src" "$target")"
+    fi
+    local tmp
+    tmp="$(mktemp "${target}.tmp.XXXXXX")"
+    if ! cat "$src" > "$tmp"; then
+        rm -f "$tmp"
+        return 1
+    fi
+    if [[ -n "$custom" ]]; then
+        printf '\n%s\n' "$custom" >> "$tmp"
+    fi
+    if [[ -f "$target" ]] && cmp -s "$target" "$tmp"; then
+        rm -f "$tmp"
         return 0
     fi
-    mkdir -p "$(dirname "$dest")"
-    if [[ -f "$dest" ]] && ! cmp -s "$dest" "$RULES_FILE"; then
-        if grep -q "^## Commit message" "$dest" && ! grep -q "^## Commit message" "$RULES_FILE"; then
-            log "    preserving existing ## Commit message section in $dest"
-            local custom_part
-            custom_part="$(awk '/^## Commit message/{flag=1} flag' "$dest")"
-            {
-                cat "$RULES_FILE"
-                printf '\n\n'
-                printf '%s\n' "$custom_part"
-            } > "$dest"
-            return 0
-        fi
+    if [[ -f "$target" ]]; then
+        local backup="$target.bak.$(date +%Y%m%d%H%M%S).$$"
+        cp -p "$target" "$backup"
+        log "    backup -> $backup"
     fi
-    cp "$RULES_FILE" "$dest"
+    chmod 644 "$tmp"
+    mv -f "$tmp" "$target"
 }
 
 write_opencode_rules() {
@@ -199,51 +289,41 @@ write_opencode_rules() {
     local config_file="$HOME/.config/opencode/opencode.json"
     if $DRY_RUN; then
         log "  file -> $rules_path"
+        [[ -f "$config_file" ]] && log "  config -> $config_file"
         return 0
     fi
-    mkdir -p "$(dirname "$rules_path")"
-    cp "$RULES_FILE" "$rules_path"
-
     if [[ -f "$config_file" ]]; then
-        python3 - "$config_file" "$rules_path" <<'PY'
+        if ! python3 - "$config_file" "$rules_path" <<'PY'
 import json, pathlib, sys
 config_path = pathlib.Path(sys.argv[1])
 rule_str = sys.argv[2]
 try:
-    data = json.loads(config_path.read_text(encoding='utf-8'))
-    instructions = data.get('instructions', [])
-    if rule_str not in instructions:
-        instructions.append(rule_str)
-        data['instructions'] = instructions
-        config_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
-except Exception:
-    pass
+    data = json.loads(config_path.read_text(encoding="utf-8"))
+except Exception as error:
+    sys.exit(f"{config_path}: invalid JSON ({error})")
+instructions = data.get("instructions", [])
+if not isinstance(instructions, list):
+    sys.exit(f"{config_path}: 'instructions' must be a list")
+cleaned = [
+    item for item in instructions
+    if not (isinstance(item, str) and item.endswith("/opencode/AGENTS.md"))
+]
+if rule_str not in cleaned:
+    cleaned.append(rule_str)
+data["instructions"] = cleaned
+backup = config_path.with_name(config_path.name + ".bak")
+if not backup.exists():
+    backup.write_bytes(config_path.read_bytes())
+tmp = config_path.with_name(config_path.name + ".tmp")
+tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+tmp.replace(config_path)
 PY
+        then
+            log "ERROR: cannot update $config_file; fix it manually and rerun."
+            exit 1
+        fi
     fi
-}
-
-write_zcode_rules() {
-    local rules_path="$HOME/.zcode/AGENTS.md"
-    if $DRY_RUN; then
-        log "  file -> $rules_path"
-        return 0
-    fi
-    mkdir -p "$(dirname "$rules_path")"
-    cp "$RULES_FILE" "$rules_path"
-}
-
-# Remove a previous copy of this repo's rules if it is a byte-identical leftover.
-maybe_remove_old_rules() {
-    local path="$1"
-    [[ -f "$path" ]] || return 0
-    if $DRY_RUN; then
-        log "  consider removing leftover $path"
-        return 0
-    fi
-    if cmp -s "$path" "$RULES_FILE"; then
-        rm -f "$path"
-        log "    removed leftover identical $path"
-    fi
+    install_rules_file "$rules_path" "$RULES_FILE"
 }
 
 skill_count() {
@@ -265,8 +345,26 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --project) SCOPE="project"; shift ;;
         --user)    SCOPE="user"; shift ;;
-        --host)    HOSTS_FILTER="${2:-}"; shift 2 ;;
-        --host=*)  HOSTS_FILTER="${1#--host=}"; shift ;;
+        --host)
+            if [[ $# -lt 2 || -z "$2" || "$2" == -* ]]; then
+                log "ERROR: --host requires a comma-separated host list."
+                usage
+                exit 2
+            fi
+            HOSTS_FILTER="$2"
+            HOSTS_FILTER_SET=true
+            shift 2
+            ;;
+        --host=*)
+            HOSTS_FILTER="${1#--host=}"
+            if [[ -z "$HOSTS_FILTER" ]]; then
+                log "ERROR: --host requires a comma-separated host list."
+                usage
+                exit 2
+            fi
+            HOSTS_FILTER_SET=true
+            shift
+            ;;
         --with-rust) WITH_RUST=true; shift ;;
         --without-rust) WITH_RUST=false; shift ;;
         --all)     WITH_RUST=true; shift ;;
@@ -284,6 +382,19 @@ while [[ $# -gt 0 ]]; do
 done
 
 HOSTS_FILTER="$(printf '%s' "$HOSTS_FILTER" | tr 'A-Z' 'a-z' | tr -d ' ')"
+if $HOSTS_FILTER_SET; then
+    IFS=',' read -r -a _requested_hosts <<< "$HOSTS_FILTER"
+    for _host in "${_requested_hosts[@]}"; do
+        if [[ -z "$_host" ]]; then
+            log "ERROR: --host contains an empty value."
+            exit 2
+        fi
+        if [[ " ${SUPPORTED_HOSTS[*]} " != *" $_host "* ]]; then
+            log "ERROR: unknown --host value: $_host"
+            exit 2
+        fi
+    done
+fi
 
 if [[ ! -f "$RULES_FILE" ]]; then
     log "Missing $RULES_FILE"
@@ -322,7 +433,7 @@ if [[ "$SCOPE" == "project" ]]; then
         mkdir -p "$PROJECT_SKILLS"
     fi
     sync_skills "$PROJECT_SKILLS"
-    write_file "$PROJECT_AGENTS" "$RULES_FILE"
+    install_rules_file "$PROJECT_AGENTS" "$RULES_FILE"
     INSTALLED+=("project|$PROJECT_AGENTS|$PROJECT_SKILLS")
 else
     # Portable Agent Skills root scanned by Grok, Codex, Zed, and other Agent Skills hosts.
@@ -335,7 +446,7 @@ else
 
     if host_wanted antigravity; then
         log "==> [antigravity] IDE + CLI"
-        write_file "$HOME/.gemini/GEMINI.md" "$RULES_FILE"
+        install_rules_file "$HOME/.gemini/GEMINI.md" "$RULES_FILE"
         sync_skills "$HOME/.gemini/config/skills"
         sync_skills "$HOME/.gemini/antigravity-cli/skills"
         INSTALLED+=("antigravity|$HOME/.gemini/GEMINI.md|$HOME/.gemini/config/skills + ~/.gemini/antigravity-cli/skills")
@@ -345,7 +456,7 @@ else
 
     if host_wanted grok; then
         log "==> [grok] ~/.grok/AGENTS.md (skills via ~/.agents/skills)"
-        write_file "$HOME/.grok/AGENTS.md" "$RULES_FILE"
+        install_rules_file "$HOME/.grok/AGENTS.md" "$RULES_FILE"
         if $MIRROR_NATIVE; then
             sync_skills "$HOME/.grok/skills"
             INSTALLED+=("grok|$HOME/.grok/AGENTS.md|$HOME/.grok/skills + ~/.agents/skills")
@@ -367,7 +478,7 @@ else
 
     if host_wanted codex; then
         log "==> [codex] ~/.codex/AGENTS.md (skills via ~/.agents/skills)"
-        write_file "$HOME/.codex/AGENTS.md" "$RULES_FILE"
+        install_rules_file "$HOME/.codex/AGENTS.md" "$RULES_FILE"
         if $MIRROR_NATIVE; then
             sync_skills "$HOME/.codex/skills"
             INSTALLED+=("codex|$HOME/.codex/AGENTS.md|$HOME/.codex/skills + ~/.agents/skills")
@@ -381,7 +492,7 @@ else
 
     if host_wanted zed; then
         log "==> [zed] ~/.config/zed/AGENTS.md (skills via ~/.agents/skills)"
-        write_zed_rules
+        install_rules_file "$HOME/.config/zed/AGENTS.md" "$RULES_FILE"
         INSTALLED+=("zed|$HOME/.config/zed/AGENTS.md|~/.agents/skills")
     elif [[ -z "$HOSTS_FILTER" ]]; then
         log "==> [zed] skipped (Zed not detected; pass --force or --host zed)"
@@ -389,7 +500,7 @@ else
 
     if host_wanted zcode; then
         log "==> [zcode] ~/.zcode/AGENTS.md + native skills root"
-        write_zcode_rules
+        install_rules_file "$HOME/.zcode/AGENTS.md" "$RULES_FILE"
         sync_skills "$HOME/.zcode/skills"
         INSTALLED+=("zcode|$HOME/.zcode/AGENTS.md|$HOME/.zcode/skills")
     elif [[ -z "$HOSTS_FILTER" ]]; then

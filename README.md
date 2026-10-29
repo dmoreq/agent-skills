@@ -11,7 +11,7 @@ agent-skills/
 ├── rules/
 │   └── AGENTS.md                    # Global agent behavioral directives & kernel standards
 ├── skills/
-│   ├── algorithm-optimization/      # Systematic KPI & algorithm improvement loop (+ 3 references)
+│   ├── algorithm-optimization/      # Systematic KPI & algorithm improvement loop (+ 4 references)
 │   ├── code-minimalism/             # YAGNI-first minimalist code generation (+ 2 references)
 │   ├── code-review/                 # Multi-axis review + YAGNI/bloat quality gate (+ 3 references)
 │   ├── code-simplification/         # Safe refactoring, reducing nesting & accidental complexity
@@ -22,7 +22,7 @@ agent-skills/
 │   ├── data-visualization/          # Plotly-first charts, layout optimization & anti-overlap QA
 │   ├── deprecation-migration/       # Safe removal, replacement & sunsetting of legacy APIs (+ 2 references)
 │   ├── design-system/               # 3-tier DTCG tokens, component specs, responsive rules (+ 1 reference)
-│   ├── doubt-driven-development/    # Adversarial stress-testing of non-trivial architectural choices
+│   ├── doubt-driven-development/    # Adversarial stress-testing of non-trivial architectural choices (+ 1 reference)
 │   ├── html-report/                 # Single-file HTML reports, blocking visual gate, print-ready PDF (+ 2 references, validator)
 │   ├── plotly-dash/                 # Interactive Python data apps with Plotly Dash & clean callbacks
 │   ├── polars-duckdb/               # High-performance DataFrame & local SQL ETL (+ migration reference)
@@ -30,7 +30,7 @@ agent-skills/
 │   ├── python-concurrency/          # Concurrency models: asyncio, thread pool, process pool
 │   ├── python-patterns/             # Architecture-time: framework, layout, ADR (+ parser reference)
 │   ├── python-performance/          # Profile-driven performance optimization (+ playbook reference)
-│   ├── python-pro/                  # Modern Python 3.12+ implementation (uv, ruff, pyright, packaging)
+│   ├── python-pro/                  # Modern Python 3.12+ implementation (uv, ruff, pyright, packaging) (+ 1 reference)
 │   ├── python-testing/              # Testing strategies with pytest, fixtures & TDD (+ 2 references)
 │   ├── rust-async-patterns/         # Production async Rust patterns with Tokio, channels & cancellation
 │   ├── rust-pro/                    # Modern Rust 2024+ engineering, memory safety & performance
@@ -40,7 +40,7 @@ agent-skills/
 │   ├── ui-accessibility/            # WCAG 2.2 audits, keyboard/focus, ARIA (+ 1 reference)
 │   ├── ux-critic/                   # Heuristic and visual critique, steering vocabulary (+ 1 reference)
 │   ├── ux-product-shaper/           # Surface Mode, IA, 8-state product briefs (+ 1 reference)
-│   └── verify-and-stop/             # Termination discipline, decisive checks & runaway prevention
+│   └── verify-and-stop/             # Termination discipline, decisive checks & runaway prevention (+ 1 reference)
 ├── tests/                           # Automated schema validation & invariant verification
 ├── setup.sh                         # Unified setup (default skips Rust; --with-rust to enable)
 ├── package.sh                       # Offline distribution packager (tar.gz & zip)
@@ -103,7 +103,7 @@ agent-skills/
 | YAGNI Code Generation Ladder (stdlib/native first) | `rules/AGENTS.md` §2 | Skills (kernel-wide) |
 | Verify-and-Stop Invariant (runaway prevention) | `rules/AGENTS.md` §3 + `verify-and-stop` | Ongoing loops |
 | Subagent delegation, parallel planning & peer-review | `rules/AGENTS.md` §1 | Skills |
-| Skip formal reports; tables first; date-prefixed files | `AGENTS.md` §5 stub | Full viz encyclopedias |
+| Skip formal reports; tables first; date-prefixed files | `rules/AGENTS.md` §5 stub | Full viz encyclopedias |
 | Aggressive YAGNI intensity tiers (`lite` / `full` / `ultra`) | `code-minimalism` | `AGENTS.md` |
 | Over-engineering & bloat review checklist | `code-review` | `AGENTS.md` |
 | Saved Markdown, Mermaid allowlist, asset paths | `technical-reporting` | HTML reports, Plotly, QBR narrative |
@@ -326,13 +326,15 @@ code-review
 
 ## Installation & Setup
 
-Skills are installed into the portable Agent Skills root (`~/.agents/skills`) and native host trees.
+Skills are installed into the portable Agent Skills root (`~/.agents/skills`) and native host trees. Filtering with `--host codex`, `grok`, `opencode`, or `zed` also installs the portable root those hosts read. Antigravity and ZCode use their native roots.
 
 ### Host Discovery Paths
 
 | Host | Rules file | Skill roots scanned (priority order) |
 |---|---|---|
-| Codex | `~/.codex/AGENTS.md` | `~/.codex/skills`, `~/.agents/skills` |
+| portable | - | `~/.agents/skills` |
+| project | `<project>/AGENTS.md` | `<project>/.agents/skills` |
+| Codex | `~/.codex/AGENTS.md` | `~/.agents/skills`, `~/.codex/skills` (native mirror only) |
 | Antigravity | `~/.gemini/GEMINI.md` | `~/.gemini/config/skills`, `~/.gemini/antigravity-cli/skills` |
 | Grok | `~/.grok/AGENTS.md` | `~/.agents/skills` |
 | Zed | `~/.config/zed/AGENTS.md` | `~/.agents/skills` |
@@ -351,14 +353,17 @@ Useful flags:
 
 ```bash
 ./setup.sh --with-rust              # include Rust skills
-./setup.sh --all                    # enable --with-rust and install to all detected hosts
+./setup.sh --without-rust           # skip Rust skills (default)
+./setup.sh --all                    # alias for --with-rust; detected hosts are the default
 ./setup.sh --dry-run                # print destinations only
-./setup.sh --host zed,codex         # subset of hosts
+./setup.sh --host zed,codex         # subset of hosts; portable root is auto-included
 ./setup.sh --project                # current repo: .agents/skills + AGENTS.md
 ./setup.sh --link                   # symlink skills from this clone (dev)
 ./setup.sh --mirror-native          # also copy into native host skills dirs
-./setup.sh --force                  # create host dirs even if the app is not detected
+./setup.sh --force                  # replace unmanaged same-name skill dirs and create undetected host dirs
 ```
+
+Rules files are written atomically. If an existing file differs, the installer creates `AGENTS.md.bak.<timestamp>.<pid>` and preserves custom `##` sections. Skill roots record installed names in `.agent-skills-managed`; pruning removes only managed skills.
 
 Restart each agent session after install.
 
@@ -372,8 +377,12 @@ Run the test suite to verify YAML schemas and repository invariants:
 # Run pytest schema and invariant checks
 pytest tests/ -v
 
-# Run setup script behavior test
+# Run setup and packaging behavior tests
 bash tests/test_setup_script.sh
+bash tests/test_package_script.sh
+
+# Lint the Python scripts and tests
+ruff check tests skills/*/scripts/*.py
 ```
 
 ---
@@ -385,8 +394,13 @@ To package skills for transfer to an offline system:
 ```bash
 chmod +x package.sh
 ./package.sh
+./package.sh --skills-only          # only skills.tar.gz and skills.zip
+./package.sh --bundle-only          # only agent-skills.tar.gz and agent-skills.zip
+DIST_DIR=/tmp/out ./package.sh      # custom output directory
 ```
+
+Packages are built from `git archive HEAD`, so untracked and ignored files (`.zcode/`, `docs/`, `.env*`, caches) are excluded. Builds go into a staging directory and replace the previous archives only after every requested artifact succeeds.
 
 Packages generated in `dist/`:
 - **`dist/skills.tar.gz` & `dist/skills.zip`**: Standalone skills package.
-- **`dist/agent-skills.tar.gz` & `dist/agent-skills.zip`**: Complete offline bundle (`skills/`, `rules/`, `tests/`, `setup.sh`).
+- **`dist/agent-skills.tar.gz` & `dist/agent-skills.zip`**: Complete offline bundle (`skills/`, `rules/`, `tests/`, `setup.sh`, `README.md`, `CHANGELOG.md`).

@@ -86,7 +86,7 @@ Find one boundary header: `## Detailed Implementation Plan`, `## Implementation 
 Pass only the lens card, artifact path, line range, and readable source paths. Never pass conversation history or a prior verdict.
 
 ### Consolidated Report
-Deduplicate findings across lenses. Group by `Critical`, `Important`, `Suggestion`, and `Nit`. Write `docs/reports/YYYY-MM-DD_goldfish-review_<topic>.md`. Allow one re-audit per stage and at most three review cycles.
+Deduplicate findings across lenses. Group by `Critical`, `Important`, `Suggestion`, and `Nit`. Write `docs/reports/YYYY-MM-DD_goldfish-review_<topic>.md`. Allow one re-audit per stage and follow the spec/design review bound in `rules/AGENTS.md` §1. Topic slugs follow the artifact slug and containment rule in `rules/AGENTS.md` §4.
 
 ## Process
 
@@ -131,13 +131,13 @@ Re-read the artifact before accepting findings.
 ### 5. STOP
 Stop when:
 - Findings are trivial/noise, or
-- 3 cycles are completed, or
+- The spec/design review bound in `rules/AGENTS.md` §1 is reached, or
 - Residual risk is explicitly accepted by the user
 
 ## Rules
 - Pass artifact + contract only; do not pass the claim as a conclusion.
 - Prefer disproof over approval.
-- Do not loop past 3 unresolved cycles; escalate instead.
+- Do not loop past the spec/design review bound in `rules/AGENTS.md` §1; escalate instead.
 - This is in-flight checking, not a replacement for final review.
 - For research, challenge the decision — not every intermediate survey.
 
@@ -185,6 +185,6 @@ what it returned.
 - [ ] Review prompt is adversarial
 - [ ] Findings are classified, not rubber-stamped
 - [ ] Actionable issues are fixed or explicitly deferred
-- [ ] Stop condition is reached (<= 3 cycles)
+- [ ] Stop condition is reached (see `rules/AGENTS.md` §1).
 - [ ] Important residual risks are visible to the user
 - [ ] If research-derived, recommendation is tied to constraints and evidence quality was challenged

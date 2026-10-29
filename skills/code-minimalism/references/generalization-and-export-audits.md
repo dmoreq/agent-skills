@@ -6,7 +6,7 @@ Load this reference when auditing a package for ad-hoc dialect copies, regex/lex
 
 1. **Inspect Live Call Paths & Changelog First**: Check the working tree, `CHANGELOG.md`, and the production entry point before classifying rules. Same-named helpers in sibling packages or different pipeline stages are not automatically duplicates. If a path is active in production, require a paired ablation before proposing removal.
 2. **Three-Bucket Taxonomy**: Separate **general mechanisms**, **recurring domain heuristics**, and **entity-specific exceptions**. Moving hardcoded exceptions into JSON or a generic rule engine is not generalization—it only relocates the maintenance burden.
-3. **Measure Hotspots with `ast`**: Parse modules with `ast` (not `pygount` or filename heuristics). Flag functions > 40 LOC or > 12 branch nodes (`If`, `BoolOp`, `IfExp`), and count duplicate keyword sets, regex singletons, and decision sites across the package.
+3. **Measure Hotspots with `ast`**: Parse modules with `ast` (not `pygount` or filename heuristics). Use the `rules/AGENTS.md` §3 length thresholds (soft trigger > 40, hard finding > 50 effective lines) and flag > 12 branch nodes (`If`, `BoolOp`, `IfExp`). Count duplicate keyword sets, regex singletons, and decision sites across the package.
 4. **Verify Production Wiring**: Grep the public entry point for the stage runner call. An exported stage class imported only by unit tests while production `parse()` runs a private method tuple is a false generalization.
 
 ## 2. Collapsing Duplicate Dialect & Regex Logic Safely

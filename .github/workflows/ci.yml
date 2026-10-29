@@ -21,10 +21,19 @@ jobs:
           python-version: "3.12"
 
       - name: Install test dependencies
-        run: python -m pip install --upgrade pip pytest pytest-xdist pyyaml
+        run: python -m pip install --upgrade pip pytest pytest-xdist pyyaml ruff
+
+      - name: Lint Python
+        run: ruff check tests skills/*/scripts/*.py
 
       - name: Run schema and invariant tests
         run: python -m pytest -n 4 tests/ -v
 
       - name: Run setup script tests
         run: bash tests/test_setup_script.sh
+
+      - name: Run package script tests
+        run: bash tests/test_package_script.sh
+
+      - name: Check shell syntax
+        run: bash -n setup.sh package.sh tests/*.sh

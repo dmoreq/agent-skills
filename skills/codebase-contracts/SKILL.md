@@ -78,7 +78,7 @@ Run the audit against a directory of specs or READMEs.
    - Undocumented implemented behavior
    - Stale reference
 5. **Report only divergences**. A clean document gets one line: `No drift detected`.
-6. Write `docs/reports/YYYY-MM-DD_drift-report_<topic>.md`. Process documents sequentially to bound output.
+6. Write `docs/reports/YYYY-MM-DD_drift-report_<topic>.md`. Process documents sequentially to bound output. Topic slugs follow the artifact slug and containment rule in `rules/AGENTS.md` §4.
 
 ## Rules
 - Documentation only. Never create, modify, or refactor functional source.

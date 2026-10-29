@@ -3,38 +3,28 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import urlsplit
 import re
 import sys
 
 MAX_BYTES = 1_000_000
 PRESETS = ("dossier", "zen-garden", "chronicle")
-CHART_CDN = "cdn.jsdelivr.net/npm/chart.js@"
-FONT_HOSTS = ("https://fonts.googleapis.com", "https://fonts.gstatic.com")
+FONT_STYLE_HOST = "fonts.googleapis.com"
+FONT_FILE_HOST = "fonts.gstatic.com"
+CHART_HOST = "cdn.jsdelivr.net"
+CHART_PATH_PREFIX = "/npm/chart.js@"
 ASSET_ATTRIBUTES = {
-    "script": "src",
-    "link": "href",
     "img": "src",
     "iframe": "src",
     "object": "data",
     "embed": "src",
     "source": "src",
-}
-EVENT_ATTRIBUTES = {
-    "onclick",
-    "onload",
-    "onerror",
-    "onchange",
-    "onsubmit",
-    "onkeydown",
-    "onkeyup",
-    "onmousedown",
-    "onmouseup",
-    "onmouseover",
-    "onfocus",
-    "onblur",
-    "oninput",
+    "video": "src",
+    "audio": "src",
+    "track": "src",
 }
 CSS_MARKERS = (
     "prefers-color-scheme",
@@ -53,7 +43,30 @@ CHART_MARKERS = (
     'aria-hidden="true"',
     'pointer-events="none"',
 )
-NETWORK_TERMS = ("fetch(", "xmlhttprequest", "new websocket", "new eventsource")
+NETWORK_PATTERNS = (
+    ("fetch", re.compile(r"\bfetch\s*\(", re.IGNORECASE)),
+    ("xmlhttprequest", re.compile(r"\bXMLHttpRequest\b", re.IGNORECASE)),
+    ("sendbeacon", re.compile(r"\bsendBeacon\s*\(", re.IGNORECASE)),
+    ("websocket", re.compile(r"\bWebSocket\b", re.IGNORECASE)),
+    ("eventsource", re.compile(r"\bEventSource\b", re.IGNORECASE)),
+    ("dynamic-import", re.compile(r"\bimport\s*\(", re.IGNORECASE)),
+    ("new-image", re.compile(r"\bnew\s+Image\b", re.IGNORECASE)),
+    ("location", re.compile(r"\blocation\.(?:href|assign|replace)\b", re.IGNORECASE)),
+)
+SECRET_PATTERNS = (
+    ("private-key", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
+    ("aws-access-key", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
+    ("github-token", re.compile(r"\bgh[pousr]_[A-Za-z0-9]{36,}\b")),
+    ("openai-key", re.compile(r"\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\b")),
+    ("bearer-token", re.compile(r"\bAuthorization\s*:\s*Bearer\s+[A-Za-z0-9._-]{20,}", re.IGNORECASE)),
+)
+CSP_REQUIRED_NONE = ("default-src", "connect-src", "object-src", "base-uri", "form-action")
+TOKEN_BLOCK = re.compile(
+    r":root(?:\s*,\s*:root\s*\[\s*data-preset\s*=\s*['\"]([^'\"]+)['\"]\s*\]"
+    r"|\s*\[\s*data-preset\s*=\s*['\"]([^'\"]+)['\"]\s*\])\s*\{",
+    re.IGNORECASE,
+)
+CSS_URL = re.compile(r"(?:url\(\s*|@import\s+(?:url\(\s*)?)['\"]?([^)'\";]+)", re.IGNORECASE)
 
 
 class ReportParser(HTMLParser):
@@ -67,6 +80,9 @@ class ReportParser(HTMLParser):
         self.meta_viewport = False
         self.has_theme_toggle = False
         self.has_font_stylesheet = False
+        self.font_display_swap = False
+        self.has_chart_script = False
+        self.csp_content = ""
         self.has_chart = False
         self.preset_switches: list[str] = []
         self.inline_handlers: list[str] = []
@@ -118,9 +134,14 @@ class ReportParser(HTMLParser):
         if attributes.get("charset", "").lower() == "utf-8":
             self.meta_charset = True
         name = attributes.get("name", "").lower()
-        content = attributes.get("content", "").lower()
-        if name == "viewport" and "width=device-width" in content:
+        content = attributes.get("content", "")
+        if name == "viewport" and "width=device-width" in content.lower():
             self.meta_viewport = True
+        http_equiv = attributes.get("http-equiv", "").lower()
+        if http_equiv == "content-security-policy":
+            self.csp_content = content
+        if http_equiv == "refresh":
+            self.external_assets.append("<meta http-equiv=refresh>")
 
     def _read_preset_switch(self, attributes: dict[str, str]) -> None:
         classes = attributes.get("class", "").lower()
@@ -159,24 +180,109 @@ class ReportParser(HTMLParser):
             self.has_chart = True
 
     def _read_asset(self, tag: str, attributes: dict[str, str]) -> None:
+        if tag == "link":
+            self._read_link(attributes)
+            return
+        if tag == "script":
+            self._read_script_asset(attributes)
+            return
+        if tag in {"a", "area"}:
+            self._read_anchor(attributes)
+            return
+        if tag == "base":
+            if attributes.get("href"):
+                self.external_assets.append("<base href>")
+            return
+        if tag == "form":
+            if attributes.get("action"):
+                self.external_assets.append(f"<form action={attributes['action'][:80]}>")
+            return
+        if tag in {"input", "button"}:
+            if attributes.get("formaction"):
+                self.external_assets.append(f"<{tag} formaction={attributes['formaction'][:80]}>")
+            return
         attribute = ASSET_ATTRIBUTES.get(tag)
-        if not attribute:
+        if attribute:
+            self._record_url(tag, attribute, attributes.get(attribute, ""))
+        if tag == "video" and attributes.get("poster"):
+            self._record_url(tag, "poster", attributes["poster"])
+        if tag in {"img", "source"} and attributes.get("srcset"):
+            self._read_srcset(tag, attributes["srcset"])
+
+    def _read_link(self, attributes: dict[str, str]) -> None:
+        value = attributes.get("href", "").strip()
+        if not value:
             return
-        value = attributes.get(attribute, "").strip()
-        if not value or value.startswith(("#", "data:")):
-            return
-        if tag == "link" and "fonts.googleapis.com/css" in value:
+        parts = urlsplit(value)
+        rel = attributes.get("rel", "").lower()
+        if parts.scheme == "https" and parts.hostname == FONT_STYLE_HOST and parts.path.startswith("/css"):
             self.has_font_stylesheet = True
-        if tag == "link" and value.startswith(FONT_HOSTS):
+            if "display=swap" in parts.query:
+                self.font_display_swap = True
             return
+        if (
+            parts.scheme == "https"
+            and parts.hostname in {FONT_STYLE_HOST, FONT_FILE_HOST}
+            and "preconnect" in rel
+        ):
+            return
+        self.external_assets.append(f"<link href={value[:80]}>")
+
+    def _read_script_asset(self, attributes: dict[str, str]) -> None:
+        value = attributes.get("src", "").strip()
+        if not value:
+            return
+        parts = urlsplit(value)
+        integrity = attributes.get("integrity", "")
         approved = (
-            tag == "script"
-            and CHART_CDN in value
-            and bool(attributes.get("integrity"))
-            and bool(attributes.get("crossorigin"))
+            parts.scheme == "https"
+            and parts.hostname == CHART_HOST
+            and parts.path.startswith(CHART_PATH_PREFIX)
+            and re.fullmatch(r"sha384-[A-Za-z0-9+/]+={0,2}", integrity) is not None
+            and attributes.get("crossorigin") == "anonymous"
         )
         if not approved:
+            self.external_assets.append(f"<script src={value[:80]}>")
+        else:
+            self.has_chart_script = True
+
+    def _read_anchor(self, attributes: dict[str, str]) -> None:
+        value = attributes.get("href", "").strip()
+        if not value or value.startswith("#"):
+            return
+        lowered = value.lower()
+        if lowered.startswith(("javascript:", "vbscript:")):
+            self.inline_handlers.append("anchor href scheme")
+            return
+        parts = urlsplit(value)
+        if parts.scheme in {"http", "https", "mailto", "tel"}:
+            return
+        self.external_assets.append(f"<a href={value[:80]}>")
+
+    def _read_srcset(self, tag: str, value: str) -> None:
+        for candidate in value.split(","):
+            url = candidate.strip().split()[0] if candidate.strip() else ""
+            if url:
+                self._record_url(tag, "srcset", url)
+
+    def _record_url(self, tag: str, attribute: str, value: str) -> None:
+        value = value.strip()
+        if not value or value.startswith("#"):
+            return
+        lowered = value.lower()
+        if lowered.startswith(("javascript:", "vbscript:")):
+            self.inline_handlers.append(f"{tag} {attribute} scheme")
+            return
+        if lowered.startswith("data:"):
+            if tag in {"img", "source"}:
+                return
+            self.external_assets.append(f"<{tag} {attribute}=data:...>")
+            return
+        parts = urlsplit(value)
+        if parts.scheme in {"http", "https"}:
             self.external_assets.append(f"<{tag} {attribute}={value[:80]}>")
+            return
+        self.external_assets.append(f"<{tag} {attribute}={value[:80]}>")
 
     def _read_id(self, attributes: dict[str, str]) -> None:
         value = attributes.get("id", "")
@@ -192,17 +298,52 @@ class ReportParser(HTMLParser):
             self._script_type = attributes.get("type", "").lower()
             self._script_text = []
         for name in attributes:
-            if name in EVENT_ATTRIBUTES:
+            if name.startswith("on"):
                 self.inline_handlers.append(name)
 
     def _close_script(self) -> None:
-        text = "".join(self._script_text).lower()
+        text = "".join(self._script_text)
         if self._script_type not in {"application/json", "application/ld+json", "text/template"}:
-            for term in NETWORK_TERMS:
-                if term in text:
-                    self.inline_network_terms.append(term)
+            for name, pattern in NETWORK_PATTERNS:
+                if pattern.search(text):
+                    self.inline_network_terms.append(name)
         self._in_script = False
         self._script_text = []
+
+
+def _csp_failures(parser: ReportParser) -> list[str]:
+    if not parser.csp_content:
+        return ["missing Content-Security-Policy meta"]
+    directives: dict[str, list[str]] = {}
+    for chunk in parser.csp_content.split(";"):
+        tokens = chunk.strip().split()
+        if tokens:
+            directives[tokens[0].lower()] = tokens[1:]
+    failures: list[str] = []
+    for name in CSP_REQUIRED_NONE:
+        if directives.get(name) != ["'none'"]:
+            failures.append(f"CSP {name} must be 'none'")
+    expected = {
+        "style-src": {"'unsafe-inline'", "https://fonts.googleapis.com"},
+        "font-src": {"https://fonts.gstatic.com"},
+        "img-src": {"data:"},
+        "script-src": {"'unsafe-inline'", "https://cdn.jsdelivr.net"},
+    }
+    required = {
+        "style-src": {"'unsafe-inline'", "https://fonts.googleapis.com"},
+        "font-src": {"https://fonts.gstatic.com"},
+        "img-src": {"data:"},
+        "script-src": {"'unsafe-inline'"},
+    }
+    for name, allowed in expected.items():
+        tokens = set(directives.get(name, []))
+        if tokens - allowed:
+            failures.append(f"CSP {name} has disallowed tokens: {sorted(tokens - allowed)}")
+        if not required[name] <= tokens:
+            failures.append(f"CSP {name} is missing required tokens: {sorted(required[name] - tokens)}")
+    if parser.has_chart_script and "https://cdn.jsdelivr.net" not in directives.get("script-src", []):
+        failures.append("CSP script-src must allow https://cdn.jsdelivr.net for Chart.js")
+    return failures
 
 
 def _parser_failures(parser: ReportParser) -> list[str]:
@@ -216,6 +357,7 @@ def _parser_failures(parser: ReportParser) -> list[str]:
         (bool(parser.html_attrs.get("data-theme")), "missing data-theme on <html>"),
         (parser.has_theme_toggle, 'missing id="theme-toggle" control'),
         (parser.has_font_stylesheet, "missing Google Fonts stylesheet link"),
+        (parser.font_display_swap, "missing display=swap on the font stylesheet"),
         (not parser.preset_switches, f"preset switcher is not allowed: {parser.preset_switches}"),
         (parser.h1_count == 1, f"expected one <h1>, found {parser.h1_count}"),
         (not parser.heading_jumps, f"heading level jumps: {parser.heading_jumps}"),
@@ -236,54 +378,87 @@ def _parser_failures(parser: ReportParser) -> list[str]:
     return [message for passed, message in checks if not passed]
 
 
-def _preset_values(text: str) -> set[str]:
-    return set(re.findall(r'data-preset="([^"]+)"', text))
+def _strip_comments(text: str) -> str:
+    text = re.sub(r"<!--.*?-->", "", text, flags=re.DOTALL)
+    return re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+
+
+def _style_text(text: str) -> str:
+    blocks = re.findall(r"<style\b[^>]*>(.*?)</style>", text, flags=re.IGNORECASE | re.DOTALL)
+    return "\n".join(blocks)
+
+
+def _preset_blocks(text: str) -> list[str]:
+    blocks: list[str] = []
+    for first, second in TOKEN_BLOCK.findall(_style_text(_strip_comments(text))):
+        blocks.append(first or second)
+    return blocks
 
 
 def _external_css_urls(text: str) -> list[str]:
-    pattern = r"(?:url\(|@import\s+(?:url\()?)['\"]?(https?://[^)'\";]+)"
-    return [url for url in re.findall(pattern, text, re.IGNORECASE) if not url.startswith(FONT_HOSTS)]
+    failures: list[str] = []
+    for candidate in CSS_URL.findall(text):
+        value = candidate.strip()
+        if not value or value.startswith(("#", "data:")):
+            continue
+        parts = urlsplit(value)
+        if parts.scheme == "https" and parts.hostname in {FONT_STYLE_HOST, FONT_FILE_HOST}:
+            continue
+        failures.append(value[:80])
+    return failures
 
 
-def _text_failures(text: str) -> list[str]:
-    lowered = text.lower()
+def _secret_failures(text: str) -> list[str]:
+    return [name for name, pattern in SECRET_PATTERNS if pattern.search(text)]
+
+
+def _text_failures(text: str, chosen_preset: str) -> list[str]:
+    clean = _strip_comments(text)
+    lowered = clean.lower()
     failures = [f"missing CSS marker: {marker}" for marker in CSS_MARKERS if marker not in lowered]
-    presets = _preset_values(text)
-    if len(presets) > 1:
-        failures.append(f"multiple preset blocks: {sorted(presets)}")
-    elif presets - set(PRESETS):
-        failures.append(f"unknown preset: {sorted(presets - set(PRESETS))}")
-    failures += [
-        f"missing theme selector: {theme}"
-        for theme in ("light", "dark")
-        if f'data-theme="{theme}"' not in text
-    ]
-    if "fonts.googleapis.com" not in lowered:
-        failures.append("missing fonts.googleapis.com link")
-    if "display=swap" not in lowered:
-        failures.append("missing display=swap on the font stylesheet")
+    blocks = _preset_blocks(clean)
+    counts = Counter(blocks)
+    if not blocks:
+        failures.append("missing preset token block")
+    for preset, count in counts.items():
+        if preset not in PRESETS:
+            failures.append(f"unknown preset: {preset}")
+        if count > 1:
+            failures.append(f"duplicate preset token block: {preset}")
+    if len(counts) > 1:
+        failures.append(f"multiple preset blocks: {sorted(counts)}")
+    if chosen_preset and chosen_preset not in counts:
+        failures.append(f"missing token block for chosen preset: {chosen_preset}")
+    for theme in ("light", "dark"):
+        if not re.search(rf"data-theme\s*=\s*['\"]?{theme}['\"]?", clean, re.IGNORECASE):
+            failures.append(f"missing theme selector: {theme}")
     if "cdn.tailwindcss.com" in lowered:
         failures.append("Tailwind CDN is not allowed")
     if "replace_with" in lowered:
         failures.append("unresolved REPLACE_WITH placeholder")
-    failures += [f"external CSS request is not allowed: {url[:80]}" for url in _external_css_urls(text)]
+    failures += [f"external CSS request is not allowed: {url}" for url in _external_css_urls(clean)]
+    failures += [f"credential-shaped string detected: {name}" for name in _secret_failures(text)]
     return failures
 
 
 def validate(path: Path) -> list[str]:
+    if not path.is_file():
+        return [f"not a regular file: {path}"]
     try:
+        size = path.stat().st_size
+        if size >= MAX_BYTES:
+            return [f"file is {size} bytes; limit is {MAX_BYTES} (exclusive)"]
         data = path.read_bytes()
     except OSError as error:
         return [f"cannot read file: {error}"]
-    if len(data) > MAX_BYTES:
-        return [f"file is {len(data)} bytes; limit is {MAX_BYTES}"]
     try:
         text = data.decode("utf-8")
     except UnicodeDecodeError as error:
         return [f"file is not UTF-8: {error}"]
     parser = ReportParser()
     parser.feed(text)
-    failures = _parser_failures(parser) + _text_failures(text)
+    failures = _parser_failures(parser) + _csp_failures(parser)
+    failures += _text_failures(text, parser.html_attrs.get("data-preset", ""))
     if parser.has_details and "details:not([open])" not in text.lower():
         failures.append("details present but print CSS does not expand closed details")
     if parser.has_chart:
