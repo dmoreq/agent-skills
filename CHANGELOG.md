@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-10-29
+
 ### Changed
 - `skills/html-report`: Replaced the advisory review gate with a blocking delivery gate. Profile classification is deterministic, uncertain reports default to Shared, and delivery is blocked when any gate is unrun, `Not tested`, or `Fail`.
 - `skills/html-report`: Added a blocking Visual Quality Bar with a desktop/mobile/reflow/print render matrix, a zero-tolerance hard-fail list, measured contrast and layout checks, and a bounded 2-cycle fix loop.
@@ -93,6 +95,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hermes host support: deleted `rules/hermes-preamble.md`, `bots/seven-bots/`, and `tests/verify-profiles.sh`; removed Hermes detection, SOUL composition, host routing, and summary output from `setup.sh`.
 - Hermes references from the spec, plan, and code-review dispatch contracts; those skills now use native parallel subagents or a sequential cold read.
 - Hermes entries from `README.md` and the active test suite. Historical release notes remain unchanged.
+- `rules/AGENTS.md`: Removed the response-language protocol. Responses now follow the user's language.
+
+### Fixed
+- `setup.sh`: `--host codex|grok|opencode|zed` now installs the portable `~/.agents/skills` root; empty or unknown host values are rejected; clean installs no longer prune native copies.
+- `setup.sh`: Rules and config writes are atomic and backed up; custom `##` sections survive; OpenCode JSON errors fail loudly; skill roots use a managed manifest and realpath containment; dead helpers removed.
+- `package.sh`: Build from `git archive HEAD` into a staging directory; exclude `.zcode`, `docs`, `.env`, and caches; reject unknown or conflicting flags; preserve previous archives on failure.
+- `skills/html-report/scripts/check_html_report.py`: Exact-origin font/Chart.js allowlist; any `on*` handler; URL scheme and `srcset`/`base`/refresh checks; regex network APIs; size check before read; comment-stripped CSS/preset parsing; chosen-preset token validation; secret patterns; CSP validation.
+- `skills/html-report`: Added a restrictive CSP to the scaffold, aligned the four-profile ladder, qualified the Chart.js network exception, retained linked review screenshots, and added regression tests for gate bypasses.
+- `skills/data-science/scripts/eda_profile.py`: Report sample caps as `unknown (sample-capped)`, sanitize Markdown/HTML in filenames and columns, reject non-positive `--max-rows`, import `Any`, and document `<skill-dir>` invocation.
+- `rules/AGENTS.md`: Canonical diff/spec review bounds, hard/soft function-length thresholds, and artifact-path slug/containment rule; report skills now point to the kernel instead of duplicating numbers.
+- `skills/deprecation-migration`: Replaced the fixed `/tmp/clone_probe` plus `rm -rf` snippet with `mktemp`, trap cleanup, and validated relative targets.
+- `README.md`: Corrected host/project paths, flag semantics, packaging contents, and reference counts.
+- `.github/workflows/ci.yml`: Added `ruff`, package-script, and shell-syntax checks.
+- `tests/`: Added package-script, EDA profiler, HTML gate bypass/CSP/secret, and contract-drift regressions.
 
 ## [2.2.0] - 2026-10-25
 
