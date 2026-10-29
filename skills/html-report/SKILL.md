@@ -34,22 +34,25 @@ Deliver findings as one offline HTML file. HTML is a presentation format; the an
 - Emit one file. Inline CSS, JavaScript, SVG, and data. Do not create a sidecar asset folder.
 - Keep the file under 1 MB. Aggregate or downsample embedded data.
 - Never write an undated file at the repository root.
+- Review artifacts (screenshots, audits, record) live in `.tmp/` or `docs/reports/`, never beside the report.
 
 ## Curated Zen Minimalism Presets (Strict 3-Option Architecture)
 
-Every report must strictly implement these three named templates via `data-preset` on `<html>`, defaulting to **`dossier`** and offering the reader an interactive preset selector in the toolbar (or allowing the user to request a specific preset upfront):
-
-| Preset ID | Memorable Name | Origin & Aesthetic Posture | Layout & Typography |
-| :--- | :--- | :--- | :--- |
-| **`dossier`** *(Default)* | **The Clinical Dossier** *(Shibumi)* | Understated authority (*Shibumi*) + biomarker clarity. Soft parchment (`#F7F4EE`), cream surface (`#FDFBF7`), muted clay accent (`#9E583B`). | Two-column architectural split (`230px` sticky numbered chapter sidebar + fluid evidence column), `3.5rem` section padding, high-density tabular scanning. |
-| **`zen-garden`** *(Option 2)* | **The Zen Garden** *(Karesansui)* | Contemplative dry rock garden (*Karesansui*) + generous *Ma* negative space. Raked limestone gravel (`#F4F1EA`), warm stone (`#F9F7F2`), Kyoto moss (`#4A6B53`). | Centered single-stream contemplative flow (`960px` max-width), centered chapter headers, top-bordered thesis callout, expansive `5.25rem` vertical *Ma* breathing room. |
-| **`chronicle`** *(Option 3)* | **The Slow Chronicle** *(Kinfolk Editorial)* | Slow-living editorial magazine pacing. Warm paper (`#FBF9F5`), sand cards (`#F5F0E6`), earth terracotta (`#A65638`). | Editorial single-column narrative (`1020px` max-width), full-width horizontal chapter headers with inline numbered indices (`01`-`06`), oversized serif pull-quotes. |
+Every report implements these three named templates via `data-preset`, defaulting to **`dossier`**, with a preset selector in the toolbar: **`dossier`** (Clinical Dossier, default), **`zen-garden`** (Zen Garden), and **`chronicle`** (Slow Chronicle). The full palette, origin, layout, and typography specs live in `references/html-report-scaffold.md` section 1.
 
 ## Zen Minimalism Wording & Paragraphing Rules
 1. **Kanso (Essentialist Prose)**: Strip ornamental adjectives, hype superlatives, and throat-clearing meta-intros. Open every section with a single declarative thesis sentence containing the primary number and direction.
 2. **Ma (Paragraph Breathing Room)**: Cap paragraphs at 2-3 sentences and `<= 60 words` (<= 70ch width). Never emit dense wall-of-text paragraphs; let whitespace separate distinct ideas.
 3. **Shibumi (Understated Precision)**: State exact deltas (`+8.36pp`, `N = 4,365,797`) in calm, active voice. Let verified numbers carry authority rather than exclamation marks or marketing buzzwords.
 4. **Sequential Chapter Rhythm**: Guide the eye through numbered architectural chapters (`01`, `02`, `03`...) where the chapter lead states *why it matters* in <= 25 words before presenting the table or chart.
+
+## Visual Quality Bar (Blocking)
+
+Judge rendered output, never source alone. Render matrix, hard-fail list, craft minimums, and record template: `references/review-gate.md`.
+
+- Render desktop 1440x900, mobile 390x844, 320px reflow, and print/PDF in light and dark.
+- Any overlap, clipping, horizontal scroll, contrast failure, broken control, console error, external request, or unexpanded print detail blocks delivery.
+- Screenshots are review evidence, not report assets.
 
 ## Workflow
 
@@ -94,34 +97,43 @@ Include the `@media print` block from `references/html-report-scaffold.md`. It m
 - Prevent breaks inside cards, tables, figures, and sections.
 - Set `@page` margins to 16mm by 14mm and disable animations/transitions.
 
-### Step 6: Review and Deliver
-Select the review gate from the report profile before delivery:
+### Step 6: Mandatory Delivery Gate
 
-| Report profile | Required gate |
+This review gate is blocking. Do not call the report complete until every profile gate passes; an unrun gate is a fail. Full rules, repair loop, and record template: `references/review-gate.md`.
+
+| Report profile | Required gates, in order |
 | :--- | :--- |
-| Internal, one-off, non-interactive | `verify-and-stop` artifact check |
-| Shared, interactive, or print/PDF | `ui-accessibility` -> `verify-and-stop` |
-| Executive or decision report | `ux-critic` -> `ui-accessibility` -> `verify-and-stop` |
+| Internal | Structural self-check -> rendered visual inspection -> `verify-and-stop` |
+| Shared or print | Structural self-check -> rendered visual inspection -> `ui-accessibility` -> `verify-and-stop` |
+| Executive | Structural self-check -> rendered visual inspection -> `ui-accessibility` -> `ux-critic` -> `verify-and-stop` |
 
-- For the shared/print gate, run `ui-accessibility` against the final file: contrast, keyboard path, focus, `<details>` disclosure, table headers, target size, and print layout.
-- For the executive gate, run `ux-critic` on desktop, mobile, and print views: squint test, hierarchy, state honesty, and microcopy.
-- Never publish or upload the file to an external service without explicit confirmation.
-- Save the `.html` file, give the path, and return a concise executive summary in chat. Do not dump raw HTML.
-- The decisive `verify-and-stop` check remains: one file, no external requests, both themes render, print preview expands details.
+- **Classify by consumption**: Internal is session-only, unshared, and unprinted; Shared is persisted, attached, or read by others; Print is any print/PDF intent; Executive is a decision or leadership audience. Toolbar controls do not make a report interactive. If two profiles fit, choose the stricter one; when uncertain, default to Shared.
+- **Structural check**: run `scripts/check_html_report.py` from this skill directory; it must exit 0 with `PASS`.
+- **Visual check**: render the matrix, fix Critical and Important findings, and re-render. Bound the loop to 2 cycles; a remaining Critical defect blocks delivery.
+- **Shared or print**: `ui-accessibility` must return `Pass`.
+- **Executive**: `ux-critic` must return `Ship` or `Ship with fixes` with zero Critical findings.
+- **Record**: write `docs/reports/YYYY-MM-DD_<topic>_review.md` and link screenshots and audits.
+- Missing screenshots, an unrun audit, or `Not tested` blocks delivery. Do not claim visual verification from source.
+- `verify-and-stop` remains the final decisive check: one file, no external requests, both themes render, print preview expands details.
 
 ## Verification Checklist
-- [ ] The request genuinely benefits from HTML spatial layout or interactivity.
-- [ ] One complete offline file with inline CSS, JavaScript, SVG, and data.
-- [ ] Implements all 3 curated presets (`dossier` default, `zen-garden`, `chronicle`) with live switching.
-- [ ] Prose follows Zen Minimalism wording and paragraphing (2-3 sentences per paragraph, zero fluff).
-- [ ] No Tailwind CDN and no live `fetch()`.
-- [ ] Secrets redacted and all interpolated text escaped.
-- [ ] Light and dark themes work through semantic tokens across all 3 presets.
-- [ ] Print CSS expands details and hides chrome.
-- [ ] Headline conclusion and KPIs are visible without a click.
-- [ ] The selected review gate matches the report profile (`ui-accessibility` / `ux-critic`).
-- [ ] Shared or print reports passed `ui-accessibility`.
-- [ ] Executive reports passed `ux-critic`.
+
+Delivery is blocked until every checked item is true.
+
+- [ ] The request benefits from HTML layout or interactivity.
+- [ ] The profile is classified by consumption rules; uncertain cases default to Shared.
+- [ ] One offline file with inline CSS, JavaScript, SVG, and data.
+- [ ] All 3 presets work, with `dossier` default.
+- [ ] Prose follows the 2-3 sentence, <= 60 word budget.
+- [ ] No Tailwind CDN, live `fetch()`, inline `onclick`, or unapproved request.
+- [ ] Secrets redacted and interpolated text escaped.
+- [ ] Light and dark themes work across all 3 presets.
+- [ ] Print expands details, hides chrome, and survives a real print/PDF render.
+- [ ] Desktop, mobile, 320px reflow, and print were rendered and inspected.
+- [ ] Zero hard-fail defects; Critical and Important findings fixed and re-checked within 2 cycles.
+- [ ] Shared/print passed `ui-accessibility`; executive passed `ux-critic`.
+- [ ] The review record exists and links every screenshot and audit.
+- [ ] No gate is unrun, `Not tested`, or `Fail`.
 
 ## Related Skills
 - Use **design-system** for project tokens, component specs, theme parity, and the Zen minimalism/YAGNI doctrine; this skill consumes them.
@@ -132,3 +144,4 @@ Select the review gate from the report profile before delivery:
 - Use **plotly-dash** when the deliverable needs server callbacks, routing, `dcc.Store`, or background jobs.
 - Use **data-storytelling** when the report needs a Hook -> Ask decision narrative with Zen Minimalism pacing.
 - Use **verify-and-stop** to run the decisive artifact check once and stop.
+- The gate decision stays with this skill; audit skills supply evidence, not waivers.

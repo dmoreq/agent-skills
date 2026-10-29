@@ -91,7 +91,7 @@ Reference for `html-report`. Copy the skeleton and trim only data sections the r
         <div class="section-content">
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Category</th><th class="num">Current</th><th class="num">Baseline</th><th class="num">Delta</th></tr></thead>
+              <thead><tr><th scope="col">Category</th><th scope="col" class="num">Current</th><th scope="col" class="num">Baseline</th><th scope="col" class="num">Delta</th></tr></thead>
               <tbody><!-- rows --></tbody>
             </table>
           </div>
@@ -253,7 +253,7 @@ p, li { max-width: 68ch; }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1.2; break-after: avoid; }
 .eyebrow, .kpi-label {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
@@ -285,7 +285,7 @@ button {
 }
 .preset-btn { border: none; background: transparent; color: var(--text-secondary); }
 .preset-btn.active { background: var(--accent); color: #FDFBF7; font-weight: 600; }
-.status-pill { padding: 0.25rem 0.75rem; border-radius: 999px; font-family: var(--font-mono); font-size: 0.72rem; border: 1px solid currentColor; }
+.status-pill { padding: 0.25rem 0.75rem; border-radius: 999px; font-family: var(--font-mono); font-size: 0.75rem; border: 1px solid currentColor; }
 .status-ok { color: var(--status-ok); background: var(--accent-subtle); }
 
 .section-nav {
@@ -299,7 +299,7 @@ button {
   border-bottom: 1px solid var(--border);
   overflow-x: auto;
 }
-.section-nav a { color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; white-space: nowrap; }
+.section-nav a { color: var(--text-secondary); text-decoration: none; font-size: 0.84rem; white-space: nowrap; }
 .section-nav a .nav-num { font-family: var(--font-mono); color: var(--accent); margin-right: 0.3rem; }
 
 /* DEFAULT LAYOUT (dossier): Compact 230px Sticky Chapter Sidebar + Evidence Column */
@@ -367,13 +367,13 @@ button {
 .table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--bg-card); }
 table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
 th, td { padding: 0.7rem 0.9rem; text-align: left; border-bottom: 1px solid var(--border); }
-th { background: var(--bg-subtle); font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
+th { background: var(--bg-subtle); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
 tr:hover td { background: var(--bg-subtle); }
 .num, th.num { text-align: right; font-family: var(--font-mono); }
 
 details { margin: 0.85rem 0; padding: 1rem 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-card); }
 summary { cursor: pointer; font-family: var(--font-display); font-size: 1.15rem; font-weight: 400; }
-pre, code { font-family: var(--font-mono); font-size: 0.82rem; background: var(--bg-subtle); border-radius: 4px; }
+pre, code { font-family: var(--font-mono); font-size: 0.84rem; background: var(--bg-subtle); border-radius: 4px; }
 pre { overflow-x: auto; padding: 0.85rem; }
 
 @media (max-width: 900px) {
@@ -482,9 +482,19 @@ Use this block only when complex interactive charting is required, the user expl
   crossorigin="anonymous"></script>
 ```
 
-## 8. Self-Check
+## 8. Structural Self-Check
 
-Run these against the generated file before delivery:
+Run the validator against the generated file. A non-zero exit blocks delivery:
+
+```bash
+python3 <skill-dir>/scripts/check_html_report.py <report>.html
+```
+
+`<skill-dir>` is the directory containing this skill, for example `~/.agents/skills/html-report`.
+
+The validator checks the document skeleton, all three presets and their buttons, dual-theme and reduced-motion CSS, print rules, `tabular-nums`, focus visibility, table headers, button types, duplicate IDs, inline event handlers, inline network calls, external or sidecar assets, and unresolved placeholders. It does not judge visual quality; run the render matrix in `references/review-gate.md`.
+
+Keep this manual grep block as a fallback when the script cannot run:
 
 ```bash
 test -f <report>.html
@@ -493,8 +503,33 @@ grep -q 'data-preset="dossier"' <report>.html
 grep -q 'data-preset="zen-garden"' <report>.html
 grep -q 'data-preset="chronicle"' <report>.html
 grep -q 'prefers-color-scheme' <report>.html
+grep -q 'prefers-reduced-motion' <report>.html
 grep -q '@media print' <report>.html
 grep -q 'tabular-nums' <report>.html
+grep -q 'focus-visible' <report>.html
 grep -q 'Copy Summary' <report>.html
+! grep -q 'fetch(' <report>.html
+! grep -q 'onclick=' <report>.html
+! grep -q 'cdn.tailwindcss.com' <report>.html
 ! grep -q 'REPLACE' <report>.html
 ```
+
+## 9. Render Evidence
+
+Capture the views required by the Visual Quality Bar in `references/review-gate.md`. Use browser automation already available in the environment; do not install a new browser stack without approval.
+
+```bash
+mkdir -p .tmp/report-review
+# Playwright CLI, when already installed
+npx playwright screenshot --viewport-size=1440,900 --full-page --color-scheme=light "file://$PWD/<report>.html" .tmp/report-review/desktop-light-dossier.png
+npx playwright screenshot --viewport-size=390,844 --full-page --color-scheme=dark "file://$PWD/<report>.html" .tmp/report-review/mobile-dark-dossier.png
+npx playwright pdf "file://$PWD/<report>.html" .tmp/report-review/report-print.pdf
+```
+
+If Playwright is unavailable, use the host browser's headless screenshot and print-to-PDF modes. If neither exists, stop the gate and request screenshots from the user. Do not substitute source inspection for rendered evidence.
+
+Delete the evidence directory after the review record is complete unless the user wants to keep it.
+
+## 10. Review Record
+
+Use the template in `references/review-gate.md` section 6. Write the record beside the report, or in the host artifact directory for a session-only report.

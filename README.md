@@ -23,7 +23,7 @@ agent-skills/
 │   ├── deprecation-migration/       # Safe removal, replacement & sunsetting of legacy APIs (+ 2 references)
 │   ├── design-system/               # 3-tier DTCG tokens, component specs, responsive rules (+ 1 reference)
 │   ├── doubt-driven-development/    # Adversarial stress-testing of non-trivial architectural choices
-│   ├── html-report/                 # Single-file interactive HTML reports, print-ready PDF (+ 1 reference)
+│   ├── html-report/                 # Single-file HTML reports, blocking visual gate, print-ready PDF (+ 2 references, validator)
 │   ├── plotly-dash/                 # Interactive Python data apps with Plotly Dash & clean callbacks
 │   ├── polars-duckdb/               # High-performance DataFrame & local SQL ETL (+ migration reference)
 │   ├── pyo3-maturin/                # Rust native extensions with PyO3 & Maturin for CPU hotspots
@@ -65,7 +65,7 @@ agent-skills/
 | **`deprecation-migration`** | Safely sunset, replace, and migrate legacy APIs/systems using Strangler, Adapter, and Feature Flags. |
 | **`design-system`** | Build minimalist 3-tier W3C DTCG tokens, dual light/dark themes, component specs, and responsive layout with a YAGNI token diet. |
 | **`doubt-driven-development`** | Adversarial review to stress-test high-risk decisions and uncover unstated assumptions. |
-| **`html-report`** | Single-file, self-contained HTML reports with dual-theme tokens, client-side filtering, and print/PDF fidelity. |
+| **`html-report`** | Single-file, self-contained HTML reports with a blocking structural and rendered visual gate, three Zen presets, dual-theme tokens, and print/PDF fidelity. |
 | **`plotly-dash`** | Production-grade Plotly Dash apps with modular layouts, disciplined callbacks, state hygiene & performance. |
 | **`polars-duckdb`** | High-performance tabular data wrangling, ETL, and analytical SQL with Polars, DuckDB, PyArrow, and Pandas 2.x. |
 | **`pyo3-maturin`** | High-performance Rust native extensions with PyO3 and Maturin for CPU-bound hotspots. *(Rust skill)* |
@@ -157,7 +157,7 @@ agent-skills/
 | **Dashboard** | **`plotly-dash`** | Figures from `data-visualization`; pipeline from `data-science` | `python-testing` (callback test); `code-review` (merge gate); `html-report` (static single file); `design-system` (tokens) | Optional |
 | **Narrative** | **`data-storytelling`** | Validated insights from `data-science` | Embedded in `technical-reporting` or `html-report` with `data-visualization` charts | **Required input from `data-science`** |
 | **Reporting** | **`technical-reporting`** | Formal Markdown results from research, data science, optimization | Complete Markdown report with Mermaid/SVG assets; `html-report` for single-file HTML | Optional presentation |
-| **HTML Output** | **`html-report`** | Validated content and exported figures | Single-file HTML with inline CSS/JS/SVG and print CSS; consumes `design-system` tokens; shared/print reports pass `ui-accessibility`; executive reports pass `ux-critic` | Optional presentation |
+| **HTML Output** | **`html-report`** | Validated content and exported figures | Single-file HTML with inline CSS/JS/SVG and print CSS; consumes `design-system` tokens; blocked until the structural check, desktop/mobile/print visual inspection, shared/print `ui-accessibility`, and executive `ux-critic` gates pass | Optional presentation |
 | **UX Shaping** | **`ux-product-shaper`** | Feature spec, audience, and constraints | `PRODUCT.md` with Surface Mode, IA, and 8-state contract; `design-system` | **Required before UI design** |
 | **Design System** | **`design-system`** | Product brief and brand constraints | `DESIGN.md`, `tokens.css/json`, component specs; `html-report`/`plotly-dash` implementation; `ui-accessibility` audit | Optional |
 | **Accessibility** | **`ui-accessibility`** | Implemented UI, design tokens, and shared HTML reports | WCAG 2.2 audit report; `code-review` merge gate; `verify-and-stop` | **Required for UI delivery** |

@@ -128,7 +128,7 @@ The report contains:
 - [ ] The ship recommendation is explicit.
 
 ## Related Skills
-- Use **html-report** when the critique targets a single-file report; review desktop, mobile, and print screenshots across `dossier`, `zen-garden`, or `chronicle`.
+- Use **html-report** when the critique targets a single-file report; this critique is a blocking gate for executive reports, so review desktop, mobile, and print screenshots across `dossier`, `zen-garden`, or `chronicle` and return `Ship`, `Ship with fixes`, or `Do not ship`.
 - Use **ux-product-shaper** for the Surface Mode and 8-state contract the critique must respect.
 - Use **design-system** for token, component, and responsive rules behind the findings.
 - Use **ui-accessibility** before this critique; accessibility failures block visual polish.

@@ -2,6 +2,8 @@
 import ast
 from pathlib import Path
 import re
+import subprocess
+import sys
 
 REPO_DIR = Path(__file__).resolve().parent.parent
 SKILLS_DIR = REPO_DIR / "skills"
@@ -252,18 +254,30 @@ def test_html_report_skill_integrity():
     """Verify the html-report skill and its offline/print scaffold are wired in."""
     skill_file = SKILLS_DIR / "html-report" / "SKILL.md"
     reference = SKILLS_DIR / "html-report" / "references" / "html-report-scaffold.md"
+    gate_file = SKILLS_DIR / "html-report" / "references" / "review-gate.md"
     assert skill_file.exists(), "Missing html-report SKILL.md"
     assert reference.exists(), "Missing html-report scaffold reference"
+    assert gate_file.exists(), "Missing html-report review gate reference"
 
     skill_text = skill_file.read_text(encoding="utf-8")
     scaffold = reference.read_text(encoding="utf-8")
+    gate = gate_file.read_text(encoding="utf-8")
 
     assert "references/html-report-scaffold.md" in skill_text
+    assert "references/review-gate.md" in skill_text
     assert "**technical-reporting**" in skill_text
     assert "**data-visualization**" in skill_text
     assert "**ui-accessibility**" in skill_text
     assert "**ux-critic**" in skill_text
     assert "review gate" in skill_text.lower()
+    assert "blocking" in skill_text.lower()
+
+    for marker in ("Visual Quality Bar", "1440x900", "390x844", "320px", "Missing screenshots"):
+        assert marker in skill_text, f"Missing blocking gate marker '{marker}'"
+    for marker in ("Hard Fails", "review record", "Do not deliver", "2 cycles", "Render Matrix"):
+        assert marker.lower() in gate.lower(), f"Missing review gate detail '{marker}'"
+    assert "docs/reports/YYYY-MM-DD_" in skill_text
+    assert "_review.md" in skill_text
 
     for gate in ("Internal", "Shared", "Executive"):
         assert gate in skill_text, f"Missing report review profile '{gate}'"
@@ -272,9 +286,15 @@ def test_html_report_skill_integrity():
     critic = (SKILLS_DIR / "ux-critic" / "SKILL.md").read_text(encoding="utf-8")
     assert "**html-report**" in a11y, "ui-accessibility must hand off HTML report review"
     assert "**html-report**" in critic, "ux-critic must hand off HTML report critique"
+    assert "blocking gate" in a11y.lower(), "ui-accessibility report audit must be blocking"
+    assert "blocking gate" in critic.lower(), "ux-critic report critique must be blocking"
 
     for marker in ("<!DOCTYPE html>", "prefers-color-scheme", "@media print", "tabular-nums", "Copy Summary"):
         assert marker in scaffold, f"Missing scaffold marker '{marker}'"
+    for marker in ("Structural Self-Check", "check_html_report.py", "Render Evidence", "Review Record"):
+        assert marker in scaffold, f"Missing scaffold workflow marker '{marker}'"
+    for small in ("0.7rem", "0.72rem", "0.82rem"):
+        assert f"font-size: {small}" not in scaffold, f"Scaffold font size {small} is below the stated floor"
 
     for approval_rule in ("explicitly approves", "offline warning", "SRI hash"):
         assert approval_rule in skill_text, f"Missing controlled CDN rule '{approval_rule}'"
@@ -289,6 +309,71 @@ def test_html_report_skill_integrity():
     for emoji in ("❌", "✅", "⚠️", "🚀"):
         assert emoji not in skill_text, f"Forbidden emoji '{emoji}' in {skill_file}"
         assert emoji not in scaffold, f"Forbidden emoji '{emoji}' in {reference}"
+
+
+def test_html_report_validator_blocks_structural_drift(tmp_path):
+    """Verify the structural validator passes a complete file and fails preset drift."""
+    script = SKILLS_DIR / "html-report" / "scripts" / "check_html_report.py"
+    assert script.exists(), "Missing html-report structural validator"
+
+    report = tmp_path / "report.html"
+    report.write_text(
+        """<!DOCTYPE html>
+<html lang="en" data-preset="dossier" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report</title>
+<style>
+:root, :root[data-preset="dossier"] { --bg: #F7F4EE; }
+:root[data-preset="zen-garden"] { --bg: #F4F1EA; }
+:root[data-preset="chronicle"] { --bg: #FBF9F5; }
+:root[data-theme="light"] { --ink: #22201E; }
+:root[data-theme="dark"] { --ink: #EDE8DF; }
+@media (prefers-color-scheme: dark) { :root { --ink: #EDE8DF; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none; } }
+@media print { details:not([open]) > * { display: block; } @page { margin: 16mm 14mm; } }
+.num { font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 2px solid #9E583B; }
+</style>
+</head>
+<body>
+<h1>Report</h1>
+<button type="button" data-preset-val="dossier">Dossier</button>
+<button type="button" data-preset-val="zen-garden">Zen Garden</button>
+<button type="button" data-preset-val="chronicle">Chronicle</button>
+<button type="button" id="copy-summary">Copy Summary (MD)</button>
+<table><thead><tr><th scope="col">Metric</th></tr></thead><tbody><tr><td>1</td></tr></tbody></table>
+<script>const answer = 42;</script>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
+    passed = subprocess.run(
+        [sys.executable, str(script), str(report)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert passed.returncode == 0, passed.stdout + passed.stderr
+    assert "PASS" in passed.stdout
+
+    broken = tmp_path / "report-missing-preset.html"
+    broken.write_text(
+        report.read_text(encoding="utf-8").replace(
+            'data-preset-val="chronicle"', 'data-preset-val="missing"'
+        ),
+        encoding="utf-8",
+    )
+    failed = subprocess.run(
+        [sys.executable, str(script), str(broken)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert failed.returncode == 1, failed.stdout + failed.stderr
+    assert "chronicle" in failed.stdout
 
 
 def test_ui_ux_family_integrity():
