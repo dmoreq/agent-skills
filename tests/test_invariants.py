@@ -857,6 +857,8 @@ def test_setup_flags_and_hosts_are_documented():
         "--host",
         "--with-rust",
         "--without-rust",
+        "--with-flutter",
+        "--without-flutter",
         "--all",
         "--link",
         "--mirror-native",
