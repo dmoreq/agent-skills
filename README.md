@@ -372,8 +372,10 @@ Skills are installed into the portable Agent Skills root (`~/.agents/skills`) an
 
 ```bash
 chmod +x setup.sh
-./setup.sh              # Installs 35 of 38 skills (skips the three Rust skills)
-./setup.sh --with-rust  # Includes Rust skills (rust-pro, rust-async-patterns, pyo3-maturin)
+./setup.sh                 # Installs 27 of 38 skills (skips 3 Rust + 8 Flutter/Dart)
+./setup.sh --with-rust     # 30 of 38: adds Rust skills
+./setup.sh --with-flutter  # 35 of 38: adds Flutter/Dart skills
+./setup.sh --all           # 38 of 38: adds both optional groups
 ```
 
 Useful flags:
@@ -381,7 +383,9 @@ Useful flags:
 ```bash
 ./setup.sh --with-rust              # include Rust skills
 ./setup.sh --without-rust           # skip Rust skills (default)
-./setup.sh --all                    # alias for --with-rust; detected hosts are the default
+./setup.sh --with-flutter           # include Flutter/Dart skills
+./setup.sh --without-flutter        # skip Flutter/Dart skills (default)
+./setup.sh --all                    # include both Rust and Flutter/Dart skills
 ./setup.sh --dry-run                # print destinations only
 ./setup.sh --host zed,codex         # subset of hosts; portable root is auto-included
 ./setup.sh --project                # current repo: .agents/skills + AGENTS.md

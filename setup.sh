@@ -16,9 +16,22 @@ HOSTS_FILTER=""       # empty = auto-detect
 HOSTS_FILTER_SET=false
 SUPPORTED_HOSTS=("portable" "antigravity" "grok" "opencode" "codex" "zed" "zcode")
 WITH_RUST=false       # skip Rust skills by default
+WITH_FLUTTER=false    # skip Flutter/Dart skills by default
 
 # Rust skills skipped by default unless --with-rust is passed
 RUST_SKILLS=("rust-pro" "rust-async-patterns" "pyo3-maturin")
+
+# Flutter/Dart skills skipped by default unless --with-flutter is passed
+FLUTTER_SKILLS=(
+    "dart-modern-idioms"
+    "flutter-architecture-data"
+    "flutter-codegen-release"
+    "flutter-navigation-routing"
+    "flutter-performance-optimization"
+    "flutter-state-management"
+    "flutter-testing-verification"
+    "flutter-ui-responsive-a11y"
+)
 
 usage() {
     cat <<'EOF'
@@ -33,7 +46,9 @@ Options:
                      Default: portable + antigravity always; grok/opencode/codex/zed/zcode if detected
   --with-rust        Include Rust skills (rust-pro, rust-async-patterns, pyo3-maturin). Default: skipped.
   --without-rust     Skip Rust skills (default).
-  --all              Alias for --with-rust. The default already targets every detected host.
+  --with-flutter     Include Flutter/Dart skills. Default: skipped.
+  --without-flutter  Skip Flutter/Dart skills (default).
+  --all              Include both Rust and Flutter/Dart skills (all 38). The default already targets every detected host.
   --link             Symlink skill folders from this repo (dev). Default is copy.
   --mirror-native    Also copy skills into native host dirs (duplicates ~/.agents/skills; for old hosts)
   --force            Replace unmanaged same-name skill dirs and create host dirs even if the product is not detected
@@ -83,6 +98,25 @@ is_rust_skill() {
     for r in "${RUST_SKILLS[@]}"; do
         [[ "$name" == "$r" ]] && return 0
     done
+    return 1
+}
+
+is_flutter_skill() {
+    local name="$1"
+    for f in "${FLUTTER_SKILLS[@]}"; do
+        [[ "$name" == "$f" ]] && return 0
+    done
+    return 1
+}
+
+should_skip_skill() {
+    local name="$1"
+    if ! $WITH_RUST && is_rust_skill "$name"; then
+        return 0
+    fi
+    if ! $WITH_FLUTTER && is_flutter_skill "$name"; then
+        return 0
+    fi
     return 1
 }
 
@@ -206,11 +240,11 @@ sync_skills() {
         name="$(basename "$skill")"
         dest_skill="$dest/$name"
 
-        if ! $WITH_RUST && is_rust_skill "$name"; then
+        if should_skip_skill "$name"; then
             if [[ -e "$dest_skill" || -L "$dest_skill" ]]; then
                 if manifest_has "$manifest" "$name" || is_managed_copy "$skill" "$dest_skill" || $FORCE; then
                     if $DRY_RUN; then
-                        log "  prune skipped rust skill $name from $dest"
+                        log "  prune skipped optional skill $name from $dest"
                     else
                         rm -rf -- "$dest_skill"
                     fi
@@ -332,7 +366,7 @@ skill_count() {
     for d in "$SKILLS_DIR"/*; do
         [[ -d "$d" ]] || continue
         name="$(basename "$d")"
-        if ! $WITH_RUST && is_rust_skill "$name"; then
+        if should_skip_skill "$name"; then
             continue
         fi
         n=$((n + 1))
@@ -367,7 +401,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         --with-rust) WITH_RUST=true; shift ;;
         --without-rust) WITH_RUST=false; shift ;;
-        --all)     WITH_RUST=true; shift ;;
+        --with-flutter) WITH_FLUTTER=true; shift ;;
+        --without-flutter) WITH_FLUTTER=false; shift ;;
+        --all)     WITH_RUST=true; WITH_FLUTTER=true; shift ;;
         --link)    MODE="link"; shift ;;
         --mirror-native) MIRROR_NATIVE=true; shift ;;
         --force)   FORCE=true; shift ;;
@@ -417,6 +453,11 @@ if $WITH_RUST; then
     log "    rust skills: enabled (rust-pro, rust-async-patterns, pyo3-maturin)"
 else
     log "    rust skills: skipped by default (pass --with-rust to enable)"
+fi
+if $WITH_FLUTTER; then
+    log "    flutter skills: enabled (8 Dart/Flutter skills)"
+else
+    log "    flutter skills: skipped by default (pass --with-flutter to enable)"
 fi
 $DRY_RUN && log "    dry-run:     yes"
 log "========================================================"

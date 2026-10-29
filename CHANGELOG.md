@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.7.0] - 2026-10-29
+
+### Changed
+- `setup.sh`: Flutter/Dart skills are now opt-in via `--with-flutter`. The default install is 27 of 38 skills, skipping the three Rust skills and the eight Flutter/Dart skills.
+- `setup.sh`: Added `--without-flutter` to remove previously installed Flutter/Dart skills while preserving base and Rust skills.
+- `setup.sh`: `--all` now enables both optional groups (Rust and Flutter/Dart, 38 of 38).
+- `README.md`: Documented the opt-in flags and the 27/30/35/38 skill counts.
+- `tests/test_setup_script.sh`: Added default, `--with-flutter`, `--all`, and Flutter-revocation coverage.
+- `tests/test_invariants.py`: Documented the new Flutter opt-in flags in the setup contract test.
+
 ## [2.6.0] - 2026-10-29
 
 ### Changed

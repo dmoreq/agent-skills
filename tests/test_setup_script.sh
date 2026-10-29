@@ -30,6 +30,8 @@ OUT_DEFAULT="$("$REPO_DIR/setup.sh" --dry-run)"
 assert_not_contains "$OUT_DEFAULT" "skill rust-pro ->" "rust-pro was synced by default"
 assert_not_contains "$OUT_DEFAULT" "skill rust-async-patterns ->" "rust-async-patterns was synced by default"
 assert_not_contains "$OUT_DEFAULT" "skill pyo3-maturin ->" "pyo3-maturin was synced by default"
+assert_not_contains "$OUT_DEFAULT" "skill flutter-architecture-data ->" "flutter-architecture-data was synced by default"
+assert_not_contains "$OUT_DEFAULT" "skill dart-modern-idioms ->" "dart-modern-idioms was synced by default"
 assert_contains "$OUT_DEFAULT" "skill code-minimalism ->" "code-minimalism was not synced"
 assert_contains "$OUT_DEFAULT" "skill verify-and-stop ->" "verify-and-stop was not synced"
 assert_contains "$OUT_DEFAULT" "skill ux-product-shaper ->" "ux-product-shaper was not synced"
@@ -41,7 +43,21 @@ OUT_RUST="$("$REPO_DIR/setup.sh" --dry-run --with-rust)"
 assert_contains "$OUT_RUST" "skill rust-pro ->" "rust-pro was not synced with --with-rust"
 assert_contains "$OUT_RUST" "skill rust-async-patterns ->" "rust-async-patterns was not synced with --with-rust"
 assert_contains "$OUT_RUST" "skill pyo3-maturin ->" "pyo3-maturin was not synced with --with-rust"
+assert_not_contains "$OUT_RUST" "skill flutter-architecture-data ->" "flutter skill was synced with --with-rust"
 echo "  --with-rust syncs Rust skills"
+
+# Test 2b: --with-flutter includes Dart/Flutter skills and not Rust.
+OUT_FLUTTER="$("$REPO_DIR/setup.sh" --dry-run --with-flutter)"
+assert_contains "$OUT_FLUTTER" "skill dart-modern-idioms ->" "dart-modern-idioms was not synced with --with-flutter"
+assert_contains "$OUT_FLUTTER" "skill flutter-architecture-data ->" "flutter-architecture-data was not synced with --with-flutter"
+assert_not_contains "$OUT_FLUTTER" "skill rust-pro ->" "rust-pro was synced with --with-flutter"
+echo "  --with-flutter syncs Dart/Flutter skills"
+
+# Test 2c: --all includes both optional groups.
+OUT_ALL="$("$REPO_DIR/setup.sh" --dry-run --all)"
+assert_contains "$OUT_ALL" "skill rust-pro ->" "--all did not include Rust"
+assert_contains "$OUT_ALL" "skill flutter-ui-responsive-a11y ->" "--all did not include Flutter"
+echo "  --all syncs both optional groups"
 
 # Test 3: Filtered hosts that read ~/.agents/skills also install portable skills.
 for host in codex grok zed; do
@@ -76,14 +92,34 @@ fi
 assert_contains "$OUT_MISSING" "requires a comma-separated host list" "missing --host value did not report a usage error"
 echo "  Invalid host values are rejected"
 
-# Test 5: Non-dry portable install writes 35 skills and no Rust skills.
+# Test 5: Non-dry portable install writes 27 base skills and no optional skills.
 INSTALL_HOME="$TEST_HOME/install"
 HOME="$INSTALL_HOME" "$REPO_DIR/setup.sh" --host portable >/dev/null
 SKILL_COUNT="$(find "$INSTALL_HOME/.agents/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
-[[ "$SKILL_COUNT" == "35" ]] || fail "portable install wrote $SKILL_COUNT skills, expected 35"
+[[ "$SKILL_COUNT" == "27" ]] || fail "portable install wrote $SKILL_COUNT skills, expected 27"
 [[ -f "$INSTALL_HOME/.agents/skills/.agent-skills-managed" ]] || fail "portable install did not write a manifest"
 [[ ! -d "$INSTALL_HOME/.agents/skills/rust-pro" ]] || fail "portable install included rust-pro"
-echo "  Non-dry portable install writes 35 skills and a manifest"
+[[ ! -d "$INSTALL_HOME/.agents/skills/flutter-architecture-data" ]] || fail "portable install included Flutter by default"
+echo "  Non-dry portable install writes 27 base skills and a manifest"
+
+# Test 5b: --with-flutter installs 35 skills including Dart/Flutter.
+FLUTTER_HOME="$TEST_HOME/flutter"
+HOME="$FLUTTER_HOME" "$REPO_DIR/setup.sh" --host portable --with-flutter >/dev/null
+FLUTTER_COUNT="$(find "$FLUTTER_HOME/.agents/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
+[[ "$FLUTTER_COUNT" == "35" ]] || fail "flutter install wrote $FLUTTER_COUNT skills, expected 35"
+[[ -f "$FLUTTER_HOME/.agents/skills/flutter-architecture-data/SKILL.md" ]] || fail "flutter install missing flutter-architecture-data"
+[[ -f "$FLUTTER_HOME/.agents/skills/dart-modern-idioms/SKILL.md" ]] || fail "flutter install missing dart-modern-idioms"
+[[ ! -d "$FLUTTER_HOME/.agents/skills/rust-pro" ]] || fail "flutter install included rust-pro"
+echo "  --with-flutter installs 35 skills including Dart/Flutter"
+
+# Test 5c: running without Flutter removes previously installed Flutter skills.
+HOME="$FLUTTER_HOME" "$REPO_DIR/setup.sh" --host portable >/dev/null
+REVOKED_COUNT="$(find "$FLUTTER_HOME/.agents/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
+[[ "$REVOKED_COUNT" == "27" ]] || fail "revoke left $REVOKED_COUNT skills, expected 27"
+[[ ! -e "$FLUTTER_HOME/.agents/skills/flutter-architecture-data" ]] || fail "revoke kept flutter-architecture-data"
+[[ ! -e "$FLUTTER_HOME/.agents/skills/dart-modern-idioms" ]] || fail "revoke kept dart-modern-idioms"
+[[ -f "$FLUTTER_HOME/.agents/skills/code-review/SKILL.md" ]] || fail "revoke removed a base skill"
+echo "  Running without Flutter revokes Dart/Flutter skills"
 
 # Test 6: --host codex installs portable skills and does not create native skills.
 CODEX_HOME="$TEST_HOME/codex"
