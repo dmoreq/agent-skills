@@ -23,6 +23,14 @@ agent-skills/
 │   ├── deprecation-migration/       # Safe removal, replacement & sunsetting of legacy APIs (+ 2 references)
 │   ├── design-system/               # 3-tier DTCG tokens, component specs, responsive rules (+ 1 reference)
 │   ├── doubt-driven-development/    # Adversarial stress-testing of non-trivial architectural choices (+ 1 reference)
+│   ├── dart-modern-idioms/          # Dart 3.x idioms, Effective Dart, async safety, strict analysis (+ 1 reference)
+│   ├── flutter-architecture-data/   # Feature-first MVVM, Repository/Service, Result<T> (+ 1 reference)
+│   ├── flutter-codegen-release/     # build_runner, flavors, obfuscation, CI/CD (+ 1 reference)
+│   ├── flutter-navigation-routing/  # go_router, deep linking, auth guards (+ 1 reference)
+│   ├── flutter-performance-optimization/  # 60/120fps budgets, rebuild control, Isolate.run (+ 1 reference)
+│   ├── flutter-state-management/    # Riverpod 3.x, Bloc/Cubit, native listenables (+ 1 reference)
+│   ├── flutter-testing-verification/  # Unit/widget/golden/integration, Fakes over Mocks (+ 1 reference)
+│   ├── flutter-ui-responsive-a11y/  # Adaptive UI, Material 3, Semantics, ARB localization (+ 1 reference)
 │   ├── html-report/                 # Single-file HTML reports, blocking visual gate, print-ready PDF (+ 2 references, validator)
 │   ├── plotly-dash/                 # Interactive Python data apps with Plotly Dash & clean callbacks
 │   ├── polars-duckdb/               # High-performance DataFrame & local SQL ETL (+ migration reference)
@@ -65,6 +73,14 @@ agent-skills/
 | **`deprecation-migration`** | Safely sunset, replace, and migrate legacy APIs/systems using Strangler, Adapter, and Feature Flags. |
 | **`design-system`** | Build minimalist 3-tier W3C DTCG tokens, dual light/dark themes, component specs, and responsive layout with a YAGNI token diet. |
 | **`doubt-driven-development`** | Adversarial review to stress-test high-risk decisions and uncover unstated assumptions. |
+| **`dart-modern-idioms`** | Dart 3.x sealed classes, exhaustive switches, pattern matching, records, Effective Dart, async safety, strict analysis. |
+| **`flutter-architecture-data`** | Feature-first MVVM architecture, Repository/Service patterns, `Result<T>`/`Command`, immutable models, DI. |
+| **`flutter-codegen-release`** | `build_runner` codegen, dependency hygiene, crash bootstrap, flavors, obfuscation, CI/CD release gates. |
+| **`flutter-navigation-routing`** | Declarative `go_router` navigation, deep linking, auth redirect guards, nested shell routes. |
+| **`flutter-performance-optimization`** | 60/120fps frame budgets, rebuild minimization, `saveLayer`/`Opacity` avoidance, lazy lists, image caching, Isolates. |
+| **`flutter-state-management`** | Riverpod 3.x Notifier/AsyncNotifier, Bloc/Cubit, native `ChangeNotifier`/`ValueNotifier` state patterns. |
+| **`flutter-testing-verification`** | Deterministic unit/widget/golden/integration tests, Fakes over Mocks, `pumpApp` harness, multi-viewport testing. |
+| **`flutter-ui-responsive-a11y`** | Adaptive responsive UI, Material 3 theming, `Semantics`, RTL/ARB localization, RenderFlex overflow fixes. |
 | **`html-report`** | Single-file, self-contained HTML reports with a blocking structural and rendered visual gate, single-preset output from three Zen presets, dual-theme tokens, and print/PDF fidelity. |
 | **`plotly-dash`** | Production-grade Plotly Dash apps with modular layouts, disciplined callbacks, state hygiene & performance. |
 | **`polars-duckdb`** | High-performance tabular data wrangling, ETL, and analytical SQL with Polars, DuckDB, PyArrow, and Pandas 2.x. |
@@ -129,6 +145,9 @@ agent-skills/
 | Rust types, errors, unsafe | `rust-pro` | Tokio task design |
 | Tokio structured concurrency | `rust-async-patterns` | Sync Rust |
 | Merge quality gate | `code-review` | Other skill YAML |
+| Flutter MVVM layers, Repository/Service, `Result<T>` | `flutter-architecture-data` | Widget code, state management skill choice |
+| Dart 3 idioms, Effective Dart, strict analysis | `dart-modern-idioms` | Widget code, test structure |
+| Flutter testing strategy (Fakes, golden, integration) | `flutter-testing-verification` | Feature implementation |
 | Behavior-preserving cleanup of existing code | `code-simplification` | Redesign / generation |
 | Sunset / strangler | `deprecation-migration` | Local dead-code only |
 | Adversarial lock-in of a decision | `doubt-driven-development` | Every research note |
@@ -173,6 +192,14 @@ agent-skills/
 | **Testing** | **`python-testing`** | Logic change from `python-pro` or cleanup | Pre-merge verification safety net | **Required for logic changes** |
 | **Cleanup** | **`code-simplification`** | Deep nesting, Cyclomatic/Cognitive complexity flagged | Verified by tests; returned to `code-review` | Optional |
 | **QA Gate** | **`code-review`** | PR/diff from implementation or refactoring | Merged when passing six review axes and complexity gates; `codebase-contracts` for drift; `ui-accessibility` for UI review; `html-report` for an HTML audit page | **Required on merge path** |
+| **Flutter Architecture** | **`flutter-architecture-data`** | New Flutter project or feature | `dart-modern-idioms` (language); `flutter-state-management` (state); `flutter-testing-verification` (tests); `flutter-codegen-release` (models) | Optional |
+| **Dart Idioms** | **`dart-modern-idioms`** | Writing or reviewing Dart code | `code-review` (merge gate); `flutter-architecture-data` (architecture) | Optional |
+| **Flutter State** | **`flutter-state-management`** | Feature state design | `flutter-ui-responsive-a11y` (widgets); `flutter-testing-verification` (tests) | Optional |
+| **Flutter UI** | **`flutter-ui-responsive-a11y`** | Screen or widget creation | `flutter-state-management` (state); `design-system` (tokens); `ui-accessibility` (audit) | Optional |
+| **Flutter Navigation** | **`flutter-navigation-routing`** | Route setup or deep linking | `flutter-state-management` (auth guards); `flutter-architecture-data` (handlers) | Optional |
+| **Flutter Performance** | **`flutter-performance-optimization`** | UI jank or memory issues | `flutter-ui-responsive-a11y` (composition); `flutter-testing-verification` (frame tests) | Optional |
+| **Flutter Testing** | **`flutter-testing-verification`** | Test coverage for Flutter/Dart | `verify-and-stop` (decisive check); `code-review` (merge gate) | **Required on Flutter merge path** |
+| **Flutter Release** | **`flutter-codegen-release`** | Codegen, flavors, or release build | `flutter-architecture-data` (models); `flutter-testing-verification` (release tests) | Optional |
 
 ---
 
@@ -345,7 +372,7 @@ Skills are installed into the portable Agent Skills root (`~/.agents/skills`) an
 
 ```bash
 chmod +x setup.sh
-./setup.sh              # Installs 27 of 30 skills (skips the three Rust skills)
+./setup.sh              # Installs 35 of 38 skills (skips the three Rust skills)
 ./setup.sh --with-rust  # Includes Rust skills (rust-pro, rust-async-patterns, pyo3-maturin)
 ```
 

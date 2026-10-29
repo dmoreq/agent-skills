@@ -153,3 +153,5 @@ Before handoff, fail the design system if any check fails:
 - Use **html-report** to implement the system in a single-file HTML deliverable (`dossier`, `zen-garden`, or `chronicle`).
 - Use **plotly-dash** to implement the system in a server-backed Dash application.
 - Use **deprecation-migration** when retiring tokens or components with active consumers.
+- Use **ui-accessibility** to audit contrast, focus, target size, and reduced motion.
+- Use **flutter-ui-responsive-a11y** when the design tokens are implemented in Flutter via Material 3 `ThemeExtension`.

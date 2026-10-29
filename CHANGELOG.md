@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-10-29
+
+### Added
+- `skills/dart-modern-idioms` (new): Dart 3.x sealed classes, exhaustive switch expressions, pattern matching, records, class modifiers, Effective Dart, async safety, and strict `analysis_options.yaml` configuration.
+- `skills/flutter-architecture-data` (new): Feature-first MVVM architecture, Repository/Service patterns, `Result<T>`/`Command`, immutable models, DI, networking, and local persistence.
+- `skills/flutter-codegen-release` (new): `build_runner` code generation, dependency hygiene, crash bootstrap, `--dart-define-from-file` flavors, obfuscation, and CI/CD release gates.
+- `skills/flutter-navigation-routing` (new): Declarative `go_router` navigation, deep linking, auth redirect guards, nested shell routes, and predictive back gestures.
+- `skills/flutter-performance-optimization` (new): 60/120fps frame budgets, widget rebuild minimization, `saveLayer`/`Opacity` avoidance, lazy lists, image caching, and background Isolates.
+- `skills/flutter-state-management` (new): Riverpod 3.x Notifier/AsyncNotifier, Bloc/Cubit, and native `ChangeNotifier`/`ValueNotifier` state patterns with async safety.
+- `skills/flutter-testing-verification` (new): Deterministic unit/widget/golden/accessibility/integration tests, Fakes over Mocks, `pumpApp` harness, and multi-viewport verification.
+- `skills/flutter-ui-responsive-a11y` (new): Adaptive responsive UI, Material 3 theming, `Semantics`, RTL/ARB localization, and RenderFlex overflow fixes.
+- `skills/code-review`: Added `dart-modern-idioms` and `flutter-testing-verification` handoffs for Dart/Flutter diff review.
+- `skills/ui-accessibility`: Added `flutter-ui-responsive-a11y` handoff for Flutter Semantics and accessibility implementation.
+- `skills/design-system`: Added `flutter-ui-responsive-a11y` handoff for Material 3 token implementation.
+- `skills/deprecation-migration`: Added `dart-modern-idioms` handoff for Dart 2 to Dart 3 migration.
+- `README.md`: Added 8 Flutter/Dart skills to the structure tree, catalog, ownership map, and relationship table; updated counts to 35 of 38.
+- `tests/`: Updated installer and reference-count assertions for 38 skills.
+
 ## [2.4.0] - 2026-10-29
 
 ### Changed

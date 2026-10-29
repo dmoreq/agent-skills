@@ -33,6 +33,7 @@ Plan and execute safe replacement, consolidation, or removal of legacy APIs, mod
 - Use **codebase-contracts** to record the legacy contract and the replacement contract.
 - Use **python-testing** to lock parity and compatibility before deleting legacy paths.
 - Use **verify-and-stop** to group import-consistent commits and verify clean-archive builds.
+- Use **dart-modern-idioms** when migrating legacy Dart 2 patterns to Dart 3.x sealed classes, switch expressions, or class modifiers.
 
 ## 1. Decision Checklist
 1. Does the legacy path still perform unique work that the replacement cannot express?
