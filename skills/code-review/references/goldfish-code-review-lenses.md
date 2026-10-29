@@ -31,6 +31,7 @@ Never merge `cr-mechanism-generalization` and `cr-codebase-reuse-and-contracts`.
 | 2 | Zed, Grok, ZCode, single-thread CLI | Sequential cold-read passes, one persona rubric per pass |
 
 Pass only the persona card, target paths or diff, contract or spec path, and pre-flight pass confirmation. Never pass the author's rationale or a prior verdict.
+Include a `Skill context:` line naming `code-review` and any domain skill (for example `rust-async-patterns` or `flutter-testing-verification`) with its `SKILL.md` path.
 
 ## 4. Persona Prompt Cards
 

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.0] - 2026-10-29
+
+### Changed
+- `rules/AGENTS.md`: Added the **Task-Skill Handoff** delegation rule. A subagent must receive the owning task-domain skill name and `SKILL.md` path, or use host auto-loading; never the full skill body.
+- `rules/AGENTS.md`: Extended the Peer-Review Gate to confirm the reviewer has the owning review skill or persona card.
+- `skills/spec-driven-design`, `skills/code-review`, `skills/doubt-driven-development`: Added a `Skill context:` line to each Goldfish dispatch contract.
+- `tests/test_invariants.py`: Added `test_dispatch_contracts_include_skill_context` to lock the handoff contract.
+
 ## [2.5.0] - 2026-10-29
 
 ### Added
