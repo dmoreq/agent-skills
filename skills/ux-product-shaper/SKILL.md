@@ -38,7 +38,7 @@ Turn an approved feature intent into a product brief that UI work can execute. F
 ### Step 1: Classify the Surface Mode and Minimalist Register
 | Register | Use for | Visual posture |
 | :--- | :--- | :--- |
-| Mode A: Swiss / Zen Editorial | Marketing, portfolio, executive chronicle, launch, brand campaign | Hero type at 3x+ body, intentional asymmetry or contemplative centered flow, at least 40% *Ma* negative space, one focal CTA above the fold |
+| Mode A: Swiss / Zen Editorial | Marketing, portfolio, executive chronicle, launch, brand campaign | Page-title display at 3x+ body and KPI/hero metrics at 2.5x-3x, intentional asymmetry or contemplative centered flow, at least 40% *Ma* negative space, one focal CTA above the fold |
 | Mode B: Shibumi Utilitarian | B2B SaaS, clinical/engineering dossier, admin console, data table, settings | High data-ink ratio, Jakob familiarity, tabular numbers, compact sticky chapter guides, zero decorative banners or theatrical motion |
 
 If a surface mixes both, split it into separate screens. Do not blend a brand hero into a dense operations table.

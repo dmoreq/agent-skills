@@ -289,11 +289,19 @@ def test_html_report_skill_integrity():
     assert "blocking gate" in a11y.lower(), "ui-accessibility report audit must be blocking"
     assert "blocking gate" in critic.lower(), "ux-critic report critique must be blocking"
 
-    for marker in ("<!DOCTYPE html>", "prefers-color-scheme", "@media print", "tabular-nums", "Copy Summary"):
+    for marker in (
+        "<!DOCTYPE html>",
+        "prefers-color-scheme",
+        "@media print",
+        "tabular-nums",
+        "theme-toggle",
+        "fonts.googleapis.com",
+        "display=swap",
+    ):
         assert marker in scaffold, f"Missing scaffold marker '{marker}'"
     for marker in ("Structural Self-Check", "check_html_report.py", "Render Evidence", "Review Record"):
         assert marker in scaffold, f"Missing scaffold workflow marker '{marker}'"
-    for small in ("0.7rem", "0.72rem", "0.82rem"):
+    for small in ("0.7rem", "0.72rem"):
         assert f"font-size: {small}" not in scaffold, f"Scaffold font size {small} is below the stated floor"
 
     for approval_rule in ("explicitly approves", "offline warning", "SRI hash"):
@@ -305,6 +313,14 @@ def test_html_report_skill_integrity():
         assert preset in scaffold, f"Missing scaffold preset '{preset}'"
     assert "REPLACE_WITH" not in scaffold, "Scaffold still contains an unresolved SRI placeholder"
     assert "#878079" in scaffold, "Scaffold context series must use the 3:1 warm stone token"
+    for removed in ("preset-btn", "preset-group", "expand-all", "collapse-all", "copy-summary"):
+        assert removed not in scaffold, f"Scaffold still contains redundant control '{removed}'"
+    assert 'id="theme-toggle"' in scaffold, "Scaffold must keep one theme toggle"
+    assert "0.72rem" not in scaffold and "0.7rem" not in scaffold, (
+        "Scaffold still uses label sizes below the 0.75rem minimum"
+    )
+    assert "--chart-ps: #4A6B53" not in scaffold, "Zen Garden charts must use the shared warm palette"
+    assert "Exactly one preset" in skill_text, "SKILL must require one preset per report"
 
     for emoji in ("❌", "✅", "⚠️", "🚀"):
         assert emoji not in skill_text, f"Forbidden emoji '{emoji}' in {skill_file}"
@@ -324,25 +340,23 @@ def test_html_report_validator_blocks_structural_drift(tmp_path):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&display=swap" rel="stylesheet">
 <style>
 :root, :root[data-preset="dossier"] { --bg: #F7F4EE; }
-:root[data-preset="zen-garden"] { --bg: #F4F1EA; }
-:root[data-preset="chronicle"] { --bg: #FBF9F5; }
 :root[data-theme="light"] { --ink: #22201E; }
 :root[data-theme="dark"] { --ink: #EDE8DF; }
 @media (prefers-color-scheme: dark) { :root { --ink: #EDE8DF; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none; } }
 @media print { details:not([open]) > * { display: block; } @page { margin: 16mm 14mm; } }
-.num { font-variant-numeric: tabular-nums; }
+.num { font-variant-numeric: tabular-nums; font-optical-sizing: auto; }
 :focus-visible { outline: 2px solid #9E583B; }
 </style>
 </head>
 <body>
 <h1>Report</h1>
-<button type="button" data-preset-val="dossier">Dossier</button>
-<button type="button" data-preset-val="zen-garden">Zen Garden</button>
-<button type="button" data-preset-val="chronicle">Chronicle</button>
-<button type="button" id="copy-summary">Copy Summary (MD)</button>
+<button type="button" id="theme-toggle" aria-label="Toggle color theme">Theme</button>
 <table><thead><tr><th scope="col">Metric</th></tr></thead><tbody><tr><td>1</td></tr></tbody></table>
 <script>const answer = 42;</script>
 </body>
@@ -359,10 +373,11 @@ def test_html_report_validator_blocks_structural_drift(tmp_path):
     assert passed.returncode == 0, passed.stdout + passed.stderr
     assert "PASS" in passed.stdout
 
-    broken = tmp_path / "report-missing-preset.html"
+    broken = tmp_path / "report-multiple-presets.html"
     broken.write_text(
         report.read_text(encoding="utf-8").replace(
-            'data-preset-val="chronicle"', 'data-preset-val="missing"'
+            ':root[data-theme="light"]',
+            ':root[data-preset="zen-garden"] { --bg: #F4F1EA; }\n:root[data-theme="light"]',
         ),
         encoding="utf-8",
     )
@@ -373,7 +388,7 @@ def test_html_report_validator_blocks_structural_drift(tmp_path):
         check=False,
     )
     assert failed.returncode == 1, failed.stdout + failed.stderr
-    assert "chronicle" in failed.stdout
+    assert "multiple preset blocks" in failed.stdout
 
 
 def test_ui_ux_family_integrity():
@@ -423,6 +438,20 @@ def test_ui_ux_family_integrity():
     assert "At most 4 top-level navigation items." in shaper_ref, (
         "ux-product-shaper reference must agree on the 4-item navigation cap"
     )
+    assert "2.5x-3x" in shaper_skill and "3x+" in shaper_skill, (
+        "ux-product-shaper must separate page-title and KPI hero sizes"
+    )
+    assert "2.5x-3x" in shaper_ref, "ux-product-shaper reference must mirror the hero-size rule"
+
+    ds_ref = (
+        SKILLS_DIR / "design-system" / "references" / "token-and-component-specs.md"
+    ).read_text(encoding="utf-8")
+    assert "2 primary font families" in ds_ref, "design-system reference must allow 2 primary families"
+    assert "monospace data face" in ds_ref, "design-system reference must name the monospace data face"
+    assert "400/600 contrast" not in ds_ref, "design-system reference still carries the old weight doctrine"
+    assert "editorial report roles" in ds_ref or "9 editorial" in ds_ref, (
+        "design-system reference must document the editorial report roles"
+    )
 
 
 def test_zen_prose_budget_consistency():
@@ -440,5 +469,76 @@ def test_zen_prose_budget_consistency():
         assert "2-3 sentences" in text, f"{name} does not declare the 2-3 sentence budget"
         for stale in ("40-60", "45-60", "<= 3 sentences"):
             assert stale not in text, f"{name} contains stale prose budget '{stale}'"
+
+
+def test_typography_contract_consistency():
+    """Verify the report typography contract is centralized and internally consistent."""
+    ds_skill = (SKILLS_DIR / "design-system" / "SKILL.md").read_text(encoding="utf-8")
+    ds_ref = (
+        SKILLS_DIR / "design-system" / "references" / "token-and-component-specs.md"
+    ).read_text(encoding="utf-8")
+    hr_skill = (SKILLS_DIR / "html-report" / "SKILL.md").read_text(encoding="utf-8")
+    scaffold = (
+        SKILLS_DIR / "html-report" / "references" / "html-report-scaffold.md"
+    ).read_text(encoding="utf-8")
+
+    for text, name in ((ds_skill, "design-system"), (ds_ref, "design-system reference"), (hr_skill, "html-report")):
+        assert "60ch-70ch" in text, f"{name} does not declare the 60ch-70ch measure"
+        assert "60ch-68ch" not in text, f"{name} still carries the stale 60ch-68ch measure"
+
+    for minimum in ("0.9375rem", "0.75rem", "0.82rem"):
+        assert minimum in hr_skill, f"html-report does not declare the {minimum} minimum"
+
+    assert "font-optical-sizing" in scaffold, "Scaffold does not enable optical sizing"
+    for family in ("Fraunces", "Cormorant Garamond", "Plus Jakarta Sans", "Inter", "JetBrains Mono"):
+        assert family in scaffold, f"Scaffold does not load '{family}'"
+
+    zen_start = scaffold.index(':root[data-preset="zen-garden"] {')
+    zen_block = scaffold[zen_start:scaffold.index("}", zen_start)]
+    for token in (
+        "--chart-ps: #9E583B",
+        "--chart-prod: #5A5550",
+        "--chart-old: #878079",
+        "--chart-pos: #2B6648",
+        "--chart-neg: #992B2B",
+    ):
+        assert token in zen_block, f"Zen Garden chart palette is missing '{token}'"
+    assert "--chart-ps: #4A6B53" not in zen_block, "Zen Garden charts must not use the moss accent"
+    assert "--accent: #4A6B53" in zen_block, "Zen Garden must keep moss for UI chrome"
+
+
+def test_html_report_chart_interaction_contract():
+    """Verify the native SVG interaction and data-label contract."""
+    skill = (SKILLS_DIR / "html-report" / "SKILL.md").read_text(encoding="utf-8")
+    scaffold = (
+        SKILLS_DIR / "html-report" / "references" / "html-report-scaffold.md"
+    ).read_text(encoding="utf-8")
+
+    for marker in ("Chart Interaction Contract", "cross-highlight", "two decimals", 'role="group"'):
+        assert marker in skill, f"html-report SKILL is missing '{marker}'"
+
+    for marker in (
+        "chart-tooltip",
+        "data-chart-point",
+        "data-label",
+        'aria-hidden="true"',
+        'pointer-events="none"',
+        "prefers-reduced-motion",
+    ):
+        assert marker in scaffold, f"Scaffold is missing chart interaction marker '{marker}'"
+
+    dv = (SKILLS_DIR / "data-visualization" / "SKILL.md").read_text(encoding="utf-8")
+    assert "two decimals" in dv, "data-visualization must require two-decimal percent labels"
+    assert "counts use `k`/`M`" in dv, "data-visualization must require abbreviated counts"
+
+    a11y = (SKILLS_DIR / "ui-accessibility" / "SKILL.md").read_text(encoding="utf-8")
+    assert "Chart marks are keyboard reachable" in a11y, (
+        "ui-accessibility must gate chart keyboard access"
+    )
+
+    critic = (SKILLS_DIR / "ux-critic" / "SKILL.md").read_text(encoding="utf-8")
+    assert "Chart interaction was checked" in critic, (
+        "ux-critic must check chart interaction and labels"
+    )
 
 

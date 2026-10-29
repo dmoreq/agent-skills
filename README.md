@@ -65,7 +65,7 @@ agent-skills/
 | **`deprecation-migration`** | Safely sunset, replace, and migrate legacy APIs/systems using Strangler, Adapter, and Feature Flags. |
 | **`design-system`** | Build minimalist 3-tier W3C DTCG tokens, dual light/dark themes, component specs, and responsive layout with a YAGNI token diet. |
 | **`doubt-driven-development`** | Adversarial review to stress-test high-risk decisions and uncover unstated assumptions. |
-| **`html-report`** | Single-file, self-contained HTML reports with a blocking structural and rendered visual gate, three Zen presets, dual-theme tokens, and print/PDF fidelity. |
+| **`html-report`** | Single-file, self-contained HTML reports with a blocking structural and rendered visual gate, single-preset output from three Zen presets, dual-theme tokens, and print/PDF fidelity. |
 | **`plotly-dash`** | Production-grade Plotly Dash apps with modular layouts, disciplined callbacks, state hygiene & performance. |
 | **`polars-duckdb`** | High-performance tabular data wrangling, ETL, and analytical SQL with Polars, DuckDB, PyArrow, and Pandas 2.x. |
 | **`pyo3-maturin`** | High-performance Rust native extensions with PyO3 and Maturin for CPU-bound hotspots. *(Rust skill)* |

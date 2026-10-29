@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `skills/html-report`: Replaced the advisory review gate with a blocking delivery gate. Profile classification is deterministic, uncertain reports default to Shared, and delivery is blocked when any gate is unrun, `Not tested`, or `Fail`.
 - `skills/html-report`: Added a blocking Visual Quality Bar with a desktop/mobile/reflow/print render matrix, a zero-tolerance hard-fail list, measured contrast and layout checks, and a bounded 2-cycle fix loop.
-- `skills/html-report/references/html-report-scaffold.md`: Raised label and monospace type floors to match the skill contract, added table header scopes, extended the structural self-check, added render-evidence commands, and added the ISO-dated review record template.
-- `skills/html-report/scripts/check_html_report.py`: Added a stdlib structural validator for the document skeleton, three presets, theme and print CSS, focus visibility, table headers, inline handlers, network calls, external assets, duplicate IDs, and placeholders.
+- `skills/html-report/references/html-report-scaffold.md`: Added table header scopes, extended the structural self-check, added render-evidence commands, and added the ISO-dated review record template.
+- `skills/html-report/scripts/check_html_report.py`: Added a stdlib structural validator for the document skeleton, one preset with no switcher, theme and print CSS, focus visibility, table headers, inline handlers, network calls, allowed font and asset policy, duplicate IDs, placeholders, and chart interaction markers.
 - `skills/ui-accessibility` and `skills/ux-critic`: Declared their report audits as blocking gates for shared/print and executive HTML reports.
 - `tests/test_invariants.py`: Extended `test_html_report_skill_integrity` to lock the blocking gate, render matrix, review record, type floors, and cross-skill blocking handoffs; added `test_html_report_validator_blocks_structural_drift`.
 - `README.md`: Updated the `html-report` structure, catalog, and HTML Output pipeline entries to describe the blocking structural and visual gates.
@@ -67,7 +67,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.github/workflows/ci.yml`: Added a CI workflow for pytest and the setup script tests.
 - `.gitignore`: Ignored `.zcode/` session state.
 - `skills/data-storytelling`, `data-visualization`, `design-system`, `html-report`, `technical-reporting`, `ux-critic`, and `ux-product-shaper`: Applied the Zen Minimalism upgrade (Kanso, Ma, Shibumi) with warm organic palettes, a unified 2-3 sentence paragraph budget, and three curated HTML report presets (`dossier`, `zen-garden`, `chronicle`).
-- `skills/html-report/references/html-report-scaffold.md`: Rebuilt the scaffold around the three presets, dual-theme tokens, preset switcher, table filtering, print rules, and an offline self-check.
+- `skills/html-report/references/html-report-scaffold.md`: Rebuilt the scaffold around one selected preset, dual-theme tokens, a single top-right Theme toggle, table filtering, print rules, and an offline self-check.
+- `skills/html-report`: Adopted a single-preset output contract and a minimal header (title, one provenance line, one top-right Theme toggle); removed the preset switcher, expand/collapse, copy-summary, eyebrow, and status pill.
+- `skills/html-report` and `skills/design-system`: Reconciled the typography contract: 2 primary families plus 1 monospace data face, 5 product or 9 editorial sizes, role-based weights, `60ch-70ch` measure, and minimum body/label/code sizes.
+- `skills/html-report`: The Google Fonts stylesheet is the only permitted network request; the report must render offline with local fallbacks.
+- `skills/data-visualization` and `skills/html-report`: Zen Garden charts now use Dossier's warm data palette while moss remains the UI-only accent.
+- `skills/html-report`: Added the native SVG chart interaction contract: hover/focus tooltip, legend dimming, chart-to-table cross-highlight, and always-visible data labels with two-decimal percentages and abbreviated counts.
+- `skills/data-visualization`, `ui-accessibility`, and `ux-critic`: Added direct-label formatting, chart keyboard/ARIA checks, and chart-interaction critique rules.
+- `tests/test_invariants.py`: Added chart-interaction contract guards.
 - `skills/ux-product-shaper/references/product-and-state-contracts.md`: Canonicalized Mode A/Mode B names and added the wording budget.
 - `skills/ux-critic/references/heuristic-critique.md`: Documented all six critique dimensions, including YAGNI and signifier honesty.
 - `skills/design-system/references/token-and-component-specs.md`: Replaced the cool slate primitive example with a warm stone ramp and declared `--bg-subtle`.
@@ -80,6 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `skills/ux-critic`: Corrected the five-versus-six dimension count and added YAGNI to the report template.
 - `skills/technical-reporting` and `skills/data-storytelling`: Unified paragraph budgets and restored the simple-delta and audience principles.
 - `tests/test_invariants.py`: Added guards against preset-dimension drift, unresolved SRI placeholders, navigation-cap drift, and prose-budget drift.
+- `tests/test_invariants.py`: Added typography-contract, minimal-header, and Zen Garden palette guards.
 
 ### Removed
 - Hermes host support: deleted `rules/hermes-preamble.md`, `bots/seven-bots/`, and `tests/verify-profiles.sh`; removed Hermes detection, SOUL composition, host routing, and summary output from `setup.sh`.

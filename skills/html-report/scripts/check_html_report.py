@@ -11,6 +11,7 @@ import sys
 MAX_BYTES = 1_000_000
 PRESETS = ("dossier", "zen-garden", "chronicle")
 CHART_CDN = "cdn.jsdelivr.net/npm/chart.js@"
+FONT_HOSTS = ("https://fonts.googleapis.com", "https://fonts.gstatic.com")
 ASSET_ATTRIBUTES = {
     "script": "src",
     "link": "href",
@@ -42,6 +43,15 @@ CSS_MARKERS = (
     "@page",
     "tabular-nums",
     "focus-visible",
+    "font-optical-sizing",
+)
+CHART_MARKERS = (
+    "chart-tooltip",
+    "data-chart-point",
+    "data-label",
+    'role="status"',
+    'aria-hidden="true"',
+    'pointer-events="none"',
 )
 NETWORK_TERMS = ("fetch(", "xmlhttprequest", "new websocket", "new eventsource")
 
@@ -55,8 +65,10 @@ class ReportParser(HTMLParser):
         self.html_attrs: dict[str, str] = {}
         self.meta_charset = False
         self.meta_viewport = False
-        self.preset_buttons: set[str] = set()
-        self.has_copy_summary = False
+        self.has_theme_toggle = False
+        self.has_font_stylesheet = False
+        self.has_chart = False
+        self.preset_switches: list[str] = []
         self.inline_handlers: list[str] = []
         self.external_assets: list[str] = []
         self.inline_network_terms: list[str] = []
@@ -70,8 +82,6 @@ class ReportParser(HTMLParser):
         self.buttons_without_type: list[str] = []
         self.has_details = False
         self._table_stack: list[bool] = []
-        self._button_depth = 0
-        self._button_text: list[str] = []
         self._in_script = False
         self._script_type = ""
         self._script_text: list[str] = []
@@ -86,7 +96,7 @@ class ReportParser(HTMLParser):
             self.html_attrs = attributes
         if tag == "meta":
             self._read_meta(attributes)
-        self._read_preset_button(attributes)
+        self._read_preset_switch(attributes)
         self._read_heading(tag)
         self._read_structure(tag, attributes)
         self._read_asset(tag, attributes)
@@ -94,8 +104,6 @@ class ReportParser(HTMLParser):
         self._read_interactions(tag, attributes)
 
     def handle_endtag(self, tag: str) -> None:
-        if tag == "button" and self._button_depth:
-            self._close_button()
         if tag == "script" and self._in_script:
             self._close_script()
         if tag == "table" and self._table_stack:
@@ -103,8 +111,6 @@ class ReportParser(HTMLParser):
                 self.tables_without_head += 1
 
     def handle_data(self, data: str) -> None:
-        if self._button_depth:
-            self._button_text.append(data)
         if self._in_script:
             self._script_text.append(data)
 
@@ -116,9 +122,15 @@ class ReportParser(HTMLParser):
         if name == "viewport" and "width=device-width" in content:
             self.meta_viewport = True
 
-    def _read_preset_button(self, attributes: dict[str, str]) -> None:
-        if "data-preset-val" in attributes:
-            self.preset_buttons.add(attributes["data-preset-val"])
+    def _read_preset_switch(self, attributes: dict[str, str]) -> None:
+        classes = attributes.get("class", "").lower()
+        is_switch = (
+            "data-preset-val" in attributes
+            or "preset-btn" in classes
+            or "preset-group" in classes
+        )
+        if is_switch:
+            self.preset_switches.append(attributes.get("id") or classes or "preset control")
 
     def _read_heading(self, tag: str) -> None:
         if len(tag) != 2 or tag[0] != "h" or tag[1] not in "123456":
@@ -139,8 +151,12 @@ class ReportParser(HTMLParser):
             self._table_stack[-1] = True
         if tag == "th" and "scope" not in attributes and "role" not in attributes:
             self.th_without_scope += 1
-        if tag == "button":
-            self._open_button(attributes)
+        if tag == "button" and attributes.get("type", "").lower() != "button":
+            self.buttons_without_type.append(attributes.get("id") or "unnamed")
+        if attributes.get("id") == "theme-toggle":
+            self.has_theme_toggle = True
+        if "data-chart-point" in attributes or attributes.get("id") == "chart-tooltip":
+            self.has_chart = True
 
     def _read_asset(self, tag: str, attributes: dict[str, str]) -> None:
         attribute = ASSET_ATTRIBUTES.get(tag)
@@ -148,6 +164,10 @@ class ReportParser(HTMLParser):
             return
         value = attributes.get(attribute, "").strip()
         if not value or value.startswith(("#", "data:")):
+            return
+        if tag == "link" and "fonts.googleapis.com/css" in value:
+            self.has_font_stylesheet = True
+        if tag == "link" and value.startswith(FONT_HOSTS):
             return
         approved = (
             tag == "script"
@@ -175,23 +195,6 @@ class ReportParser(HTMLParser):
             if name in EVENT_ATTRIBUTES:
                 self.inline_handlers.append(name)
 
-    def _open_button(self, attributes: dict[str, str]) -> None:
-        if attributes.get("type", "").lower() != "button":
-            self.buttons_without_type.append(attributes.get("id") or "unnamed")
-        self._button_depth += 1
-        self._button_text = []
-        if attributes.get("id") == "copy-summary":
-            self.has_copy_summary = True
-        if "copy summary" in attributes.get("aria-label", "").lower():
-            self.has_copy_summary = True
-
-    def _close_button(self) -> None:
-        label = " ".join("".join(self._button_text).split()).lower()
-        if "copy summary" in label:
-            self.has_copy_summary = True
-        self._button_depth = max(0, self._button_depth - 1)
-        self._button_text = []
-
     def _close_script(self) -> None:
         text = "".join(self._script_text).lower()
         if self._script_type not in {"application/json", "application/ld+json", "text/template"}:
@@ -203,14 +206,17 @@ class ReportParser(HTMLParser):
 
 
 def _parser_failures(parser: ReportParser) -> list[str]:
+    preset = parser.html_attrs.get("data-preset", "")
     checks = (
         (parser.doctype, "missing <!DOCTYPE html>"),
         (parser.meta_charset, 'missing <meta charset="utf-8">'),
         (parser.meta_viewport, "missing viewport meta with width=device-width"),
         (bool(parser.html_attrs.get("lang")), "missing <html lang>"),
-        (parser.html_attrs.get("data-preset") == "dossier", "default data-preset must be dossier"),
+        (preset in PRESETS, f"data-preset must be one of {PRESETS}, found '{preset}'"),
         (bool(parser.html_attrs.get("data-theme")), "missing data-theme on <html>"),
-        (parser.has_copy_summary, "missing Copy Summary control"),
+        (parser.has_theme_toggle, 'missing id="theme-toggle" control'),
+        (parser.has_font_stylesheet, "missing Google Fonts stylesheet link"),
+        (not parser.preset_switches, f"preset switcher is not allowed: {parser.preset_switches}"),
         (parser.h1_count == 1, f"expected one <h1>, found {parser.h1_count}"),
         (not parser.heading_jumps, f"heading level jumps: {parser.heading_jumps}"),
         (not parser.duplicate_ids, f"duplicate ids: {sorted(parser.duplicate_ids)}"),
@@ -226,35 +232,41 @@ def _parser_failures(parser: ReportParser) -> list[str]:
             not parser.buttons_without_type,
             f"buttons without type=button: {parser.buttons_without_type}",
         ),
-        (
-            set(PRESETS) <= parser.preset_buttons,
-            f"missing preset button: {sorted(set(PRESETS) - parser.preset_buttons)}",
-        ),
     )
     return [message for passed, message in checks if not passed]
+
+
+def _preset_values(text: str) -> set[str]:
+    return set(re.findall(r'data-preset="([^"]+)"', text))
+
+
+def _external_css_urls(text: str) -> list[str]:
+    pattern = r"(?:url\(|@import\s+(?:url\()?)['\"]?(https?://[^)'\";]+)"
+    return [url for url in re.findall(pattern, text, re.IGNORECASE) if not url.startswith(FONT_HOSTS)]
 
 
 def _text_failures(text: str) -> list[str]:
     lowered = text.lower()
     failures = [f"missing CSS marker: {marker}" for marker in CSS_MARKERS if marker not in lowered]
-    failures += [
-        f"missing preset token: {preset}"
-        for preset in PRESETS
-        if f'data-preset="{preset}"' not in text
-    ]
+    presets = _preset_values(text)
+    if len(presets) > 1:
+        failures.append(f"multiple preset blocks: {sorted(presets)}")
+    elif presets - set(PRESETS):
+        failures.append(f"unknown preset: {sorted(presets - set(PRESETS))}")
     failures += [
         f"missing theme selector: {theme}"
         for theme in ("light", "dark")
         if f'data-theme="{theme}"' not in text
     ]
+    if "fonts.googleapis.com" not in lowered:
+        failures.append("missing fonts.googleapis.com link")
+    if "display=swap" not in lowered:
+        failures.append("missing display=swap on the font stylesheet")
     if "cdn.tailwindcss.com" in lowered:
         failures.append("Tailwind CDN is not allowed")
     if "replace_with" in lowered:
         failures.append("unresolved REPLACE_WITH placeholder")
-    if re.search(r"url\(\s*['\"]?https?://", text, re.IGNORECASE):
-        failures.append("external CSS url() is not allowed")
-    if re.search(r"@import\s+(url\()?['\"]?https?://", text, re.IGNORECASE):
-        failures.append("external CSS @import is not allowed")
+    failures += [f"external CSS request is not allowed: {url[:80]}" for url in _external_css_urls(text)]
     return failures
 
 
@@ -274,6 +286,12 @@ def validate(path: Path) -> list[str]:
     failures = _parser_failures(parser) + _text_failures(text)
     if parser.has_details and "details:not([open])" not in text.lower():
         failures.append("details present but print CSS does not expand closed details")
+    if parser.has_chart:
+        failures += [
+            f"chart interaction marker missing: {marker}"
+            for marker in CHART_MARKERS
+            if marker not in text.lower()
+        ]
     return failures
 
 
