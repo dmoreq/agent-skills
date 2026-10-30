@@ -62,6 +62,7 @@ repository's `AGENTS.md`, not here.
 
 ## 3. Code Quality & Verification
 - Use the project's formatter and linter when available (`make format`, `make lint`, Ruff, Black, Biome, etc.).
+- **Acceptance Criteria First**: Before implementing, state the checkable acceptance criterion (a reproducing test, a passing command). Transform vague tasks into verifiable goals. For multi-step work, plan one verify check per step. Weak criteria ("make it work") force clarification loops.
 - **Targeted Test Execution & Parallelism**:
   - Run *targeted* tests for modified modules/functions during iteration (`pytest path/to/test.py -k test_name`, `cargo test test_name`).
   - Prioritize running pytest with 4 workers (`pytest -n 4` via `pytest-xdist`) to accelerate execution.
