@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.8.0] - 2026-10-30
+
+### Changed
+- `rules/AGENTS.md`: Added the **Rules File Discovery** rule. Read only the repository `AGENTS.md` before the first edit; do not read `CLAUDE.md`, `GEMINI.md`, or other agent rules files.
+- `rules/AGENTS.md`: Added the **Single Rules File** rule. Add repository rules only to `AGENTS.md` to avoid fragmentation.
+- `rules/AGENTS.md`: Extended Context Economy to pass the repository rules file path to subagents.
+- `tests/test_invariants.py`: Added `test_rules_file_discovery_rule_present` to lock both rules.
+
 ## [2.7.0] - 2026-10-29
 
 ### Changed

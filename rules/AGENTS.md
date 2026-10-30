@@ -1,7 +1,7 @@
 # Global Agent Rules
 
 These rules apply to every workspace. Stack-specific conventions live in the
-repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
+repository's `AGENTS.md`, not here.
 
 ## 1. Working Style & Communication (Always On)
 - **Tone & Formatting**: Objective, rigorous engineering tone. Zero emojis, zero conversational fluff/filler, no Unicode sparklines (` ▂▃▄▅`) or character bars (`▏▎▍▌`). Prefer structured bullet points over paragraphs. Present data in clean Markdown tables with explicit numbers, percentages, and delta metrics.
@@ -26,7 +26,7 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
 - **Subagent & Parallel Execution Discipline**:
   - **Delegation Threshold**: Handle localized, linear, or small tasks (< ~100 lines) directly in the main thread. Delegate to subagents only when work is non-trivial, modular, or benefits from parallel execution / broad context isolation.
   - **Planning & Decomposition**: In the planning phase, decompose work into decoupled streams along clean architectural boundaries (distinct files/modules). Avoid micro-tasking to prevent merge contention and context overhead.
-  - **Context Economy**: Supply subagents with strictly minimal context: isolated task spec, target file paths, and explicit acceptance criteria. Never dump conversation transcripts.
+  - **Context Economy**: Supply subagents with strictly minimal context: isolated task spec, target file paths, the repository rules file path, and explicit acceptance criteria. Never dump conversation transcripts.
   - **Task-Skill Handoff**: Before spawning a subagent, resolve the skill that owns the delegated task domain. Pass the skill name and `SKILL.md` path, or use the host's automatic skill loading. Never paste the full skill body. The subagent must follow that skill's gates and references. When a task spans domains, pass at most the 2-3 skills that own the primary decisions.
   - **Peer-Review Gate**:
     - Non-trivial subagent deliverables (code diffs, architecture, decisions) require an independent peer-review before acceptance.
@@ -36,6 +36,8 @@ repository (`.agents/rules/`, `GEMINI.md`, `AGENTS.md`), not here.
     - Reconcile and resolve all Critical and Important findings before declaring completion.
 
 ## 2. Project Behavior & Constraints
+- **Rules File Discovery**: Before the first edit in a repository, locate and read its `AGENTS.md`. Treat the conventions it states as binding for that repository. Do not read `CLAUDE.md`, `GEMINI.md`, or other agent rules files.
+- **Single Rules File**: Add repository rules only to `AGENTS.md` to avoid fragmentation. Never create or extend `CLAUDE.md`, `GEMINI.md`, or other rules files.
 - **Conventions**: Strictly match the existing naming conventions, folder layout, error-handling patterns, and tech stack.
 - **Constraints**: Respect stated constraints. Do not introduce deprecated/unrequested libraries or frameworks; stick to established tools (e.g., keep Polars instead of Pandas, respect repo SQL dialect).
 - **Code Generation Ladder (YAGNI & Minimalism First)**:
