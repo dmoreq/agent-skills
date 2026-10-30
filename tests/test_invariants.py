@@ -886,3 +886,11 @@ def test_dispatch_contracts_include_skill_context():
         content = path.read_text(encoding="utf-8")
         assert "Skill context:" in content, f"{path} is missing the Skill context handoff"
         assert "SKILL.md" in content, f"{path} must name the SKILL.md path"
+
+
+def test_rules_file_discovery_rule_present():
+    """The global rules require reading AGENTS.md and writing rules only to AGENTS.md."""
+    rules = RULES_FILE.read_text(encoding="utf-8")
+    assert "Rules File Discovery" in rules, "rules/AGENTS.md is missing the Rules File Discovery rule"
+    assert "Single Rules File" in rules, "rules/AGENTS.md is missing the Single Rules File rule"
+    assert "repository rules file path" in rules, "Context Economy must pass the rules file path to subagents"
