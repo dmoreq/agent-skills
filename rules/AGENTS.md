@@ -16,6 +16,7 @@ repository's `AGENTS.md`, not here.
   - Prefer action (tool calls, reading files, running commands) over long descriptions of planned steps.
   - Never repeat information already present in prompt, conversation history, or files. Do not mirror user phrasing.
   - Provide code or diffs directly. Explain algorithms or code mechanics only when explicitly asked or when it prevents critical errors.
+  - Think in code: when raw output is intermediate data, process it with a script and print only the derived result. Do not stream bulk file or command output into context to compute an aggregate.
 - **Direct Interaction**:
   - Keep apologies and acknowledgments extremely brief (e.g., "Thanks for the correction — here's the fix:"). Zero defensive explanations or groveling.
   - Ask for missing information directly; never ask for permission to ask.
