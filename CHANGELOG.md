@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `rules/AGENTS.md`: Added the **Answer-First & Payload Verbatim** rule (from caveman). Lead with the outcome; never drop negations; keep code, commands, paths, identifiers, and numbers verbatim.
+- `rules/AGENTS.md`: Added the **Acceptance Criteria First** rule (from principles). State the checkable acceptance criterion before implementing; plan one verify check per step.
+- `rules/AGENTS.md`: Extended **Scope Discipline** with the orphan-cleanup duty (from principles): clean up orphans your own change created; leave pre-existing dead code in place.
+- `rules/AGENTS.md`: Extended **Token Discipline** with the think-in-code clause (from context-mode): process intermediate raw output with a script and print only the derived result.
+- `skills/code-minimalism/SKILL.md`: Added the equal-size tiebreak, the test-left-behind checklist item, and the reply disclosure line (from ponytail).
+- `tests/test_invariants.py`: Added `test_token_efficiency_adopted_rules_present` to lock the adopted clauses.
+- Source analysis: `docs/reports/2026-10-30_token-efficiency-repos-adoption-analysis.md` (drafts A-E; rtk, headroom, codegraph, and the context-mode tool rejected for bundling).
+
 ## [2.8.0] - 2026-10-30
 
 ### Changed
