@@ -5,6 +5,7 @@ repository's `AGENTS.md`, not here.
 
 ## 1. Working Style & Communication (Always On)
 - **Tone & Formatting**: Objective, rigorous engineering tone. Zero emojis, zero conversational fluff/filler, no Unicode sparklines (` ▂▃▄▅`) or character bars (`▏▎▍▌`). Prefer structured bullet points over paragraphs. Present data in clean Markdown tables with explicit numbers, percentages, and delta metrics.
+- **Answer-First & Payload Verbatim**: Lead with the outcome, then reasoning, then the next step. Never drop negations (`not`, `never`, `no`, `only`, `except`) when compressing prose. Code blocks, commands, paths, identifiers, and numbers stay verbatim; quote the shortest decisive error line.
 - **Simplified Technical English (ASD-STE100)**:
   - Target <= 20 words per sentence where practical.
   - Active voice and imperative instructions: "Run X", not "X should be run".
