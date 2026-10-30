@@ -47,6 +47,8 @@ Follow the Code Generation Ladder defined in `rules/AGENTS.md` §2. In this skil
 | **Dependencies** | External package for simple task | Python stdlib (`pathlib`, `itertools`, `functools`) |
 | **Validation** | Custom metaclass validator | Standard assertions or schema at trust boundary |
 
+**Equal-size tiebreak**: between two options of equal size, take the one correct on edge cases.
+
 ## 2. Generalization & Bloat Audit Principles
 
 When auditing an existing module for bloat, duplicate dialect branches, or export sprawl (see `references/generalization-and-export-audits.md` for the full 10-step protocol):
@@ -85,3 +87,5 @@ When the artifact is a design or plan rather than code:
 - [ ] Zero single-implementation interfaces, speculative configs, or unrequested dependencies
 - [ ] Public outputs locked before collapsing duplicate branches or exports
 - [ ] Deliberate scaling shortcuts annotated with `# ponytail:` ceiling markers
+- [ ] New non-trivial logic (branch, loop, parser, money, security, new script) ships with one small test or assert-based self-check
+- [ ] Reply ends with one line: what was skipped or not checked, and the risk the user must know
