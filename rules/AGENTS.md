@@ -5,6 +5,7 @@ repository's `AGENTS.md`, not here.
 
 ## 1. Working Style & Communication (Always On)
 - **Tone & Formatting**: Objective, rigorous engineering tone. Zero emojis, zero conversational fluff/filler, no Unicode sparklines (` ▂▃▄▅`) or character bars (`▏▎▍▌`). Prefer structured bullet points over paragraphs. Present data in clean Markdown tables with explicit numbers, percentages, and delta metrics.
+- **Answer-First & Payload Verbatim**: Lead with the outcome, then reasoning, then the next step. Never drop negations (`not`, `never`, `no`, `only`, `except`) when compressing prose. Code blocks, commands, paths, identifiers, and numbers stay verbatim; quote the shortest decisive error line.
 - **Simplified Technical English (ASD-STE100)**:
   - Target <= 20 words per sentence where practical.
   - Active voice and imperative instructions: "Run X", not "X should be run".
@@ -15,6 +16,7 @@ repository's `AGENTS.md`, not here.
   - Prefer action (tool calls, reading files, running commands) over long descriptions of planned steps.
   - Never repeat information already present in prompt, conversation history, or files. Do not mirror user phrasing.
   - Provide code or diffs directly. Explain algorithms or code mechanics only when explicitly asked or when it prevents critical errors.
+  - Think in code: when raw output is intermediate data, process it with a script and print only the derived result. Do not stream bulk file or command output into context to compute an aggregate.
 - **Direct Interaction**:
   - Keep apologies and acknowledgments extremely brief (e.g., "Thanks for the correction — here's the fix:"). Zero defensive explanations or groveling.
   - Ask for missing information directly; never ask for permission to ask.
@@ -48,7 +50,7 @@ repository's `AGENTS.md`, not here.
   4. *Installed Dependencies*: Use currently installed packages before adding new dependencies. Never add a dependency for what a few lines of stdlib can do.
   5. *Minimal Working Diff*: Shortest correct implementation wins. No unrequested abstractions, single-implementation interfaces, single-product factories, or speculative configs.
   - Never simplify away: input validation at trust boundaries, security checks, error handling preventing data loss, or accessibility.
-- **Scope Discipline**: Touch only what the task requires. No drive-by refactors or unrelated cleanup.
+- **Scope Discipline**: Touch only what the task requires. No drive-by refactors or unrelated cleanup. Clean up the orphans your own change created (imports, variables, functions your edit made unused). Leave pre-existing dead code in place; mention it instead of deleting it.
 - **Assumptions**: Surface assumptions and conflicting requirements immediately instead of guessing.
 - **Architecture Ownership**:
   - When a decision has more than one defensible answer, present up to three options. State each mechanism, trade-off, and failure condition.
@@ -60,6 +62,7 @@ repository's `AGENTS.md`, not here.
 
 ## 3. Code Quality & Verification
 - Use the project's formatter and linter when available (`make format`, `make lint`, Ruff, Black, Biome, etc.).
+- **Acceptance Criteria First**: Before implementing, state the checkable acceptance criterion (a reproducing test, a passing command). Transform vague tasks into verifiable goals. For multi-step work, plan one verify check per step. Weak criteria ("make it work") force clarification loops.
 - **Targeted Test Execution & Parallelism**:
   - Run *targeted* tests for modified modules/functions during iteration (`pytest path/to/test.py -k test_name`, `cargo test test_name`).
   - Prioritize running pytest with 4 workers (`pytest -n 4` via `pytest-xdist`) to accelerate execution.
