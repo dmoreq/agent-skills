@@ -48,7 +48,7 @@ repository's `AGENTS.md`, not here.
   4. *Installed Dependencies*: Use currently installed packages before adding new dependencies. Never add a dependency for what a few lines of stdlib can do.
   5. *Minimal Working Diff*: Shortest correct implementation wins. No unrequested abstractions, single-implementation interfaces, single-product factories, or speculative configs.
   - Never simplify away: input validation at trust boundaries, security checks, error handling preventing data loss, or accessibility.
-- **Scope Discipline**: Touch only what the task requires. No drive-by refactors or unrelated cleanup.
+- **Scope Discipline**: Touch only what the task requires. No drive-by refactors or unrelated cleanup. Clean up the orphans your own change created (imports, variables, functions your edit made unused). Leave pre-existing dead code in place; mention it instead of deleting it.
 - **Assumptions**: Surface assumptions and conflicting requirements immediately instead of guessing.
 - **Architecture Ownership**:
   - When a decision has more than one defensible answer, present up to three options. State each mechanism, trade-off, and failure condition.
